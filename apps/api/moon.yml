@@ -69,3 +69,8 @@ tasks:
     command: 'pnpm db:migrate:remote'
     options:
       runInCI: false
+
+  db-seed-local:
+    command: 'pnpm db:seed:local'
+    options:
+      runInCI: false
