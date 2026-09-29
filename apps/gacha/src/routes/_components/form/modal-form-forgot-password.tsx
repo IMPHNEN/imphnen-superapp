@@ -1,11 +1,12 @@
 import { Button } from '@imphnen-frontend-service/ui/atoms';
-import {
-  InputField,
-  Modal,
-  Stepper,
-} from '@imphnen-frontend-service/ui/molecules';
+import { Modal, Stepper } from '@imphnen-frontend-service/ui/molecules';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { useQueryState } from '@imphnen-frontend-service/utils';
-import { Fragment } from 'react/jsx-runtime';
+import type { ReactElement } from 'react';
+import { useForgotPasswordRequest } from '../../_hooks/use-password-reset';
+
+const TOTAL_STEPS = 2;
+
 interface IModalFormForgotPasswordProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,133 +15,97 @@ interface IModalFormForgotPasswordProps {
 const ModalFormForgotPassword = ({
   isOpen,
   onClose,
-}: IModalFormForgotPasswordProps) => {
+}: IModalFormForgotPasswordProps): ReactElement => {
   const {
     step: currentStep,
     nextStep,
-    prevStep,
     resetStep,
   } = useQueryState('step', {
     defaultValue: 1,
-    maxValue: 3,
+    maxValue: TOTAL_STEPS,
     minValue: 1,
   });
+
+  const close = (): void => {
+    onClose();
+    resetStep();
+  };
 
   return (
     <Modal
       className="py-[45px] min-w-[400px] lg:min-w-[455px] px-7"
       isOpen={isOpen}
-      onClose={() => {
-        onClose();
-        resetStep();
-      }}
+      onClose={close}
     >
       <Modal.Header className="space-y-4">
         <img src="/logos/logo.svg" alt="" className="h-[70px] w-auto" />
         <h1 className="text-primary-500 text-p1 text-center font-semibold">
           Forgot Password
         </h1>
-        <Stepper currentStep={currentStep} totalSteps={3} />
+        <Stepper currentStep={currentStep} totalSteps={TOTAL_STEPS} />
       </Modal.Header>
       <Modal.Content className="space-y-6">
-        {currentStep === 1 && <StepOne nextStep={nextStep} onClose={onClose} />}
-        {currentStep === 2 && (
-          <StepTwo nextStep={nextStep} prevStep={prevStep} />
-        )}
-        {currentStep === 3 && (
-          <StepThree onClose={onClose} resetStep={resetStep} />
-        )}
+        {currentStep === 1 && <StepEmail onSent={nextStep} onClose={close} />}
+        {currentStep === 2 && <StepSent onClose={close} />}
       </Modal.Content>
     </Modal>
   );
 };
 
-interface IStepOneProps {
-  nextStep: () => void;
+interface IStepEmailProps {
+  onSent: () => void;
   onClose: () => void;
 }
 
-const StepOne = ({ nextStep, onClose }: IStepOneProps) => (
-  <>
-    <InputField
-      label="Email"
-      placeholder="Masukkan Email yang Terdaftar"
-      type="email"
-      size="lg"
-      className="w-full"
-    />
-    <div className="flex gap-6">
-      <Button variant="bordered" size="md" className="w-full" onClick={onClose}>
-        Back To Login
-      </Button>
-      <Button size="md" className="w-full" onClick={nextStep}>
-        Kirim OTP
-      </Button>
-    </div>
-  </>
-);
+const StepEmail = ({ onSent, onClose }: IStepEmailProps): ReactElement => {
+  const { form, onSubmit, isPending } = useForgotPasswordRequest(onSent);
 
-interface IStepTwoProps {
-  nextStep: () => void;
-  prevStep: () => void;
-}
-
-const StepTwo = ({ nextStep, prevStep }: IStepTwoProps) => (
-  <Fragment>
-    <InputField
-      label="Kode OTP"
-      placeholder="Masukkan Kode OTP"
-      type="text"
-      size="lg"
-      className="w-full"
-    />
-    <div className="flex gap-6">
-      <Button
-        size="md"
-        variant="bordered"
+  return (
+    <form onSubmit={onSubmit} className="space-y-6">
+      <ControlledInputField
+        control={form.control}
+        name="email"
+        label="Email"
+        placeholder="Masukkan Email yang Terdaftar"
+        type="email"
+        size="lg"
         className="w-full"
-        onClick={prevStep}
-      >
-        Change Email
-      </Button>
-      <Button size="md" className="w-full" onClick={nextStep}>
-        Reset Password
-      </Button>
-    </div>
-  </Fragment>
-);
+      />
+      <div className="flex gap-6">
+        <Button
+          type="button"
+          variant="bordered"
+          size="md"
+          className="w-full"
+          onClick={onClose}
+        >
+          Back To Login
+        </Button>
+        <Button
+          type="submit"
+          size="md"
+          className="w-full"
+          disabled={isPending || !form.formState.isValid}
+        >
+          {isPending ? 'Mengirim...' : 'Kirim Link Reset'}
+        </Button>
+      </div>
+    </form>
+  );
+};
 
-interface IStepThreeProps {
+interface IStepSentProps {
   onClose: () => void;
-  resetStep: () => void;
 }
 
-const StepThree = ({ onClose, resetStep }: IStepThreeProps) => (
+const StepSent = ({ onClose }: IStepSentProps): ReactElement => (
   <>
-    <InputField
-      label="Password Baru"
-      placeholder="Masukkan Password Baru"
-      type="password"
-      size="lg"
-      className="w-full"
-    />
-    <InputField
-      label="Ulang Password"
-      placeholder="Masukkan Ulang Password"
-      type="password"
-      size="lg"
-      className="w-full"
-    />
-    <Button
-      size="md"
-      className="w-full"
-      onClick={() => {
-        console.log('Password reset submitted');
-        onClose();
-        resetStep();
-      }}
-    >
-      Buat Password Baru
+    <p className="text-neutral-500 text-center">
+      Jika email terdaftar, link untuk membuat password baru sudah dikirim. Buka
+      email kamu dan ikuti link tersebut.
+    </p>
+    <Button type="button" size="md" className="w-full" onClick={onClose}>
+      Back To Login
     </Button>
   </>
 );
