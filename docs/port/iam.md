@@ -905,3 +905,147 @@ Data / behaviour oddities:
 22. The production CSP references placeholder hosts (`trusted-cdn.com`, `images.example.com`, `api.example.com`) and a non-existent `report-uri`. It is harmless for a JSON API, but don't copy it blindly.
 23. The Google OAuth env default redirect is `http://localhost:8000/api/v1/auth/google/callback` (an `/api` prefix no route uses). The frontend expects `/v1/auth/google/{login,callback}` (no `/iam`). The final OAuth URL layout is an open question for the port, and so are GitHub vs Google and which apps use which.
 24. `FE_URL` is a single value but reset links are needed by several apps (hackathon, qrcampaign). (Open question: take a `redirect_url`/app hint in `/auth/forgot`, validated against the CORS allow-list?)
+
+---
+
+## Migration mapping (TS port)
+
+Target: D1 (SQLite) through Drizzle, tables in `apps/api/src/platform/db/tables/{auth,custom-role,profile}.ts`. Timestamps are integer epoch **milliseconds** (`timestamptz` -> `extract(epoch from x) * 1000`, rounded down). Booleans are `0`/`1`. JSON columns are TEXT holding JSON. UUID ids are kept verbatim (lowercase text).
+
+### M.1 `app_users` -> `user` (+ `account`, `user_profile`)
+
+Only rows of `app_users` are migrated (including soft-deleted ones, so ids referenced by other domains stay valid).
+
+| Old column | New table.column | Transform |
+|---|---|---|
+| id | user.id | verbatim |
+| email | user.email | `lower(trim(email))`. better-auth looks emails up lowercased. Before migrating, run `SELECT lower(email), count(*) FROM app_users GROUP BY 1 HAVING count(*) > 1`; any hit must be merged by hand (the migration aborts on the UNIQUE violation). |
+| password_hash | account.password | verbatim Argon2id PHC string. One `account` row per user: `id = gen_random_uuid()`, `account_id = app_users.id`, `provider_id = 'credential'`, `user_id = app_users.id`, `created_at`/`updated_at` = the user's. Access/refresh/id token columns NULL. Rows whose hash is empty get no account row. |
+| username | dropped | always equal to `email` (spec §1.1) |
+| role_id | user.role | role key from M.3 (join `app_roles` on id). NULL role_id, a role_id with no row, or a soft-deleted role -> `'user'`. |
+| first_name, last_name | user.name | `trim(coalesce(first_name,'') || ' ' || coalesce(last_name,''))`; if that is empty, the part of the email before `@` (`name` is NOT NULL) |
+| avatar_url | user.image | verbatim URL (legacy MinIO/CDN URLs keep working as long as the CDN stays up). `user_profile.avatar_key` stays NULL for migrated users, since the object is not in R2. |
+| is_verified, is_active | user.email_verified, user.is_active | `email_verified = is_active OR is_verified`. `is_active = NOT (is_verified AND NOT is_active)`, i.e. a user becomes inactive only when the row was explicitly verified and then disabled. Every other `is_active = false` row (never finished the OTP flow, which is how Rust stored "unverified") becomes `is_active = 1, email_verified = 0`: the user must verify by OTP on the next sign-in. Soft-deleted rows always get `is_active = 0`. See open question Q1. |
+| metadata | user_profile.* | one `user_profile` row per user with `user_id = app_users.id`. JSON keys map snake_case -> column: `phone_number`->phone_number, `phone_for_verification`->phone_for_verification, `gender`, `birthdate`, `domicile`, `bio`, `last_education`, `linkedin_url`, `github_url`, `cv_url`, `portfolio_url`, `website_url`, `twitter_url`, `location`, `career_status` (text, JSON null or missing -> NULL); `skills` -> skills (JSON array of strings, null -> `[]`); `experience` -> experience (JSON array of `{id,company,position,duration,period}`, null -> `[]`); `education` -> education (JSON array of `{id,institution,degree,field,period}`, null -> `[]`). If `metadata` is NULL, or fails the Rust shape (an item missing one of its string fields, so Rust treated the whole extension as absent), insert the row with every text column NULL and the arrays `[]`, and log the user id. |
+| created_at | user.created_at, user_profile.created_at | epoch ms |
+| updated_at | user.updated_at, user_profile.updated_at | epoch ms |
+| deleted_at | user.deleted_at | epoch ms or NULL |
+
+### M.2 `app_permissions` -> dropped (catalog is code)
+
+The catalog is `packages/permissions/src/catalog/*.ts`; nothing is stored. Each legacy permission, by display name and fixed id (both forms can appear in `app_roles.permissions`), maps to these keys:
+
+| # | Legacy name | Legacy id | New key(s) |
+|---|---|---|---|
+| 1 | Read List Users | 7c15e31d-36e2-49f9-97db-138c03fb0cf6 | `user:read` |
+| 2 | Read Detail Users | 319ee593-ff0a-4f29-bbaf-9feb3174a3a6 | `user:read` |
+| 3 | Create Users | 023e2dfe-93c3-4008-94a8-b5dff403f73b | `user:create` |
+| 4 | Delete Users | 96df0689-2ae9-4894-bf00-837c19415e5c | `user:delete` |
+| 5 | Update Users | 98b3dc4c-0124-461f-afcd-166637c5e6e8 | `user:update` |
+| 6 | Activate Users | 4da8b434-89f9-4d91-85ae-eebd63cdbeda | `user:activate` |
+| 7 | Read List Roles | 9164ca6e-c7e3-4238-a15f-f36ab9577e7e | `role:read` |
+| 8 | Read Detail Roles | 73888d18-b3e9-4f62-95a5-ba2c0d69fccb | `role:read` |
+| 9 | Create Roles | 319ee593-ff0a-4f29-bbaf-9feb3174a3a2 | `role:create` |
+| 10 | Delete Roles | 35b0d992-65c8-4b62-b030-e6e0320e4048 | `role:delete` |
+| 11 | Update Roles | a00d5608-4c48-4542-845c-dfe004687022 | `role:update` |
+| 12 | Read List Permissions | 8195eeb8-e64f-4172-aa57-596492c84a72 | `role:read` (`permission.list` is guarded by it) |
+| 13 | Read Detail Permissions | dad435cf-042c-41bd-a946-cea61ed2ffbc | `role:read` |
+| 14 | Create Permissions | 0269ed71-0ae0-4c43-ad29-e3d861d8f9a0 | dropped (permission CRUD is gone) |
+| 15 | Delete Permissions | b2dc3928-86ba-4c59-a03d-0b57d5183ebc | dropped |
+| 16 | Update Permissions | 299cb4d5-6556-4cc9-b6c1-32e6d31e0f9b | dropped |
+| 17 | Manage All Users | d0e1f2a3-4567-8901-2345-0123456789ab | `user:create`, `user:read`, `user:update`, `user:delete`, `user:activate` |
+| 18 | Manage All Roles | e1f2a3b4-5678-9012-3456-1234567890ab | `role:create`, `role:read`, `role:update`, `role:delete` |
+| 19 | Manage All Permissions | f2a3b4c5-6789-0123-4567-2345678901ab | `role:read` |
+| 20 | View All Sensitive Data | b4c5d6e7-8901-2345-6789-4567890123ab | dropped (never checked by any route) |
+| 21 | Access Admin Dashboard | c5d6e7f8-9012-3456-7890-5678901234ab | dropped (never checked by any route) |
+| 22 | Administrator | d6e7f8a9-0123-4567-8901-6789012345ab | not a key: a role holding it becomes the fixed role `admin` (M.3) |
+| 23 | Create Gacha Claims | f41d53ce-4f88-4bb6-b9b4-5e3a8c38d962 | `gacha:roll` (a claim is created from the member's own roll in the gacha port) |
+| 24 | Read Detail Gacha Claims | c1c3d6c2-19fb-4b70-b58c-c19f2e8cfc79 | `gacha-claim:read` |
+| 25 | Read List Gacha Items | fa6eb842-0a61-40c2-9c24-b226ad975037 | `gacha-item:read` |
+| 26 | Read Detail Gacha Items | 9c7857d7-b5ae-4688-923d-ef5572e9bc8b | `gacha-item:read` |
+| 27 | Create Gacha Items | cf063be1-4d71-489e-b9fb-1c08c65f396c | `gacha-item:create` |
+| 28 | Delete Gacha Items | 46f8c6cf-ea0c-4c90-860c-69e2e65f7eb1 | `gacha-item:delete` |
+| 29 | Update Gacha Items | 2d0cf4ae-56ae-4714-a12e-655cfc3d9eb2 | `gacha-item:update` |
+| 30 | Read Detail Gacha Rolls | 53d6483a-04cd-4667-8792-2d0cc8e2d343 | `gacha:roll` |
+| 31 | Create Gacha Rolls | 18e36c63-fcb7-4877-b911-c5aa611e878f | `gacha:roll` |
+| 32 | Execute Gacha Rolls | 14c6a1cd-5c63-4643-89b5-b1a5f9920cc0 | `gacha:roll` |
+| 33 | Delete Gacha Rolls | 12345678-ABCD-EFAB-CDEF-0123456789AB (uppercase, compare exactly) | dropped (never seeded, admin-only in practice; admins hold every key) |
+| 34 | Read List Mentors | a1b2c3d4-5e6f-7890-abcd-ef1234567890 | `mentor:read` |
+| 35 | Read Detail Mentors | b2c3d4e5-6f78-9012-bcde-f23456789012 | `mentor:read` |
+| 36 | Register Mentors | c3d4e5f6-7890-1234-cdef-345678901234 | `mentor:register` |
+| 37 | Read Own Mentor Profile | d4e5f6a7-8901-2345-def0-456789012345 | `mentor-profile:read` |
+| 38 | Update Own Mentor Profile | e5f6a7b8-9012-3456-ef01-567890123456 | `mentor-profile:update` |
+| 39 | Read Own Mentor Status | f6a7b8c9-0123-4567-f012-678901234567 | `mentor-profile:read` |
+| 40 | Update Mentors | a7b8c9d0-1234-5678-0123-789012345678 | `mentor:update` |
+| 41 | Verify Mentors | b8c9d0e1-2345-6789-1234-890123456789 | `mentor:verify` |
+| 42 | Delete Mentors | c9d0e1f2-3456-7890-2345-901234567890 | `mentor:delete` |
+
+### M.3 `app_roles` -> fixed role key or `custom_role`
+
+Seeded roles:
+
+| Legacy id | Legacy name | New role | Permission keys |
+|---|---|---|---|
+| f6b03f25-e416-4893-ac88-caaa690afb07 | Admin | fixed `admin` | code (`ROLE_PERMISSIONS.admin`, the whole catalog) |
+| 3b9f8c4e-6a2d-4f8a-9a12-2d6f8b3c4e5a | Mentor | fixed `mentor` | code |
+| 5713cb37-dc02-4e87-8048-d7a41d352059 | User | fixed `user` | code (no longer includes `user:read`, fixing §8.4) |
+| 50133429-f4b1-4249-9f97-7b86e6ee9d86 | Staf | custom: key `staf`, label `Staf`, description NULL | `user:read`, `user:activate`, `role:read`, `mentor:read`, `gacha-item:read`, `gacha:roll` |
+| 60f1aeb7-dad2-4e06-bcb5-be1ba510c906 | Staff Aktivasi User | custom: key `staff-aktivasi-user`, label `Staff Aktivasi User`, description NULL | `user:activate` (see Q3) |
+| 6d4fea5d-4a08-4b8a-9782-f2ab2183dcf0 | Admin Pembayaran | custom: key `admin-pembayaran`, label `Admin Pembayaran`, description NULL | none |
+
+Custom role rows: `custom_role.id = app_roles.id`, `created_by = NULL`, `created_at`/`updated_at` epoch ms. `is_system_role` and `is_default` are dropped (fixed roles live in code; `is_default` was never read).
+
+Any other (API-created) role, in this order:
+1. Skip rows with `deleted_at IS NOT NULL`; their users get `user` (M.1).
+2. Resolve every string in `permissions` (JSON array; NULL = `[]`): exact, case-sensitive match against the legacy **id** column of M.2, else against the legacy **name**; each hit contributes its new keys. Strings matching neither are dropped and logged with the role id.
+3. If the role holds `Administrator` (name or id), it is not migrated as a custom role: its users get the fixed role `admin`.
+4. Else if `name` is exactly `Admin`, `Mentor` or `User` (the names Rust looked up), use `admin`, `mentor`, `user`.
+5. Else insert a custom role: `key` = `name` lowercased, accents stripped (NFKD), each run of characters outside `[a-z0-9]` replaced by `-`, leading/trailing `-` trimmed, cut to 50 characters; prefix `role-` if it does not start with a letter or is shorter than 2 characters; if it equals a fixed role key (`superadmin`, `admin`, `mentor`, `user`), the reserved key `create`, or a key already taken, append `-2`, `-3`, ... . `label` = `trim(name)` cut to 100 characters. `description` = `description`, with `''` -> NULL, cut to 500. `permissions` = the de-duplicated union from step 2, ordered as in the catalog.
+
+### M.4 Other tables
+
+| Old table | New | Notes |
+|---|---|---|
+| app_roles_permissions | dropped | never read or written (spec §1.4) |
+| app_audit_log | dropped | always empty; the new audit trail is `activity_log` |
+| app_rate_limit | dropped | transient; new `rate_limit` (better-auth, key/count/last_request) starts empty |
+| (none) | session, verification | start empty. Old JWTs are not accepted: every user signs in again (cookies). `ACCESS_TOKEN_SECRET` / `REFRESH_TOKEN_SECRET` are no longer needed. |
+| (none) | user_profile | filled from `app_users.metadata` (M.1) |
+| app_mentors, sessions | see the Dimentorin spec | |
+
+## TS port decisions
+
+**Endpoints.** Account lifecycle is served by better-auth under `/api/auth/*` (all public by design, rate limited): `POST /sign-up/email` (role `user`, verification OTP mailed), `POST /email-otp/verify-email` (OTP checked: hashed at rest, 5 minutes, 5 attempts, single use; signs the user in), `POST /email-otp/send-verification-otp` (resend), `POST /sign-in/email` (login and mentor login; the frontend checks `role` from `me.get`), `POST /sign-out`, `GET /get-session` (session refresh is the cookie session's sliding expiry; the refresh endpoint is gone), `POST /request-password-reset` + `POST /reset-password` (link flow with `redirectTo` validated against the trusted origins, which fixes the single `FE_URL`, §8.24). OTP sign-in, OTP password reset and OTP email change are disabled (`disabledPaths`). oRPC procedures: `me.get` and `profile.get`, `profile.update`, `profile.avatarUpload` are session-only; every `user.*` and `role.*` procedure needs a permission; no new public oRPC procedure (only `health.check`).
+
+| Rust | TS |
+|---|---|
+| auth/login, auth/login-mentor | better-auth `sign-in/email` |
+| auth/register | `sign-up/email` |
+| auth/verify-email, auth/send-otp | `email-otp/verify-email`, `email-otp/send-verification-otp` |
+| auth/forgot, auth/new-password | `request-password-reset`, `reset-password` |
+| auth/refresh, (logout) | cookie session, `sign-out` |
+| users (list/detail/create/update/activate/delete) | `user.list/get/create/update/setActive/remove` (+ `user.resetPassword`) |
+| users/me, users/update/me, users/upload | `me.get`, `profile.get`, `profile.update`, `profile.avatarUpload` |
+| roles/* | `role.list/get/create/update/remove` |
+| permissions list/detail | `permission.list` (read-only, `role:read`) |
+| permissions create/update/delete | removed (catalog is code) |
+
+**Fixes.** OTP is stored and checked (§8.1). Reset tokens are single-use better-auth tokens, distinct from sessions (§8.2); sessions are revoked on reset. `profile.update` cannot touch role, active flag or email (§8.3). The `user` role no longer reads other users (§8.4). Inactive and soft-deleted users cannot create a session (`databaseHooks.session.create.before`) and an existing session of such a user resolves to anonymous; deactivation and soft delete remove the user's sessions in the same `db.batch` (§8.5). Deleted custom roles cannot grant anything (they are rows that no longer exist; a role in use cannot be deleted) (§8.6). Sessions are keyed by user id, not email (§8.7). Rate limiting is real: better-auth database storage in D1 (`rate_limit`, conditional updates), 100 requests per 60 s per IP and path, stricter built-in rules for sign-in/sign-up/reset/OTP send, 10 per 60 s for OTP verify, IP from `cf-connecting-ip` (§8.8). Password policy (8 to 128 characters, any characters) applies everywhere, including admin create/reset (§8.9). Mail is sent after the user row exists (§8.10). Role permissions are stored as catalog keys only (§8.12). Profile updates merge instead of replacing the whole extension (§8.16). Users list includes inactive users with an `isActive` filter (§8.18). Avatar uploads: JPEG, PNG, WebP only, 5 MiB, content checked by magic bytes, stored in R2 under `profile/avatar/<uuid>.<ext>`, the previous object is deleted (§8.19).
+
+**Legacy passwords.** `emailAndPassword.password.verify` checks `$argon2id$` PHC strings with `@noble/hashes/argon2` (pure JS, parameters taken from the hash; about 80 ms for m=19456, t=2 in Node) and uses better-auth's default scrypt verifier otherwise. `hash-wasm` was not used: Workers forbid compiling WebAssembly from bytes at runtime, which is how it loads. After a successful legacy verify the hash is replaced with a default scrypt hash by one conditional `UPDATE account SET password = ? WHERE provider_id = 'credential' AND password = <legacy hash>`; a failed upgrade is logged and does not fail the sign-in. New dependency: `@noble/hashes` (already in the tree through better-auth).
+
+**Behaviour changes.** Admin-created users are created verified (`emailVerified = true`) so they can sign in. `user.remove` is a soft delete (`deleted_at`, `is_active = false`); soft-deleted users are hidden from list/get and their email stays taken. Users cannot deactivate or delete themselves. `username`, `legal_name` (never stored) and `is_system_role`/`is_default` are gone.
+
+**Shared files touched (outside the module scaffold).** `packages/contract/src/route-paths.ts` (one line, `USER_ACTIVE`), `apps/api/src/bootstrap/router.test.ts` (the three `profile.*` procedures added to the session-only list). No new permission keys; `packages/permissions/src/roles.ts` unchanged.
+
+**Deliberate omissions.** `GET /users/me?include=hackathon,qr,mentor,sessions`: each domain exposes its own "mine" procedure. Google OAuth is configured when `GOOGLE_CLIENT_ID/SECRET` are set; GitHub OAuth is not added. CV/document upload (`users/upload` with PDF/DOC, used by the Dimentorin CV modal) is not ported: avatar only.
+
+**Open questions.**
+- Q1. Rust stored "email not verified" and "disabled by an admin" in the same `is_active = false`. M.1 treats those rows as unverified and active. Is there a list of users an admin deliberately disabled that should stay disabled? Mentor applicants (Dimentorin sets `is_active = false`) will be able to sign in after verifying their email; mentor approval must be gated on the mentor status instead.
+- Q2. Should legacy avatars and CVs be copied from MinIO into R2 (then `user.image` and `user_profile.cv_url` rewritten)?
+- Q3. `Staff Aktivasi User` had only `Activate Users`; the new backoffice needs `user:read` to find a user before activating. Grant it?
+- Q4. Where should CV uploads live (a `profile.cvUpload` for PDF/DOC up to 10 MiB, or Dimentorin)?
+- Q5. Case-insensitive duplicate emails, if the check in M.1 finds any.
+- Q6. GitHub OAuth for hackathon and qrcampaign: which apps, and which callback URL layout?
+
+**Local seed.** `pnpm --filter @app/api db:seed:local` (moon: `api:db-seed-local`) writes `apps/api/.wrangler/seed/seed-local.sql` with `scripts/seed-local.ts` and applies it with `wrangler d1 execute DB --local --file`. It upserts superadmin@, admin@, admin2@, mentor1@, mentor2@, user1@ to user3@ `imphnen.dev`, all verified and active, password from `SEED_PASSWORD` (default `password123`), hashed with better-auth's own `hashPassword`. Run it after the local migrations.
