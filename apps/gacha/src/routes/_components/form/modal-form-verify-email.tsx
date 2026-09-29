@@ -1,14 +1,18 @@
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Modal } from '@imphnen-frontend-service/ui/molecules';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import type { ReactElement } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
+import type { TFormSubmit, TVerifyEmailForm } from '../../_hooks/auth-schemas';
 
 interface IModalFormVerifyEmailProps {
   isOpen: boolean;
   onClose: () => void;
-  verifyForm: UseFormReturn<{ otp: string }, any>;
-  onVerifySubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  verifyForm: UseFormReturn<TVerifyEmailForm>;
+  onVerifySubmit: TFormSubmit;
+  onResend: () => void;
   isVerifying: boolean;
+  isResending: boolean;
   email?: string;
 }
 
@@ -17,9 +21,11 @@ const ModalFormVerifyEmail = ({
   onClose,
   verifyForm,
   onVerifySubmit,
+  onResend,
   isVerifying,
+  isResending,
   email,
-}: IModalFormVerifyEmailProps) => {
+}: IModalFormVerifyEmailProps): ReactElement => {
   return (
     <Modal
       className="py-[45px] min-w-[400px] lg:min-w-[455px] px-7"
@@ -53,6 +59,16 @@ const ModalFormVerifyEmail = ({
             disabled={isVerifying}
           >
             {isVerifying ? 'Memverifikasi...' : 'Verifikasi'}
+          </Button>
+          <Button
+            size="md"
+            variant="text"
+            className="w-full"
+            type="button"
+            onClick={onResend}
+            disabled={isResending}
+          >
+            {isResending ? 'Mengirim...' : 'Kirim Ulang Kode OTP'}
           </Button>
         </form>
       </Modal.Content>

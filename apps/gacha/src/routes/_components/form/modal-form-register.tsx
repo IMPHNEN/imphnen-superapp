@@ -3,13 +3,17 @@ import { Modal } from '@imphnen-frontend-service/ui/molecules';
 import { useRegister } from '../../_hooks/use-register';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import ModalFormVerifyEmail from './modal-form-verify-email';
+import type { ReactElement } from 'react';
 
 interface IModalFormRegisterProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ModalFormRegister = ({ isOpen, onClose }: IModalFormRegisterProps) => {
+const ModalFormRegister = ({
+  isOpen,
+  onClose,
+}: IModalFormRegisterProps): ReactElement => {
   const {
     form,
     verifyForm,
@@ -17,10 +21,12 @@ const ModalFormRegister = ({ isOpen, onClose }: IModalFormRegisterProps) => {
     onVerifySubmit,
     showVerifyModal,
     closeVerifyModal,
+    resendOtp,
     isVerifying,
+    isResending,
     isRegistering,
-    registeredEmail,
-  } = useRegister();
+    emailToVerify,
+  } = useRegister(onClose);
 
   return (
     <>
@@ -39,7 +45,7 @@ const ModalFormRegister = ({ isOpen, onClose }: IModalFormRegisterProps) => {
           <form onSubmit={onSubmit} className="space-y-6">
             <ControlledInputField
               control={form.control}
-              name="fullname"
+              name="name"
               label="Nama Lengkap"
               placeholder="Masukkan Nama Lengkap"
               type="text"
@@ -66,19 +72,10 @@ const ModalFormRegister = ({ isOpen, onClose }: IModalFormRegisterProps) => {
             />
             <ControlledInputField
               control={form.control}
-              name="confirm_password"
+              name="confirmPassword"
               label="Ulangi Password"
               placeholder="Masukkan Ulang Password"
               type="password"
-              size="lg"
-              className="w-full"
-            />
-            <ControlledInputField
-              control={form.control}
-              name="phone_number"
-              label="Nomor Telepon"
-              placeholder="Masukkan Nomor Telepon Aktif"
-              type="text"
               size="lg"
               className="w-full"
             />
@@ -99,8 +96,10 @@ const ModalFormRegister = ({ isOpen, onClose }: IModalFormRegisterProps) => {
         onClose={closeVerifyModal}
         verifyForm={verifyForm}
         onVerifySubmit={onVerifySubmit}
+        onResend={resendOtp}
         isVerifying={isVerifying}
-        email={registeredEmail}
+        isResending={isResending}
+        email={emailToVerify}
       />
     </>
   );

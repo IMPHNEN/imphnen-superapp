@@ -1,14 +1,8 @@
-import { useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import { Modal } from '@imphnen-frontend-service/ui/molecules';
 import { useLogin } from '../../_hooks/use-login';
-import {
-  authLoginSchema,
-  type TLoginRequest,
-} from '@imphnen-frontend-service/service';
 import ModalFormVerifyEmail from './modal-form-verify-email';
 import { Icon } from '@iconify/react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 interface IModalFormLogin {
   isOpen: boolean;
@@ -22,33 +16,25 @@ const ModalFormLogin = ({
   onClose,
   onForgotPassword,
   setIsOpenRegisterModal,
-}: IModalFormLogin) => {
+}: IModalFormLogin): ReactElement => {
   const {
-    onSubmit: originalOnSubmit,
+    form: {
+      register,
+      formState: { errors, isValid },
+    },
+    onSubmit,
     isLoading,
     showVerifyModal,
     verifyForm,
     onVerifySubmit,
     closeVerifyModal,
+    resendOtp,
     isVerifying,
+    isResending,
     emailToVerify,
-  } = useLogin();
+  } = useLogin(onClose);
 
   const [showPassword, setShowPassword] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<TLoginRequest>({
-    resolver: zodResolver(authLoginSchema),
-    mode: 'onChange',
-    defaultValues: { email: '', password: '' },
-  });
-
-  const onSubmit = handleSubmit(() => {
-    originalOnSubmit();
-  });
 
   return (
     <>
@@ -76,7 +62,8 @@ const ModalFormLogin = ({
               </label>
               <input
                 id="login-email"
-                type="text"
+                type="email"
+                autoComplete="email"
                 {...register('email')}
                 placeholder="your@email.com"
                 disabled={isLoading}
@@ -116,6 +103,9 @@ const ModalFormLogin = ({
                 />
                 <button
                   type="button"
+                  aria-label={
+                    showPassword ? 'Sembunyikan password' : 'Tampilkan password'
+                  }
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
@@ -161,7 +151,9 @@ const ModalFormLogin = ({
         onClose={closeVerifyModal}
         verifyForm={verifyForm}
         onVerifySubmit={onVerifySubmit}
+        onResend={resendOtp}
         isVerifying={isVerifying}
+        isResending={isResending}
         email={emailToVerify}
       />
     </>

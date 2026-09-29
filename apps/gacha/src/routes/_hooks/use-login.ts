@@ -1,76 +1,53 @@
-import { useForm } from 'react-hook-form';
-import {
-  authLoginSchema,
-  type TLoginRequest,
-  usePostLogin,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSignIn } from '@imphnen-frontend-service/service/session';
+import { type UseFormReturn, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useVerifyEmail } from './use-verify-email';
+import {
+  loginFormSchema,
+  type TLoginForm,
+  type TFormSubmit,
+} from './auth-schemas';
+import { type TVerifyEmail, useVerifyEmail } from './use-verify-email';
 
-export const useLogin = () => {
-  const form = useForm<TLoginRequest>({
-    resolver: zodResolver(authLoginSchema),
-    mode: 'all',
+const EMAIL_NOT_VERIFIED = /not verified/i;
+
+type TLogin = TVerifyEmail & {
+  form: UseFormReturn<TLoginForm>;
+  onSubmit: TFormSubmit;
+  isLoading: boolean;
+};
+
+export const useLogin = (onSignedIn: () => void): TLogin => {
+  const form = useForm<TLoginForm>({
+    resolver: zodResolver(loginFormSchema),
+    mode: 'onChange',
+    defaultValues: { email: '', password: '' },
   });
-
-  const { mutate, isPending } = usePostLogin();
-  const { setLoading, setSession, clearSession } = useAuthStore();
-
-  const {
-    openVerifyModal,
-    showVerifyModal,
-    verifyForm,
-    onVerifySubmit,
-    closeVerifyModal,
-    isVerifying,
-    emailToVerify,
-  } = useVerifyEmail();
+  const signIn = useSignIn();
+  const verifyEmail = useVerifyEmail(onSignedIn);
 
   const onSubmit = form.handleSubmit((data) => {
-    setLoading(true);
-    mutate(data, {
-      onSuccess: (response) => {
+    signIn.mutate(data, {
+      onSuccess: () => {
         toast.success('Login sukses');
-
-        if (response.data.token && response.data.user) {
-          setSession(response.data);
-        } else {
-          const { token, ...userData } = response.data;
-
-          const loginData = {
-            token,
-            userData,
-          };
-          setSession(loginData);
-        }
-
-        window.location.reload();
+        form.reset();
+        onSignedIn();
       },
       onError: (error) => {
-        const errorMessage = error?.response?.data?.message;
-
-        if (errorMessage === 'Account not active, please verify your email') {
+        if (EMAIL_NOT_VERIFIED.test(error.message)) {
           toast.error('Akun belum aktif, silakan verifikasi email Anda');
-          openVerifyModal(data.email);
-        } else {
-          toast.error(errorMessage ?? 'Terjadi Kesalahan yang tidak diketahui');
-          clearSession();
+          verifyEmail.openVerifyModal(data.email, true);
+          return;
         }
+        toast.error(error.message || 'Terjadi Kesalahan yang tidak diketahui');
       },
     });
   });
 
   return {
+    ...verifyEmail,
     form,
     onSubmit,
-    isLoading: isPending,
-    showVerifyModal,
-    verifyForm,
-    onVerifySubmit,
-    closeVerifyModal,
-    isVerifying,
-    emailToVerify,
+    isLoading: signIn.isPending,
   };
 };

@@ -1,56 +1,53 @@
-import { useForm } from 'react-hook-form';
-import {
-  authRegisterSchema,
-  type TRegisterRequest,
-  usePostRegister,
-} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSignUp } from '@imphnen-frontend-service/service/session';
+import { type UseFormReturn, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useVerifyEmail } from './use-verify-email';
+import {
+  registerFormSchema,
+  type TRegisterForm,
+  type TFormSubmit,
+} from './auth-schemas';
+import { type TVerifyEmail, useVerifyEmail } from './use-verify-email';
 
-export const useRegister = () => {
-  const postRegister = usePostRegister();
-  const {
-    verifyForm,
-    onVerifySubmit,
-    showVerifyModal,
-    openVerifyModal,
-    closeVerifyModal,
-    isVerifying,
-    emailToVerify,
-  } = useVerifyEmail();
+type TRegister = TVerifyEmail & {
+  form: UseFormReturn<TRegisterForm>;
+  onSubmit: TFormSubmit;
+  isRegistering: boolean;
+};
 
-  const form = useForm<TRegisterRequest>({
-    resolver: zodResolver(authRegisterSchema),
+export const useRegister = (onVerified: () => void): TRegister => {
+  const signUp = useSignUp();
+  const verifyEmail = useVerifyEmail(onVerified);
+
+  const form = useForm<TRegisterForm>({
+    resolver: zodResolver(registerFormSchema),
     mode: 'all',
     defaultValues: {
-      fullname: '',
+      name: '',
       email: '',
       password: '',
-      confirm_password: '',
-      phone_number: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = form.handleSubmit((data) => {
-    postRegister.mutate(data, {
-      onSuccess: () => {
-        toast.success('Registrasi sukses. Silakan verifikasi email Anda.');
-        openVerifyModal(data.email);
-      },
-      onError: (error) => toast.error(error.message || 'Registrasi gagal'),
-    });
+  const onSubmit = form.handleSubmit(({ name, email, password }) => {
+    signUp.mutate(
+      { name, email, password },
+      {
+        onSuccess: () => {
+          toast.success('Registrasi sukses. Silakan verifikasi email Anda.');
+          form.reset();
+          verifyEmail.openVerifyModal(email, false);
+        },
+        onError: (error) => toast.error(error.message || 'Registrasi gagal'),
+      }
+    );
   });
 
   return {
+    ...verifyEmail,
     form,
-    verifyForm,
     onSubmit,
-    onVerifySubmit,
-    showVerifyModal,
-    closeVerifyModal,
-    isVerifying,
-    isRegistering: postRegister.isPending,
-    registeredEmail: emailToVerify,
+    isRegistering: signUp.isPending,
   };
 };
