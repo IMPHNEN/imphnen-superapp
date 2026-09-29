@@ -1,6 +1,10 @@
 import { type FC, useEffect } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
-import { useMyTeams, useAuthStore } from '@imphnen-frontend-service/service';
+import {
+  useCurrentUser,
+  useSignOut,
+} from '@imphnen-frontend-service/service/session';
+import { useMyTeam } from '../hooks/use-teams';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useTheme } from './theme-provider';
@@ -21,13 +25,13 @@ interface SidebarProps {
 export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, clearSession } = useAuthStore();
-  const { data: teamsData } = useMyTeams();
+  const { me } = useCurrentUser();
+  const signOut = useSignOut();
+  const { data: myTeam } = useMyTeam();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  const user = session?.user;
-  const myTeams = teamsData?.data || [];
-  const hasTeam = myTeams.length > 0;
+  const user = me?.user;
+  const hasTeam = !!myTeam;
 
   useEffect(() => {
     if (onClose) {
@@ -36,10 +40,13 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    clearSession();
-    localStorage.clear();
-    toast.success('Logged out successfully');
-    navigate('/auth/login');
+    signOut.mutate(undefined, {
+      onSuccess: () => {
+        toast.success('Logged out successfully');
+        navigate({ to: '/auth/login' });
+      },
+      onError: (error) => toast.error(error.message || 'Failed to log out'),
+    });
   };
 
   const navItems: NavItem[] = [
@@ -51,9 +58,9 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
     },
     {
       name: 'My Teams',
-      path: '/teams/' + myTeams[0]?.id,
+      path: '/teams/' + myTeam?.id,
       icon: <Icon icon="heroicons:users" className="w-5 h-5" />,
-      show: myTeams.length > 0,
+      show: hasTeam,
     },
     {
       name: 'Browse Teams',
@@ -183,10 +190,10 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
 
       <div className="p-4 border-b dark:border-gray-800">
         <div className="flex items-center space-x-3">
-          {user?.avatar ? (
+          {user?.image ? (
             <img
-              src={user.avatar}
-              alt={user.fullname || 'User'}
+              src={user.image}
+              alt={user.name || 'User'}
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
@@ -201,7 +208,7 @@ export const Sidebar: FC<SidebarProps> = ({ isOpen = true, onClose }) => {
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {user?.fullname || user?.email?.split('@')[0] || 'User'}
+              {user?.name || user?.email?.split('@')[0] || 'User'}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
               {user?.email}

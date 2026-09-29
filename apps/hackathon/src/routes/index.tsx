@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Icon } from '@iconify/react';
 import { ThemeToggle } from '../components/theme-toggle';
-import { useAuthStore } from '@imphnen-frontend-service/service';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -14,8 +14,7 @@ function HomePage() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const { session } = useAuthStore();
-  const isAuthenticated = !!session?.token;
+  const { isAuthenticated } = useCurrentUser();
 
   const faqs = [
     {

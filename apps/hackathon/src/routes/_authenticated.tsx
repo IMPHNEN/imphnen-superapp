@@ -1,62 +1,76 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { PERMISSION } from '@app/permissions';
 import {
-  SessionToken,
-  SessionUser,
-  hackathonApi,
-} from '@imphnen-frontend-service/service';
-import { useState } from 'react';
+  SESSION_STATUS,
+  useCurrentUser,
+} from '@imphnen-frontend-service/service/session';
+import {
+  createFileRoute,
+  Navigate,
+  Outlet,
+  useLocation,
+} from '@tanstack/react-router';
+import { type ReactElement, type ReactNode, useState } from 'react';
 import { Sidebar } from '../components/sidebar';
-
-const onboardingCache = new Map<
-  string,
-  { hasLocation: boolean; timestamp: number }
->();
-const CACHE_DURATION = 5000;
+import { useParticipantMe } from '../hooks/use-participant';
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: async ({ location }) => {
-    const session = SessionToken.get();
-    if (!session?.token?.access_token) {
-      throw redirect({ to: '/auth/login' });
-    }
-
-    const user = SessionUser.get();
-    const pathname = location.pathname;
-
-    if (!pathname.startsWith('/onboarding')) {
-      const userId = user?.id;
-      if (!userId) {
-        throw redirect({ to: '/auth/login' });
-      }
-
-      const now = Date.now();
-      const cached = onboardingCache.get(userId);
-      let hasLocation = false;
-
-      if (cached && now - cached.timestamp < CACHE_DURATION) {
-        hasLocation = cached.hasLocation;
-      } else {
-        if (user?.location) {
-          hasLocation = true;
-        } else {
-          try {
-            const response = await hackathonApi.get('/users/me');
-            hasLocation = !!response.data?.data?.location;
-          } catch {
-            hasLocation = !!user?.location;
-          }
-        }
-
-        onboardingCache.set(userId, { hasLocation, timestamp: now });
-      }
-
-      if (!hasLocation) {
-        throw redirect({ to: '/onboarding/user' });
-      }
-    }
-  },
-  component: AuthenticatedLayout,
+  component: AuthenticatedGuard,
 });
+
+const FullPageSpinner = (): ReactElement => (
+  <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+  </div>
+);
+
+const FullPageMessage = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactElement => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950 p-4 text-center">
+    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      {title}
+    </h2>
+    <p className="text-gray-600 dark:text-gray-400">{children}</p>
+  </div>
+);
+
+function AuthenticatedGuard(): ReactElement {
+  const { status, can } = useCurrentUser();
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const isAuthenticated = status === SESSION_STATUS.AUTHENTICATED;
+  const canParticipate =
+    isAuthenticated && can(PERMISSION.HACKATHON_PARTICIPATE);
+  const participant = useParticipantMe(canParticipate);
+
+  if (status === SESSION_STATUS.LOADING) return <FullPageSpinner />;
+  if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
+  if (!canParticipate) {
+    return (
+      <FullPageMessage title="Access Denied">
+        Your account does not have access to the hackathon.
+      </FullPageMessage>
+    );
+  }
+  if (participant.isPending) return <FullPageSpinner />;
+  if (participant.isError) {
+    return (
+      <FullPageMessage title="Something went wrong">
+        {participant.error.message}
+      </FullPageMessage>
+    );
+  }
+
+  const isOnboarding = pathname.startsWith('/onboarding');
+  if (!participant.data.location && !isOnboarding) {
+    return <Navigate to="/onboarding/user" replace />;
+  }
+
+  return <AuthenticatedLayout />;
+}
 
 function AuthenticatedLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

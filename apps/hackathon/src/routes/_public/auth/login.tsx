@@ -1,92 +1,71 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
+import { createFileRoute, Navigate } from '@tanstack/react-router';
+import { useState } from 'react';
 import {
-  useGitHubAuth,
-  useLogin,
-  authLoginSchema,
-  type TLoginRequest,
-  SessionToken,
-} from '@imphnen-frontend-service/service';
-import { GithubOutlined } from '@ant-design/icons';
+  useCurrentUser,
+  useSignIn,
+} from '@imphnen-frontend-service/service/session';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 import { ThemeToggle } from '../../../components/theme-toggle';
+import { type TLoginForm, loginSchema } from '../../../lib/forms';
+import { VerifyEmailOtp } from './_components/verify-email-otp';
 
 export const Route = createFileRoute('/_public/auth/login')({
-  beforeLoad: () => {
-    const session = SessionToken.get();
-    if (session?.token?.access_token) {
-      throw redirect({ to: '/dashboard' });
-    }
-  },
   component: LoginPage,
 });
 
+const isEmailNotVerified = (error: Error): boolean =>
+  /not verified|EMAIL_NOT_VERIFIED/i.test(error.message);
+
 function LoginPage() {
   const navigate = useNavigate();
-  const { signInWithGitHub } = useGitHubAuth();
-  const loginMutation = useLogin();
-  const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const { isAuthenticated } = useCurrentUser();
+  const loginMutation = useSignIn();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<TLoginRequest>({
-    resolver: zodResolver(authLoginSchema),
+  } = useForm<TLoginForm>({
+    resolver: zodResolver(loginSchema),
     mode: 'onChange',
     defaultValues: { email: '', password: '' },
   });
 
-  useEffect(() => {
-    const hashParams = new URLSearchParams(
-      globalThis.location.hash.substring(1)
-    );
-    const urlParams = new URLSearchParams(globalThis.location.search);
-    const accessToken =
-      hashParams.get('access_token') || urlParams.get('access_token');
-    const type = hashParams.get('type') || urlParams.get('type');
-    if (accessToken && (type === 'recovery' || type === 'magiclink' || !type)) {
-      toast.info('Redirecting to password reset...');
-      navigate({
-        to: '/auth/reset-password',
-        search: { access_token: accessToken },
-      });
-    }
-  }, [navigate]);
-
   const onSubmit = handleSubmit(async (data) => {
     setError(null);
     try {
-      const result = await loginMutation.mutateAsync(data);
+      await loginMutation.mutateAsync(data);
       toast.success('Login successful!');
-      navigate({
-        to: result.user.location ? '/dashboard' : '/onboarding/user',
-      });
+      navigate({ to: '/dashboard' });
     } catch (err) {
-      setError((err as Error).message || 'Login failed');
+      const failure = err as Error;
+      if (isEmailNotVerified(failure)) {
+        setUnverifiedEmail(data.email);
+        return;
+      }
+      setError(failure.message || 'Login failed');
     }
   });
 
-  const handleGithubLogin = async () => {
-    try {
-      setIsGithubLoading(true);
-      const result = await signInWithGitHub();
-      if (result?.url) globalThis.location.href = result.url;
-      else {
-        setIsGithubLoading(false);
-        setError('Failed to get GitHub OAuth URL');
-      }
-    } catch (err) {
-      setError((err as Error).message || 'GitHub login failed');
-      setIsGithubLoading(false);
-    }
-  };
+  if (unverifiedEmail) {
+    return (
+      <VerifyEmailOtp
+        email={unverifiedEmail}
+        onVerified={() => navigate({ to: '/dashboard' })}
+        onBack={() => setUnverifiedEmail(null)}
+        backLabel="Back to login"
+      />
+    );
+  }
+
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -190,37 +169,6 @@ function LoginPage() {
             {loginMutation.isPending ? 'Signing in...' : 'Sign in with Email'}
           </button>
         </form>
-
-        <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">OR</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-
-        <button
-          onClick={handleGithubLogin}
-          disabled={isGithubLoading}
-          type="button"
-          className="w-full py-3 flex items-center justify-center gap-2 bg-gray-100 border border-gray-300 rounded-lg font-semibold text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors cursor-pointer"
-        >
-          <GithubOutlined className="text-xl" />
-          <span>
-            {isGithubLoading ? 'Connecting...' : 'Sign in with GitHub'}
-          </span>
-        </button>
-
-        <p className="mt-3 text-xs text-center text-gray-500 font-sans">
-          Make sure your GitHub email is{' '}
-          <a
-            href="https://github.com/settings/emails"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary-600 hover:underline"
-          >
-            set to public
-          </a>{' '}
-          for GitHub sign in to work.
-        </p>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">

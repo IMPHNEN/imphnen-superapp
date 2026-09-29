@@ -1,9 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import {
-  useResetPassword,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { useResetPassword } from '@imphnen-frontend-service/service/session';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
@@ -13,7 +10,6 @@ export const Route = createFileRoute('/_public/auth/reset-password')({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
-  const { clearSession } = useAuthStore();
   const resetPasswordMutation = useResetPassword();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,13 +18,9 @@ function ResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(
-      globalThis.location.hash.substring(1)
-    );
     const queryParams = new URLSearchParams(globalThis.location.search);
-    const token =
-      hashParams.get('access_token') || queryParams.get('access_token');
-    if (token) {
+    const token = queryParams.get('token');
+    if (token && !queryParams.get('error')) {
       setAccessToken(token);
     } else {
       toast.error('Invalid or expired reset link');
@@ -42,8 +34,8 @@ function ResetPasswordPage() {
       toast.error('Passwords do not match');
       return;
     }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters');
       return;
     }
     if (!accessToken) {
@@ -52,11 +44,10 @@ function ResetPasswordPage() {
     }
     try {
       await resetPasswordMutation.mutateAsync({
-        access_token: accessToken,
-        new_password: password,
+        token: accessToken,
+        newPassword: password,
       });
       toast.success('Password updated successfully!');
-      clearSession();
       navigate({ to: '/auth/login' });
     } catch (err) {
       toast.error((err as Error).message || 'Failed to reset password');
@@ -105,7 +96,7 @@ function ResetPasswordPage() {
                 disabled={resetPasswordMutation.isPending}
                 className="w-full px-4 py-2.5 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 required
-                minLength={6}
+                minLength={8}
               />
               <button
                 type="button"
@@ -136,7 +127,7 @@ function ResetPasswordPage() {
                 disabled={resetPasswordMutation.isPending}
                 className="w-full px-4 py-2.5 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 required
-                minLength={6}
+                minLength={8}
               />
               <button
                 type="button"

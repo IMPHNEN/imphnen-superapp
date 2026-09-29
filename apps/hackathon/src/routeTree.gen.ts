@@ -20,7 +20,6 @@ import { Route as AuthenticatedTeamsTeamIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedTeamsBrowseRouteImport } from './routes/_authenticated/teams/browse'
 import { Route as AuthenticatedTeamsCreateRouteImport } from './routes/_authenticated/teams/create'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
-import { Route as PublicAuthCallbackRouteImport } from './routes/_public/auth/callback'
 import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
@@ -91,11 +90,6 @@ const AuthenticatedUsersUserIdRoute =
     path: '/users/$userId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const PublicAuthCallbackRoute = PublicAuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => PublicRoute,
-} as any)
 const PublicAuthForgotPasswordRoute =
   PublicAuthForgotPasswordRouteImport.update({
     id: '/auth/forgot-password',
@@ -169,7 +163,6 @@ export interface FileRoutesByFullPath {
   '/teams/browse': typeof AuthenticatedTeamsBrowseRoute
   '/teams/create': typeof AuthenticatedTeamsCreateRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
-  '/auth/callback': typeof PublicAuthCallbackRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -192,7 +185,6 @@ export interface FileRoutesByTo {
   '/teams/browse': typeof AuthenticatedTeamsBrowseRoute
   '/teams/create': typeof AuthenticatedTeamsCreateRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
-  '/auth/callback': typeof PublicAuthCallbackRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -218,7 +210,6 @@ export interface FileRoutesById {
   '/_authenticated/teams/browse': typeof AuthenticatedTeamsBrowseRoute
   '/_authenticated/teams/create': typeof AuthenticatedTeamsCreateRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
-  '/_public/auth/callback': typeof PublicAuthCallbackRoute
   '/_public/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/_public/auth/login': typeof PublicAuthLoginRoute
   '/_public/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -243,7 +234,6 @@ export interface FileRouteTypes {
     | '/teams/browse'
     | '/teams/create'
     | '/users/$userId'
-    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -266,7 +256,6 @@ export interface FileRouteTypes {
     | '/teams/browse'
     | '/teams/create'
     | '/users/$userId'
-    | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -291,7 +280,6 @@ export interface FileRouteTypes {
     | '/_authenticated/teams/browse'
     | '/_authenticated/teams/create'
     | '/_authenticated/users/$userId'
-    | '/_public/auth/callback'
     | '/_public/auth/forgot-password'
     | '/_public/auth/login'
     | '/_public/auth/reset-password'
@@ -389,13 +377,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/users/$userId'
       preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/_public/auth/callback': {
-      id: '/_public/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof PublicAuthCallbackRouteImport
-      parentRoute: typeof PublicRoute
     }
     '/_public/auth/forgot-password': {
       id: '/_public/auth/forgot-password'
@@ -525,7 +506,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface PublicRouteChildren {
   PublicMaintenanceRoute: typeof PublicMaintenanceRoute
   PublicWinnersRoute: typeof PublicWinnersRoute
-  PublicAuthCallbackRoute: typeof PublicAuthCallbackRoute
   PublicAuthForgotPasswordRoute: typeof PublicAuthForgotPasswordRoute
   PublicAuthLoginRoute: typeof PublicAuthLoginRoute
   PublicAuthResetPasswordRoute: typeof PublicAuthResetPasswordRoute
@@ -537,7 +517,6 @@ interface PublicRouteChildren {
 const PublicRouteChildren: PublicRouteChildren = {
   PublicMaintenanceRoute: PublicMaintenanceRoute,
   PublicWinnersRoute: PublicWinnersRoute,
-  PublicAuthCallbackRoute: PublicAuthCallbackRoute,
   PublicAuthForgotPasswordRoute: PublicAuthForgotPasswordRoute,
   PublicAuthLoginRoute: PublicAuthLoginRoute,
   PublicAuthResetPasswordRoute: PublicAuthResetPasswordRoute,

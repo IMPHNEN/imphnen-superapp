@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useForgotPassword } from '@imphnen-frontend-service/service';
+import { useForgotPassword } from '@imphnen-frontend-service/service/session';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 import ThemeToggle from '../../../components/theme-toggle';
@@ -22,7 +22,10 @@ function ForgotPasswordPage() {
       return;
     }
     try {
-      await forgotPasswordMutation.mutateAsync({ email });
+      await forgotPasswordMutation.mutateAsync({
+        email,
+        redirectTo: `${globalThis.location.origin}/auth/reset-password`,
+      });
       setEmailSent(true);
       toast.success('Password reset email sent! Check your inbox.');
     } catch (err) {
