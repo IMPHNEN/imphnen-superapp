@@ -53,7 +53,7 @@ make api                                           # API Worker on :8787
 make <app>                                         # e.g. make backoffice, make landing
 ```
 
-In dev every app proxies `/rpc` and `/api/auth` to the local API on `:8787` (override with `VITE_DEV_API_URL`), so the session cookie stays same-origin. In production the apps call `https://api.imphnen.dev` and share the session cookie across `*.imphnen.dev`.
+Uploaded public files are served in dev by the API at `/files/<key>` (development only; production serves them from the CDN). In dev every app proxies `/rpc` and `/api/auth` to the local API on `:8787` (override with `VITE_DEV_API_URL`), so the session cookie stays same-origin. In production the apps call `https://api.imphnen.dev` and share the session cookie across `*.imphnen.dev`.
 
 Dependency versions shared by more than one package live once in the `catalog` of `pnpm-workspace.yaml`; a manifest refers to them as `catalog:`.
 
@@ -91,6 +91,7 @@ Each app's `wrangler.jsonc` sets its custom domain and serves `dist/` as static 
 |---|---|
 | D1 database | `imphnen` (id in `apps/api/wrangler.jsonc`) |
 | R2 bucket | `imphnen-storage`, public at `cdn.imphnen.dev` |
+| R2 bucket (private) | `imphnen-private`, no public domain: mentor CVs and identity documents (`mentor/` keys), downloaded only through guarded API procedures |
 | Email sending | enabled for `imphnen.dev`, sender `MAIL_FROM` |
 | Secrets | `BETTER_AUTH_SECRET` (set); `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional, for Google sign-in |
 
