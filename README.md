@@ -94,7 +94,17 @@ Each app's `wrangler.jsonc` sets its custom domain and serves `dist/` as static 
 | Email sending | enabled for `imphnen.dev`, sender `MAIL_FROM` |
 | Secrets | `BETTER_AUTH_SECRET` (set); `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional, for Google sign-in |
 
-Production data from the old Rust backend is moved with `tools/legacy-migration` (Postgres to D1, MinIO to R2); its README is the cutover runbook.
+Production started clean: nothing was migrated from the old Rust backend (Postgres, MinIO). Accounts are created by signing up, and the first admin is promoted by hand (see below).
+
+### First admin
+
+Sign up on any app with your own email and verify it with the emailed code, then give that account a role with your wrangler login:
+
+```sh
+make promote EMAIL=you@example.com ROLE=superadmin
+```
+
+`ROLE` is `superadmin`, `admin`, `mentor` or `user` (default `admin`). After that, roles are managed in the backoffice.
 
 ## Known debt
 
