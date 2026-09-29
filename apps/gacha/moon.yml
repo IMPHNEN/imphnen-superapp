@@ -16,6 +16,7 @@ tasks:
   build:
     command: 'pnpm build'
     inputs:
+      - '/packages/*/src/**/*'
       - 'src/**/*'
       - 'public/**/*'
       - 'index.html'
