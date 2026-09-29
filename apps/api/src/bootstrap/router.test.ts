@@ -64,6 +64,10 @@ const PUBLIC_DATA_PROCEDURES: readonly string[] = [
   'testimonial.get',
   'roadmap.list',
   'roadmap.get',
+  'mentor.list',
+  'mentor.get',
+  'mentor.getByUser',
+  'mentoring.availability',
 ];
 
 const SESSION: TSession = {
