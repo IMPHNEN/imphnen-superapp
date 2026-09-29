@@ -1,93 +1,53 @@
-# IMPHNEN Frontend Service
+# IMPHNEN Superapp
 
-Nx monorepo for IMPHNEN (Ingin Menjadi Programmer Handal Namun Enggan Ngoding) — Indonesia's largest programmer community.
+moon + pnpm monorepo for IMPHNEN (Ingin Menjadi Programmer Handal Namun Enggan Ngoding), Indonesia's largest programmer community. See `README.md` for the full picture.
 
 ## Tech Stack
 
-- **Monorepo**: Nx 22.6
-- **Framework**: Next.js 16 (landing), Vite + React 19 (all other apps)
-- **Routing**: react-router v7 (Vite apps), Next.js App Router (landing)
-- **Styling**: Tailwind CSS v4, class-variance-authority (CVA)
+- **Monorepo**: moon 2 + pnpm 11 workspaces, versions pinned in `.prototools`, shared deps in the `catalog` of `pnpm-workspace.yaml`
+- **Framework**: Astro (landing, static), Vite + React 19 (all other apps)
+- **Routing**: TanStack Router with file-based routes (`src/routes`, `routeTree.gen.ts` is generated)
+- **Styling**: Tailwind CSS v4 via `@tailwindcss/postcss`, class-variance-authority (CVA)
 - **State**: Zustand, TanStack React Query
 - **Forms**: react-hook-form + zod
-- **Build/Deploy**: Nix flakes, Cachix binary cache, NixOS modules
-- **CI/CD**: GitHub Actions with `nx affected` + matrix strategy
-- **Node**: v22
+- **Quality**: Biome (format + lint), tsc, Vitest, Playwright (dimentorin e2e)
+- **Deploy**: Cloudflare Pages, one project per app (`imphnen-<app>`)
+- **Node**: v24
 
-## Project Structure
+## Layout
 
-### Apps
-| App | Framework | Description |
-|-----|-----------|-------------|
-| `landing` | Next.js 16 | Public website |
-| `backoffice` | Vite + React | Admin dashboard |
-| `hackathon` | Vite + React | Hackathon platform |
-| `dimentorin` | Vite + React | Mentoring platform |
-| `gacha` | Vite + React | Merch gacha system |
-| `qrcampaign` | Vite + React | QR campaign tool |
-| `infra` | Vite + React | Infrastructure dashboard |
+- `apps/<app>`: landing, backoffice, hackathon, dimentorin, gacha, qrcampaign, imphnenos, infra. Each has `package.json`, `moon.yml`, and builds into its own `dist/`
+- `packages/utils`, `packages/service`, `packages/ui`: shared source packages, consumed as `@imphnen-frontend-service/<name>` (`ui` exports `/atoms`, `/molecules`, `/organisms`)
+- `deploy/pages`: the `/v1` proxy Pages Function and `_headers` shared by every app
 
-### Shared Libraries
-| Lib | Purpose | Depends on |
-|-----|---------|------------|
-| `utils` | Pure utilities only: `cn`, `For`, `Show`, `useQueryState`, `useModalLogin`, react-query helpers, react-router file-based routing | nothing |
-| `service` | Business logic: API clients, auth hooks, storage (SessionToken/SessionUser), constants (PERMISSIONS, cities) | `utils` |
-| `ui` | UI components: atoms (Button, Input, Card, Dialog, Drawer, Form, Label), molecules, organisms (Navbar, Sidebar, Datatable) | `utils`, `service` |
+**Dependency rule**: `ui` -> `service` -> `utils`, never the reverse. moon tags enforce it. Inside `packages/ui`, import sibling layers relatively (`../../atoms`), not by package name.
 
-**Dependency rule**: `ui` → `service` → `utils` (never the reverse)
+A new third-party import must be added to that project's own `package.json` (use `catalog:` if the version is in the catalog), because pnpm does not hoist.
 
-## Common Commands
+## Commands
+
+Everything goes through `make` or `moon`; do not `cd` into a package to run scripts.
 
 ```bash
-# Dev
-nx dev <app>              # Start dev server
-nx build <app>            # Build single app
-nx run-many -t build --all # Build everything
-
-# Test
-nx test <lib>             # Run unit tests (vitest)
-nx e2e <app>-e2e          # Run e2e tests (playwright)
-nx lint <project>         # Lint
-
-# Build all affected
-nx affected -t build      # Only build what changed
-nx affected -t test       # Only test what changed
-
-# Nix
-nix build .#<app>         # Build Nix package for an app
-nix develop               # Enter dev shell (node 22, bun, git, jq)
+make <app>                 # dev server
+moon run <app>:build       # build one app
+moon run :build            # build everything
+moon run :typecheck        # tsc / astro check
+moon run :test             # vitest
+moon run :check            # biome
+moon ci                    # what CI runs (affected only)
 ```
-
-## Nix / Deployment
-
-All Nix config is in a single `flake.nix`:
-- `mkViteApp`: Builds Vite apps as Nix packages
-- `mkLandingApp`: Builds the Next.js landing app
-- `mkLandingModule`: NixOS module (systemd service for Next.js)
-- `mkStaticAppModule`: NixOS module (nginx for static Vite apps)
-- `npmDepsHash`: Must be updated when `package-lock.json` changes. Use `lib.fakeHash` to get the new hash from a failed build.
-
-## CI/CD Pipeline (.github/workflows/nix-build.yml)
-
-1. **detect**: Uses `nx affected` to find changed apps
-2. **build**: Matrix strategy builds only affected apps with Nix, pushes to Cachix
-3. **deploy**: Clones `imphnen-infrastructure`, updates `flake.lock`, pushes, then runs `clan machines update hetzner` to deploy to the Hetzner server
-
-Required GitHub secrets: `CACHIX_AUTH_TOKEN`, `INFRA_DEPLOY_KEY` (SSH key for both GitHub and server access)
-
-The server (167.235.70.37) pulls pre-built packages from Cachix during `nixos-rebuild`.
 
 ## Environment Variables
 
-- Vite apps: `VITE_API_URL`, `VITE_GITHUB_CLIENT_ID`
-- Next.js (landing): `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GITHUB_CLIENT_ID`
-- The `getBaseURL()` function in `libs/service/src/api/index.ts` handles both environments
+- Vite apps: `VITE_API_URL` (leave empty in production; the Pages Function proxies `/v1`), `VITE_GITHUB_CLIENT_ID`
+- Landing (Astro): `PUBLIC_API_URL`, defaults to `https://api.imphnen.dev`
+- `getBaseURL()` in `packages/service/src/api/index.ts` handles both
 
 ## Key Conventions
 
-- Atomic design: atoms → molecules → organisms
+- Atomic design: atoms -> molecules -> organisms
 - Components have their own folder with `component.tsx`, `index.ts`, `spec.tsx`, `stories.tsx`
 - Use `cn()` from `@imphnen-frontend-service/utils` for className merging
-- Use `'use client'` directive on any component using React hooks (for Next.js compatibility)
 - Button variants via CVA: `primary`, `secondary`, `text`, `bordered`, `success`, `danger`
-- Landing app uses `container` class — Tailwind v4 requires explicit `margin-inline: auto` (defined in globals.css)
+- Some CI gates start off for existing debt (see "Known debt" in `README.md`); do not add new type errors or lint warnings
