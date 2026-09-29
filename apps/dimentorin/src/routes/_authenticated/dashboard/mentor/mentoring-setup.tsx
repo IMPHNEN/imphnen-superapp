@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Icon } from '@iconify/react';
 import { Button, Switch, Badge } from '@imphnen-frontend-service/ui/atoms';
+import { toast } from 'sonner';
+import {
+  errorText,
+  useMyMentorProfile,
+  useUpdateMyMentorProfile,
+} from '../_hooks/use-mentoring-sessions';
 
 /**
  * Mentoring setup page route.
@@ -13,11 +19,17 @@ export const Route = createFileRoute(
   component: MentoringSetupPage,
 });
 
-type MentoringTopic = {
-  id: string;
-  label: string;
-  icon: string;
+const TOPIC_ICON: Record<string, string> = {
+  'Career & Self Development': 'mdi:briefcase-outline',
+  'Industry Insight': 'mdi:office-building-outline',
+  'Project Management & IT Tools': 'mdi:clipboard-text-outline',
+  'Basic IT': 'mdi:laptop',
+  'Programming/Software Dev': 'mdi:console',
+  'Data & Database': 'mdi:database-outline',
+  'AI Tips': 'mdi:robot-outline',
 };
+const DEFAULT_TOPIC_ICON = 'mdi:tag-outline';
+const TOPICS_MAX = 30;
 
 type SessionDay = {
   day: string;
@@ -27,28 +39,7 @@ type SessionDay = {
   canAddSession?: boolean;
 };
 
-const mentoringTopics: MentoringTopic[] = [
-  {
-    id: 'career',
-    label: 'Career & Self Development',
-    icon: 'mdi:briefcase-outline',
-  },
-  {
-    id: 'industry',
-    label: 'Industry Insight',
-    icon: 'mdi:office-building-outline',
-  },
-  {
-    id: 'pm',
-    label: 'Project Management & IT Tools',
-    icon: 'mdi:clipboard-text-outline',
-  },
-  { id: 'basic-it', label: 'Basic IT', icon: 'mdi:laptop' },
-  { id: 'programming', label: 'Programming/Software Dev', icon: 'mdi:console' },
-  { id: 'database', label: 'Data & Database', icon: 'mdi:database-outline' },
-  { id: 'ai', label: 'AI Tips', icon: 'mdi:robot-outline' },
-];
-
+// Weekly slots have no API yet (only a free-text commitment): mock data.
 const sessionDays: SessionDay[] = [
   {
     day: 'Senin',
@@ -75,6 +66,26 @@ const sessionDays: SessionDay[] = [
  */
 export function MentoringSetupPage() {
   const [days, setDays] = useState<SessionDay[]>(sessionDays);
+  const { data: mentor } = useMyMentorProfile();
+  const updateProfile = useUpdateMyMentorProfile();
+  const topics = mentor?.topicsOfInterest ?? [];
+
+  const addTopic = () => {
+    const topic = globalThis.prompt('Topik baru')?.trim();
+    if (!topic || topics.includes(topic)) return;
+    if (topics.length >= TOPICS_MAX) {
+      toast.error('Maksimal 30 topik');
+      return;
+    }
+    updateProfile.mutate(
+      { topicsOfInterest: [...topics, topic] },
+      {
+        onSuccess: () => toast.success('Topik ditambahkan'),
+        onError: (error) =>
+          toast.error(errorText(error, 'Gagal menambahkan topik')),
+      }
+    );
+  };
 
   const toggleDay = (dayName: string) => {
     setDays((prev) =>
@@ -91,7 +102,12 @@ export function MentoringSetupPage() {
               <h1 className="text-[35px] font-semibold leading-none text-text-label">
                 Topics
               </h1>
-              <Button variant="primary" size="sm">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={addTopic}
+                disabled={!mentor || updateProfile.isPending}
+              >
                 <Icon icon="mdi:plus" width="14" />
                 Tambah Topik
               </Button>
@@ -99,14 +115,17 @@ export function MentoringSetupPage() {
 
             <div className="min-h-116 rounded-sm border border-primary-100 bg-primary-50 p-6">
               <div className="flex flex-wrap gap-2">
-                {mentoringTopics.map((topic) => (
-                  <Badge key={topic.id} variant="outline">
+                {topics.length === 0 && (
+                  <p className="text-xs text-text-muted">Belum ada topik.</p>
+                )}
+                {topics.map((topic) => (
+                  <Badge key={topic} variant="outline">
                     <Icon
-                      icon={topic.icon}
+                      icon={TOPIC_ICON[topic] ?? DEFAULT_TOPIC_ICON}
                       width="14"
                       className="text-[#6c7a89]"
                     />
-                    {topic.label}
+                    {topic}
                   </Badge>
                 ))}
               </div>

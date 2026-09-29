@@ -1,9 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
 import { getUserMockDashboardData } from '../../_data/mock/dashboard-mock';
+import { useMySessions } from '../../_hooks/use-mentoring-sessions';
 import { Button, Card } from '@imphnen-frontend-service/ui/atoms';
 
 export function UserDashboard() {
+  // Roadmap and articles have no API yet: they stay on mock data.
   const data = getUserMockDashboardData();
+  const { data: sessions } = useMySessions({ page: 1, pageSize: 1 });
   const navigate = useNavigate();
 
   const handleStartDiscovery = () => {
@@ -48,7 +51,7 @@ export function UserDashboard() {
 
       <div className="grid gap-4 mb-8 grid-cols-[repeat(3,313.33px)]">
         {[
-          { label: 'Mentoring Session', value: data.mentoringSessions },
+          { label: 'Mentoring Session', value: sessions?.total ?? 0 },
           { label: 'Article Submitted', value: data.articleSubmitted },
           { label: 'Article Published', value: data.articlePublished },
         ].map((stat, i) => (

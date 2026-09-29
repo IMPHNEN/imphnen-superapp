@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { getMentorMockDashboardData } from '../../_data/mock/dashboard-mock';
+import { useMentorStats } from '../../_hooks/use-mentoring-sessions';
 import { Button, Card } from '@imphnen-frontend-service/ui/atoms';
 
 export function MentorDashboard() {
-  const data = getMentorMockDashboardData();
+  const { data: stats } = useMentorStats();
   const [activeTab, setActiveTab] = useState<'overviews' | 'analytics'>(
     'overviews'
   );
@@ -59,10 +59,16 @@ export function MentorDashboard() {
         {activeTab === 'overviews' && (
           <div className="grid gap-4 mb-8 grid-cols-[repeat(4,231px)]">
             {[
-              { label: 'Your Rating', value: data.rating },
-              { label: 'Session Complete', value: data.sessionComplete },
-              { label: 'Mentee Impacted', value: data.menteeImpacted },
-              { label: 'Total Feedback', value: data.totalFeedback },
+              {
+                label: 'Your Rating',
+                value: stats?.ratingAverage?.toFixed(1) ?? 0,
+              },
+              {
+                label: 'Session Complete',
+                value: stats?.completedSessionCount ?? 0,
+              },
+              { label: 'Mentee Impacted', value: stats?.menteesImpacted ?? 0 },
+              { label: 'Total Feedback', value: stats?.feedbackCount ?? 0 },
             ].map((stat, i) => (
               <Card key={i}>
                 <div className="w-57.75 h-25 p-5 flex flex-col justify-end gap-1">

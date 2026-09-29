@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import type { FC } from 'react';
 import { Icon } from '@iconify/react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 
@@ -17,6 +17,7 @@ interface MentoringDetailModalProps {
     time: string;
     location: string;
     link?: string;
+    description?: string;
   };
 }
 
@@ -27,8 +28,6 @@ export const MentoringDetailModal: FC<MentoringDetailModalProps> = ({
   mentor,
   session,
 }) => {
-  const [pertanyaan, setPertanyaan] = useState('');
-
   if (!isOpen) return null;
 
   return (
@@ -118,6 +117,16 @@ export const MentoringDetailModal: FC<MentoringDetailModalProps> = ({
               <div className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 font-medium">
                 {session.location}
               </div>
+              {session.link && (
+                <a
+                  href={session.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block text-sm font-medium text-primary-600 underline"
+                >
+                  {session.link}
+                </a>
+              )}
             </div>
 
             {/* Pertanyaan Untuk Senpai */}
@@ -126,8 +135,8 @@ export const MentoringDetailModal: FC<MentoringDetailModalProps> = ({
                 Pertanyaan Untuk Senpai
               </label>
               <textarea
-                value={pertanyaan}
-                onChange={(e) => setPertanyaan(e.target.value)}
+                value={session.description ?? ''}
+                readOnly
                 placeholder="Hi [Nama Mentor], Saya [Nama Kamu] & saya berharap dapat memiliki sesi mentoring dengan Anda.
 
 Saat ini, saya tertarik untuk mengejar _____. Tujuan saya untuk sesi ini adalah _____.

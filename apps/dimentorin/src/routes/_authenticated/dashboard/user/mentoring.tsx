@@ -14,9 +14,20 @@ import {
   TableHeader,
   TableRow,
 } from '@imphnen-frontend-service/ui/atoms';
+import { toast } from 'sonner';
 import { MentorContactModal } from '../_components/modals/mentor-contact-modal';
 import { MentoringFeedbackModal } from '../_components/modals/mentoring-feedback-modal';
 import { MentoringDetailModal } from '../_components/modals/mentoring-detail-modal';
+import {
+  errorText,
+  SESSION_STATUS,
+  SESSION_STATUS_BADGE,
+  SESSION_STATUS_LABEL,
+  sessionTime,
+  type TMentoringSession,
+  useCancelSession,
+  useMySessions,
+} from '../_hooks/use-mentoring-sessions';
 
 export const Route = createFileRoute(
   '/_authenticated/dashboard/user/mentoring'
@@ -24,97 +35,86 @@ export const Route = createFileRoute(
   component: MentoringPage,
 });
 
-function MentoringPage() {
+const ROWS_PER_PAGE = 10;
+const MENTOR_FALLBACK_IMAGE = '/image/mascot-character.webp';
+
+const topicsOf = (session: TMentoringSession): string[] =>
+  session.topic.split(', ');
+
+const isOpen = (session: TMentoringSession): boolean =>
+  session.status === SESSION_STATUS.PENDING ||
+  session.status === SESSION_STATUS.CONFIRMED;
+
+export function MentoringPage() {
   const [activeModal, setActiveModal] = useState<
-    null | 'detail' | 'contact' | 'cancel' | 'feedback'
+    null | 'detail' | 'contact' | 'feedback'
   >(null);
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [selectedMentor, setSelectedMentor] = useState<{
-    name: string;
-    title: string;
-    topics: string[];
-    image: string;
-  } | null>(null);
-  const [selectedSession, setSelectedSession] = useState<{
-    date: string;
-    time: string;
-    location: string;
-    link: string;
-  } | null>(null);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selected, setSelected] = useState<TMentoringSession | null>(null);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const mentoringRows = useMemo(
-    () =>
-      Array.from({ length: 12 }, (_, idx) => ({
-        no: idx + 1,
-        mentorName: 'Muhammad Firdaus Oi...',
-        mentorTitle: 'UI Designer at Oray orayan Studios',
-        topic: 'Basic IT, Industry Ins...',
-        sessionTime: '22 Maret 2025, 20:00 - 20:30 WIB',
-        sessionDate: '22 Maret 2025',
-        startTime: '20:00',
-        endTime: '20:30',
-        location: 'Online',
-        link: 'https://zoom.us/j/9876543210',
-        status: idx % 3 === 0 ? 'Done' : 'To do',
-      })),
-    []
-  );
+  const { data, isLoading } = useMySessions({
+    page: currentPage,
+    pageSize: ROWS_PER_PAGE,
+  });
+  const cancelSession = useCancelSession();
 
-  const handleContactMentor = (row: any) => {
-    setSelectedMentor({
-      name: row.mentorName,
-      title: row.mentorTitle,
-      topics: row.topic.split(', '),
-      image: '/image/mascot-character.webp',
-    });
-    setActiveModal('contact');
+  const sessions = data?.items ?? [];
+  const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / ROWS_PER_PAGE));
+
+  // listMine has no text search: filter the current page by mentor or topic.
+  const pagedRows = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return sessions;
+    return sessions.filter(
+      (session) =>
+        session.mentor.name.toLowerCase().includes(term) ||
+        session.topic.toLowerCase().includes(term)
+    );
+  }, [sessions, search]);
+
+  const openModal = (
+    session: TMentoringSession,
+    modal: 'detail' | 'contact' | 'feedback'
+  ) => {
+    setSelected(session);
+    setActiveModal(modal);
   };
 
-  const handleShowDetail = (row: any) => {
-    setSelectedMentor({
-      name: row.mentorName,
-      title: row.mentorTitle,
-      topics: row.topic.split(', '),
-      image: '/image/mascot-character.webp',
-    });
-    setSelectedSession({
-      date: row.sessionDate,
-      time: `${row.startTime} - ${row.endTime}`,
-      location: row.location,
-      link: row.link,
-    });
-    setActiveModal('detail');
-  };
-
-  const handleShowFeedback = (row: any) => {
-    setSelectedMentor({
-      name: row.mentorName,
-      title: row.mentorTitle,
-      topics: row.topic.split(', '),
-      image: '/image/mascot-character.webp',
-    });
-    setActiveModal('feedback');
-  };
-
-  const toggleSelectRow = (no: number) => {
-    setSelectedRows((prev) =>
-      prev.includes(no) ? prev.filter((id) => id !== no) : [...prev, no]
+  const handleCancel = (session: TMentoringSession) => {
+    if (!globalThis.confirm('Batalkan sesi mentoring ini?')) return;
+    cancelSession.mutate(
+      { id: session.id },
+      {
+        onSuccess: () => toast.success('Sesi mentoring dibatalkan'),
+        onError: (error) =>
+          toast.error(errorText(error, 'Gagal membatalkan sesi')),
+      }
     );
   };
 
-  const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(mentoringRows.length / rowsPerPage));
-
-  const pagedRows = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage;
-    return mentoringRows.slice(start, start + rowsPerPage);
-  }, [currentPage, mentoringRows]);
+  const toggleSelectRow = (id: string) => {
+    setSelectedRows((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
+  };
 
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
+
+  const selectedTime = selected ? sessionTime(selected) : null;
+  const selectedMentor = selected
+    ? {
+        name: selected.mentor.name,
+        title: selected.mentor.email,
+        email: selected.mentor.email,
+        topics: topicsOf(selected),
+        image: selected.mentor.image || MENTOR_FALLBACK_IMAGE,
+      }
+    : null;
 
   return (
     <section className="w-243">
@@ -130,6 +130,8 @@ function MentoringPage() {
             size="lg"
             placeholder="Cari berdasarkan nama item"
             className="pl-10"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -149,73 +151,100 @@ function MentoringPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pagedRows.map((row) => (
-                <TableRow
-                  key={row.no}
-                  className={row.no % 2 === 0 ? 'bg-primary-50' : 'bg-white'}
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedRows.includes(row.no)}
-                      onCheckedChange={() => toggleSelectRow(row.no)}
-                    />
-                  </TableCell>
-                  <TableCell className="text-xs text-text-muted">
-                    {row.no}.
-                  </TableCell>
-                  <TableCell className="text-xs text-text-muted">
-                    {row.mentorName}
-                  </TableCell>
-                  <TableCell className="text-xs text-text-muted">
-                    {row.topic}
-                  </TableCell>
-                  <TableCell className="text-xs text-text-muted">
-                    {row.sessionTime}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={row.status === 'Done' ? 'success' : 'info'}>
-                      {row.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="mx-auto flex w-50 items-center justify-center gap-2">
-                      {row.status === 'Done' ? (
-                        <Button
-                          onClick={() => handleShowFeedback(row)}
-                          size="sm"
-                        >
-                          <Icon icon="lucide:search" width="12" />
-                          Kirim Feedback
-                        </Button>
-                      ) : (
-                        <>
-                          <Button
-                            onClick={() => handleShowDetail(row)}
-                            size="sm"
-                          >
-                            <Icon icon="lucide:search" width="12" />
-                            Cek Detail
-                          </Button>
-                          <Button
-                            onClick={() => handleContactMentor(row)}
-                            variant="danger"
-                            size="sm"
-                          >
-                            <Icon icon="lucide:x" width="12" />
-                            Cancel
-                          </Button>
-                        </>
-                      )}
-                    </div>
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-xs">
+                    Memuat sesi mentoring...
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
+              {!isLoading && pagedRows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-xs">
+                    Belum ada sesi mentoring.
+                  </TableCell>
+                </TableRow>
+              )}
+              {pagedRows.map((row, index) => {
+                const no = (currentPage - 1) * ROWS_PER_PAGE + index + 1;
+                const time = sessionTime(row);
+                return (
+                  <TableRow
+                    key={row.id}
+                    className={no % 2 === 0 ? 'bg-primary-50' : 'bg-white'}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedRows.includes(row.id)}
+                        onCheckedChange={() => toggleSelectRow(row.id)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-xs text-text-muted">
+                      {no}.
+                    </TableCell>
+                    <TableCell className="text-xs text-text-muted">
+                      {row.mentor.name}
+                    </TableCell>
+                    <TableCell className="text-xs text-text-muted">
+                      {row.topic}
+                    </TableCell>
+                    <TableCell className="text-xs text-text-muted">
+                      {`${time.date}, ${time.start} - ${time.end}`}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={SESSION_STATUS_BADGE[row.status]}>
+                        {SESSION_STATUS_LABEL[row.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="mx-auto flex w-50 items-center justify-center gap-2">
+                        {row.status === SESSION_STATUS.COMPLETED && (
+                          <Button
+                            onClick={() => openModal(row, 'feedback')}
+                            size="sm"
+                            disabled={row.feedback !== null}
+                          >
+                            <Icon icon="lucide:search" width="12" />
+                            {row.feedback !== null
+                              ? 'Feedback Terkirim'
+                              : 'Kirim Feedback'}
+                          </Button>
+                        )}
+                        {isOpen(row) && (
+                          <>
+                            <Button
+                              onClick={() => openModal(row, 'detail')}
+                              size="sm"
+                            >
+                              <Icon icon="lucide:search" width="12" />
+                              Cek Detail
+                            </Button>
+                            <Button
+                              onClick={() => handleCancel(row)}
+                              variant="danger"
+                              size="sm"
+                              disabled={cancelSession.isPending}
+                            >
+                              <Icon icon="lucide:x" width="12" />
+                              Cancel
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
 
         <div className="mt-8 flex items-center justify-between">
-          <button className="flex items-center gap-2 text-[10px] font-semibold text-text-muted hover:text-primary-accent transition-colors">
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage - 1)}
+            className="flex items-center gap-2 text-[10px] font-semibold text-text-muted hover:text-primary-accent transition-colors"
+          >
             <Icon icon="mdi:chevron-left" width="16" />
           </button>
 
@@ -254,7 +283,11 @@ function MentoringPage() {
             })}
           </div>
 
-          <button className="flex items-center gap-2 text-[10px] font-semibold text-text-muted hover:text-primary-accent transition-colors">
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage + 1)}
+            className="flex items-center gap-2 text-[10px] font-semibold text-text-muted hover:text-primary-accent transition-colors"
+          >
             <Icon icon="mdi:chevron-right" width="16" />
           </button>
         </div>
@@ -266,19 +299,26 @@ function MentoringPage() {
         mentor={selectedMentor}
       />
 
-      <MentoringDetailModal
-        isOpen={
-          activeModal === 'detail' && !!selectedMentor && !!selectedSession
-        }
-        onClose={() => setActiveModal(null)}
-        onContactMentor={() => setActiveModal('contact')}
-        mentor={selectedMentor!}
-        session={selectedSession!}
-      />
+      {selected && selectedMentor && selectedTime && (
+        <MentoringDetailModal
+          isOpen={activeModal === 'detail'}
+          onClose={() => setActiveModal(null)}
+          onContactMentor={() => setActiveModal('contact')}
+          mentor={selectedMentor}
+          session={{
+            date: selectedTime.date,
+            time: `${selectedTime.start} - ${selectedTime.end}`,
+            location: selected.sessionType === 'offline' ? 'Offline' : 'Online',
+            link: selected.meetingLink ?? undefined,
+            description: selected.description ?? '',
+          }}
+        />
+      )}
 
       <MentoringFeedbackModal
-        isOpen={activeModal === 'feedback' && !!selectedMentor}
+        isOpen={activeModal === 'feedback' && selected !== null}
         onClose={() => setActiveModal(null)}
+        sessionId={selected?.id ?? null}
         mentorName={selectedMentor?.name || ''}
       />
     </section>

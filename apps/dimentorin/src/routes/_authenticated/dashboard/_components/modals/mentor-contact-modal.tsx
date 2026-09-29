@@ -7,6 +7,8 @@ interface MentorContactModalProps {
   mentor: {
     name: string;
     topics: string[];
+    email?: string;
+    image?: string;
   } | null;
 }
 
@@ -30,8 +32,8 @@ export const MentorContactModal: FC<MentorContactModalProps> = ({
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-bg-placeholder rounded-full mx-auto mb-4 overflow-hidden">
             <img
-              src="/image/mascot-character.webp"
-              alt="Mentor"
+              src={mentor.image || '/image/mascot-character.webp'}
+              alt={mentor.name}
               className="w-full h-full object-cover"
             />
           </div>
@@ -80,7 +82,7 @@ export const MentorContactModal: FC<MentorContactModalProps> = ({
           </a>
 
           <a
-            href="mailto:mentor@dimentorin.dev"
+            href={`mailto:${mentor.email ?? 'mentor@dimentorin.dev'}`}
             className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl hover:bg-blue-100 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3">
