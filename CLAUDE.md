@@ -1,53 +1,58 @@
 # IMPHNEN Superapp
 
-moon + pnpm monorepo for IMPHNEN (Ingin Menjadi Programmer Handal Namun Enggan Ngoding), Indonesia's largest programmer community. See `README.md` for the full picture.
+moon + pnpm monorepo for IMPHNEN (Ingin Menjadi Programmer Handal Namun Enggan Ngoding), Indonesia's largest programmer community: the API and every frontend, all on Cloudflare Workers. `README.md` has the full picture; `docs/port/*.md` records how each domain was ported from the old Rust backend and why.
 
 ## Tech Stack
 
 - **Monorepo**: moon 2 + pnpm 11 workspaces, versions pinned in `.prototools`, shared deps in the `catalog` of `pnpm-workspace.yaml`
-- **Framework**: Astro (landing, static), Vite + React 19 (all other apps)
-- **Routing**: TanStack Router with file-based routes (`src/routes`, `routeTree.gen.ts` is generated)
-- **Styling**: Tailwind CSS v4 via `@tailwindcss/postcss`, class-variance-authority (CVA)
-- **State**: Zustand, TanStack React Query
+- **API** (`apps/api`): Hono + oRPC + Effect v4 on a Worker, Drizzle on D1, R2 for files, Cloudflare Email, better-auth (session cookies on `*.imphnen.dev`)
+- **Apps**: Astro (landing, static), Vite + React 19 with TanStack Router (all others), each deployed as a static-assets Worker on its own domain
+- **Data in apps**: typed oRPC client + TanStack Query from `@imphnen-frontend-service/service/rpc`, sessions from `@imphnen-frontend-service/service/session`
+- **Styling**: Tailwind CSS v4, class-variance-authority (CVA)
 - **Forms**: react-hook-form + zod
-- **Quality**: Biome (format + lint), tsc, Vitest, Playwright (dimentorin e2e)
-- **Deploy**: Cloudflare Pages, one project per app (`imphnen-<app>`)
+- **Quality**: Biome, tsc / astro check, Vitest, Playwright (dimentorin e2e)
 - **Node**: v24
 
-## Layout
+## Before writing code
 
-- `apps/<app>`: landing, backoffice, hackathon, dimentorin, gacha, qrcampaign, imphnenos, infra. Each has `package.json`, `moon.yml`, and builds into its own `dist/`
-- `packages/utils`, `packages/service`, `packages/ui`: shared source packages, consumed as `@imphnen-frontend-service/<name>` (`ui` exports `/atoms`, `/molecules`, `/organisms`)
-- `deploy/pages`: the `/v1` proxy Pages Function and `_headers` shared by every app
+| Before | Read |
+|---|---|
+| Any `.ts`/`.tsx` in `apps/api` or `packages/{schemas,contract,permissions,messages,activity}` | `.claude/skills/ts-conventions/SKILL.md` (arrow functions, explicit return types, T/E prefixes, no plain strings, ts-pattern, ts-belt, 200-line files, no comments) |
+| Effect code in `apps/api` | `node_modules/effect/AGENTS.md`, then `docs/effect-services.md` |
+| A new API module, procedure, table or permission | `docs/adding-a-module.md` (every touchpoint, including the ones no directory listing reveals) |
 
-**Dependency rule**: `ui` -> `service` -> `utils`, never the reverse. moon tags enforce it. Inside `packages/ui`, import sibling layers relatively (`../../atoms`), not by package name.
+Formatting is Biome with 2 spaces and single quotes (`biome.json`).
 
-A new third-party import must be added to that project's own `package.json` (use `catalog:` if the version is in the catalog), because pnpm does not hoist.
+## API rules that are easy to get wrong
+
+- D1 is SQLite with no interactive transactions: a write that must be atomic is one `db.batch([...])` or one conditional `UPDATE ... WHERE ... RETURNING`, never read-then-write across awaits
+- Every procedure is guarded: `permissionGuarded(PERMISSION.X)`, `sessionGuarded` for any signed-in user, or `implementer` for a deliberately public one (listed in `bootstrap/router.test.ts`)
+- Schema changes go through `moon run api:db-generate`; never hand-write migration SQL. Apply with `api:db-migrate-local` / `api:db-migrate-remote`
+- `moon run api:arch` enforces module and layer boundaries (use-case tests use fake layers, not infrastructure)
+- Bindings and vars come from `cloudflare:workers`; after changing `wrangler.jsonc` run `moon run api:types`
+
+## Apps rules
+
+- Data access lives in hooks over `orpc.<module>.<procedure>.queryOptions/mutationOptions`; components render only
+- Auth: `useCurrentUser()` (`me`, `status`, `can(PERMISSION.X)`) and the session mutations; there are no tokens to store
+- `packages/ui` must not use router-typed `Link`/`navigate` to app-specific paths, because it is shared by apps with different route trees
+- Components have their own folder with `component.tsx`, `index.ts`, `spec.tsx`, `stories.tsx`; use `cn()` for className merging; `'use client'` on components using hooks
+- Landing uses the `container` class; Tailwind v4 needs the explicit `margin-inline: auto` in globals.css
 
 ## Commands
 
 Everything goes through `make` or `moon`; do not `cd` into a package to run scripts.
 
 ```bash
-make <app>                 # dev server
+make <app>                 # dev server (make api for the API on :8787)
 moon run <app>:build       # build one app
-moon run :build            # build everything
 moon run :typecheck        # tsc / astro check
 moon run :test             # vitest
 moon run :check            # biome
 moon ci                    # what CI runs (affected only)
+moon run <app>:deploy      # deploy one Worker with the local wrangler login
 ```
 
-## Environment Variables
+## Releases
 
-- Vite apps: `VITE_API_URL` (leave empty in production; the Pages Function proxies `/v1`), `VITE_GITHUB_CLIENT_ID`
-- Landing (Astro): `PUBLIC_API_URL`, defaults to `https://api.imphnen.dev`
-- `getBaseURL()` in `packages/service/src/api/index.ts` handles both
-
-## Key Conventions
-
-- Atomic design: atoms -> molecules -> organisms
-- Components have their own folder with `component.tsx`, `index.ts`, `spec.tsx`, `stories.tsx`
-- Use `cn()` from `@imphnen-frontend-service/utils` for className merging
-- Button variants via CVA: `primary`, `secondary`, `text`, `bordered`, `success`, `danger`
-- Some CI gates start off for existing debt (see "Known debt" in `README.md`); do not add new type errors or lint warnings
+Conventional Commits. Each finished, green increment gets a `chore(release): x.y.z` commit bumping the root `package.json` version (minor for features, patch for fixes) and an annotated `vX.Y.Z` tag, pushed to `develop` right away. The pre-push hook runs `moon ci --base origin/develop`.

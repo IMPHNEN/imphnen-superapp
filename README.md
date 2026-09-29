@@ -4,32 +4,41 @@
   <img src="docs/logo.svg" alt="IMPHNEN">
 </p>
 
-Monorepo for [IMPHNEN](https://imphnen.dev) (Ingin Menjadi Programmer Handal Namun Enggan Ngoding), Indonesia's largest programmer community.
+Monorepo for [IMPHNEN](https://imphnen.dev) (Ingin Menjadi Programmer Handal Namun Enggan Ngoding), Indonesia's largest programmer community: every frontend and the API, deployed on Cloudflare Workers.
 
 ## Apps
 
-Each app deploys to its own Cloudflare Pages project, `imphnen-<app>`.
+Each app is its own Cloudflare Worker (`imphnen-<app>`, static assets) on its own domain. The API is the `imphnen-api` Worker.
 
 | App | Framework | URL |
 |-----|-----------|-----|
+| **api** | Hono + oRPC + Effect, D1, R2, better-auth | [api.imphnen.dev](https://api.imphnen.dev) |
 | **landing** | Astro (static) | [imphnen.dev](https://imphnen.dev) |
 | **backoffice** | Vite + React | [backoffice.imphnen.dev](https://backoffice.imphnen.dev) |
 | **hackathon** | Vite + React | [hackathon.imphnen.dev](https://hackathon.imphnen.dev) |
 | **dimentorin** | Vite + React | [dimentorin.imphnen.dev](https://dimentorin.imphnen.dev) |
 | **gacha** | Vite + React | [gacha.imphnen.dev](https://gacha.imphnen.dev) |
 | **qrcampaign** | Vite + React | [qr.imphnen.dev](https://qr.imphnen.dev) |
-| **imphnenos** | Vite + React | |
+| **imphnenos** | Vite + React | [os.imphnen.dev](https://os.imphnen.dev) |
 | **infra** | Vite + React | [infra.imphnen.dev](https://infra.imphnen.dev) |
+
+Uploaded files are served from the R2 bucket `imphnen-storage` at [cdn.imphnen.dev](https://cdn.imphnen.dev).
 
 ## Shared Packages
 
-| Package | Purpose | Depends on |
-|---------|---------|------------|
-| `packages/utils` | Pure utilities: `cn()`, `For`, `Show`, `useQueryState`, `useModalLogin` | nothing |
-| `packages/service` | API clients, auth hooks, storage, constants | `utils` |
-| `packages/ui` | Atoms, molecules, organisms (atomic design) | `utils`, `service` |
+| Package | Purpose |
+|---------|---------|
+| `packages/contract` | The oRPC contract: every procedure's method, path, input and output. The API implements it; the apps are typed by it |
+| `packages/schemas` | Zod schemas shared by the contract, the API and the apps |
+| `packages/permissions` | Permission keys (`resource:action`) and the fixed roles |
+| `packages/messages` | User-facing copy and labels |
+| `packages/activity` | Activity log vocabulary |
+| `packages/version`, `packages/format` | App version, formatters |
+| `packages/service` | For the apps: the typed oRPC client (`/rpc`) and better-auth session hooks (`/session`) |
+| `packages/ui` | Atoms, molecules, organisms (atomic design) |
+| `packages/utils` | Pure utilities: `cn()`, `For`, `Show`, `useQueryState`, `useModalLogin` |
 
-moon enforces the direction `ui -> service -> utils` through project tags (`.moon/workspace.yml`), so a reverse import fails the first `moon run`.
+moon project tags (`.moon/workspace.yml`) enforce the direction between layers, so an import the wrong way fails the first `moon run`.
 
 ## Getting Started
 
@@ -37,11 +46,14 @@ Requires [moon](https://moonrepo.dev/docs/install) and [proto](https://moonrepo.
 
 ```sh
 pnpm install
-cp apps/<app>/.env.example apps/<app>/.env   # optional, defaults work for local dev
-make <app>                                   # e.g. make backoffice, make landing
+cp apps/api/.dev.vars.example apps/api/.dev.vars   # local API secrets
+moon run api:db-migrate-local                      # create the local D1 schema
+moon run api:db-seed-local                         # seed users (admin@imphnen.dev / password123)
+make api                                           # API Worker on :8787
+make <app>                                         # e.g. make backoffice, make landing
 ```
 
-In dev, every Vite app proxies `/v1` to `https://api.imphnen.dev`, so no API URL is needed.
+In dev every app proxies `/rpc` and `/api/auth` to the local API on `:8787` (override with `VITE_DEV_API_URL`), so the session cookie stays same-origin. In production the apps call `https://api.imphnen.dev` and share the session cookie across `*.imphnen.dev`.
 
 Dependency versions shared by more than one package live once in the `catalog` of `pnpm-workspace.yaml`; a manifest refers to them as `catalog:`.
 
@@ -50,48 +62,45 @@ Dependency versions shared by more than one package live once in the `catalog` o
 Everything goes through `make` or `moon`; `make help` lists every target.
 
 ```sh
-make <app>          # dev server for one app
-make build          # build every app into apps/<app>/dist
+make <app>          # dev server for one app (make api for the API)
+make build          # build every app
 make check          # biome (format + lint)
 make typecheck      # tsc / astro check
-make test           # vitest (ui, dimentorin)
+make test           # vitest
 make ci             # what CI runs, on affected projects
-moon run <app>:build
-moon run dimentorin:e2e   # playwright, local only
+moon run <app>:deploy          # build and deploy one app Worker (your wrangler login)
+moon run api:deploy            # typecheck, test and deploy the API Worker
+moon run api:db-generate       # generate a D1 migration from the Drizzle schema
+moon run api:db-migrate-remote # apply pending D1 migrations to production
+moon run dimentorin:e2e        # playwright, local only
 ```
 
 ## CI/CD
 
-- **`.github/workflows/ci.yml`**: `moon ci` on every PR and on `develop` (biome, typecheck, build for affected projects)
-- **`.github/workflows/deploy.yml`**: on push to `develop`, `.github/scripts/affected-apps.sh` picks the apps a push can change, and each one is built and deployed with `wrangler pages deploy`. It can also be run by hand from the Actions tab with a list of apps
+- **`.github/workflows/ci.yml`**: `moon ci` on every PR and on `develop` (biome, typecheck, tests, build for affected projects). The pre-push hook runs the same thing on the commits being pushed
+- **`.github/workflows/deploy.yml`**: on push to `develop`, `.github/scripts/affected-apps.sh` picks the apps a push can change and runs `moon run <app>:deploy` for each. It can also be run by hand from the Actions tab with a list of apps
+- **`.github/workflows/deploy-api.yml`**: on push to `develop` touching the API or its shared packages: typecheck and test, apply pending D1 migrations, deploy the API Worker
 
-The SPAs call a same-origin `/v1`. On Pages, `deploy/pages/functions/v1/[[path]].ts` forwards those requests to the API (set `API_ORIGIN` on a Pages project to point it elsewhere). `deploy/pages/_headers` marks hashed assets immutable, and Pages serves `index.html` for unknown paths, which covers SPA routing.
+Both deploy workflows stay off until the repository variable `CLOUDFLARE_WORKERS_ENABLED` is `true` and the secrets `CLOUDFLARE_API_TOKEN` (Workers Scripts, Workers Routes, D1 and R2 edit) and `CLOUDFLARE_ACCOUNT_ID` exist. Until then, deploy from a machine with `moon run <app>:deploy`.
 
-One-off setup:
+Each app's `wrangler.jsonc` sets its custom domain and serves `dist/` as static assets: SPAs fall back to `index.html`, the landing serves its `404.html`, and `public/_headers` marks hashed assets immutable.
 
-1. Create the Pages projects: `pnpm exec wrangler login && make pages-create`
-2. Add repository secrets `CLOUDFLARE_API_TOKEN` (Pages: Edit) and `CLOUDFLARE_ACCOUNT_ID`, then set the repository variable `CLOUDFLARE_PAGES_ENABLED` to `true` (the deploy workflow stays off until then)
-3. Attach each custom domain to its `imphnen-<app>` project in the Cloudflare dashboard
+### API resources (already created)
 
-### API (Cloudflare Workers)
+| Resource | Name |
+|---|---|
+| D1 database | `imphnen` (id in `apps/api/wrangler.jsonc`) |
+| R2 bucket | `imphnen-storage`, public at `cdn.imphnen.dev` |
+| Email sending | enabled for `imphnen.dev`, sender `MAIL_FROM` |
+| Secrets | `BETTER_AUTH_SECRET` (set); `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` optional, for Google sign-in |
 
-- **`.github/workflows/deploy-api.yml`**: on push to `develop` touching the API or its shared packages, typecheck and test it, apply pending D1 migrations to the remote database, then `wrangler deploy` the `imphnen-api` Worker on `api.imphnen.dev`
-
-One-off setup (from `apps/api`, after `pnpm exec wrangler login`):
-
-1. `pnpm exec wrangler d1 create imphnen`, and put the returned `database_id` into `apps/api/wrangler.jsonc`
-2. `pnpm exec wrangler r2 bucket create imphnen-storage`, and give the bucket the public custom domain named by `STORAGE_PUBLIC_URL` (`cdn.imphnen.dev`)
-3. `pnpm exec wrangler email sending enable imphnen.dev`, so the Worker can send from `MAIL_FROM`
-4. Secrets: `pnpm exec wrangler secret put BETTER_AUTH_SECRET` (32+ random characters), plus `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` if Google sign-in is wanted
-5. Make sure the `CLOUDFLARE_API_TOKEN` secret can also edit Workers, D1 and R2, then set the repository variable `CLOUDFLARE_WORKERS_ENABLED` to `true`
-
-The first production deploy is part of the data cutover in `tools/legacy-migration/README.md`: the Worker takes over `api.imphnen.dev` from the old server, so run it together with the data migration.
+Production data from the old Rust backend is moved with `tools/legacy-migration` (Postgres to D1, MinIO to R2); its README is the cutover runbook.
 
 ## Known debt
 
 The Nx setup never ran `tsc` or unit tests in CI, so these gates start partly off:
 
-- `typecheck` is off in CI for imphnenos (existing type errors). Run `moon run <app>:typecheck` to see them, then set `runInCI: true` in the app's `moon.yml` once it is clean
+- `typecheck` is off in CI for imphnenos (existing type errors). Run `moon run imphnenos:typecheck` to see them, then set `runInCI: true` in its `moon.yml` once it is clean
 - `test` is off in CI for `ui` (16 stale specs)
 - Biome rules the existing code breaks are warnings in `biome.json`; promote them back to errors as they are cleaned up
 - Storybook was not installed; `*.stories.tsx` files are kept but excluded from typecheck
@@ -99,5 +108,5 @@ The Nx setup never ran `tsc` or unit tests in CI, so these gates start partly of
 ## Contributing
 
 1. Branch off `develop`: `git checkout -b feat/feature-name`
-2. Make changes; lefthook runs biome, typecheck and tests before push
+2. Commit with Conventional Commits; the pre-push hook runs `moon ci` on what you push
 3. Open a pull request to `develop`
