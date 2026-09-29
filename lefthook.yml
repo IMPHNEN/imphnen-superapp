@@ -1,8 +1,4 @@
 pre-push:
-  parallel: true
   jobs:
-    - name: biome check
-      run: moon run :check
-
-    - name: typecheck + unit tests
-      run: moon run :typecheck :test
+    - name: moon ci (what CI runs)
+      run: moon ci
