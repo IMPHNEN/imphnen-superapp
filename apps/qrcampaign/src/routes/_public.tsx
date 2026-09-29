@@ -1,16 +1,17 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { useAuthStore } from '../app/features/auth/store/auth.store';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
+import type { ReactElement } from 'react';
+import { PageLoader } from '../components/PageLoader';
 
 export const Route = createFileRoute('/_public')({
-  beforeLoad: () => {
-    const { isAuthenticated } = useAuthStore.getState();
-    if (isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
   component: PublicLayout,
 });
 
-function PublicLayout() {
+function PublicLayout(): ReactElement {
+  const { status } = useCurrentUser();
+
+  if (status === 'loading') return <PageLoader />;
+  if (status === 'authenticated') return <Navigate to="/" />;
+
   return <Outlet />;
 }

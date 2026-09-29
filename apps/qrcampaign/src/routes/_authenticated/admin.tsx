@@ -1,16 +1,16 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { useAuthStore } from '../../app/features/auth/store/auth.store';
+import { PERMISSION } from '@app/permissions';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
+import type { ReactElement } from 'react';
 
 export const Route = createFileRoute('/_authenticated/admin')({
-  beforeLoad: () => {
-    const { user, isAuthenticated } = useAuthStore.getState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/auth/login' });
-    }
-    const userRole = user?.role?.name;
-    if (userRole !== 'Admin' && userRole !== 'Super Admin') {
-      throw redirect({ to: '/' });
-    }
-  },
-  component: () => <Outlet />,
+  component: AdminLayout,
 });
+
+function AdminLayout(): ReactElement {
+  const { can } = useCurrentUser();
+
+  if (!can(PERMISSION.QR_CAMPAIGN_READ)) return <Navigate to="/" />;
+
+  return <Outlet />;
+}

@@ -1,21 +1,20 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { useAuthStore } from '../app/features/auth/store/auth.store';
-import { Sidebar } from '../components/Sidebar';
 import { MenuOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
+import { type ReactElement, useState } from 'react';
+import { PageLoader } from '../components/PageLoader';
+import { Sidebar } from '../components/Sidebar';
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: () => {
-    const { isAuthenticated } = useAuthStore.getState();
-    if (!isAuthenticated) {
-      throw redirect({ to: '/auth/login' });
-    }
-  },
   component: AuthenticatedLayout,
 });
 
-function AuthenticatedLayout() {
+function AuthenticatedLayout(): ReactElement {
+  const { status } = useCurrentUser();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  if (status === 'loading') return <PageLoader />;
+  if (status === 'unauthenticated') return <Navigate to="/auth/login" />;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -28,6 +27,7 @@ function AuthenticatedLayout() {
         <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setMobileSidebarOpen(true)}
               className="p-2 -ml-2 rounded-md hover:bg-gray-100 text-gray-700"
             >

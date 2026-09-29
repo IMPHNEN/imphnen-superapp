@@ -1,12 +1,14 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
-import { useGitHubAuth } from '@imphnen-frontend-service/service';
-import { GithubOutlined } from '@ant-design/icons';
-import { toast } from 'sonner';
-import { Icon } from '@iconify/react';
-import { useAuthStore } from '../../../app/features/auth/store/auth.store';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Icon } from '@iconify/react';
+import {
+  useSendVerificationOtp,
+  useSignUp,
+  useVerifyEmailOtp,
+} from '@imphnen-frontend-service/service/session';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { type FormEvent, type ReactElement, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const signupSchema = z
@@ -22,7 +24,8 @@ const signupSchema = z
     password: z
       .string()
       .min(1, 'Password is required')
-      .min(6, 'Password must be at least 6 characters'),
+      .min(8, 'Password must be at least 8 characters')
+      .max(128, 'Password must be at most 128 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -36,14 +39,16 @@ export const Route = createFileRoute('/_public/auth/signup')({
   component: SignupPage,
 });
 
-function SignupPage() {
+function SignupPage(): ReactElement {
   const navigate = useNavigate();
-  const registerUser = useAuthStore((state) => state.register);
+  const signUp = useSignUp();
+  const sendOtp = useSendVerificationOtp();
+  const verifyOtp = useVerifyEmailOtp();
 
-  const { signInWithGitHub } = useGitHubAuth();
-  const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [otp, setOtp] = useState('');
+  const isSubmitting = signUp.isPending;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -56,41 +61,45 @@ function SignupPage() {
     mode: 'onChange',
   });
 
-  const onSubmit = async (data: SignupFormData) => {
+  const onSubmit = (data: SignupFormData): void => {
     setError(null);
-    setIsSubmitting(true);
-
-    try {
-      await registerUser(data.fullname, data.email, data.password);
-      toast.success('Registration successful! Redirecting...');
-      navigate({ to: '/' });
-    } catch (err: any) {
-      console.error('[Signup] Email signup failed:', err);
-      const errorMessage =
-        err.response?.data?.message || err.message || 'Signup failed';
-      setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
+    signUp.mutate(
+      { name: data.fullname, email: data.email, password: data.password },
+      {
+        onSuccess: () => {
+          toast.success('Account created! Check your email for the code.');
+          setPendingEmail(data.email);
+        },
+        onError: (err) => setError(err.message || 'Signup failed'),
+      }
+    );
   };
 
-  const handleGithubLogin = async () => {
-    try {
-      setIsGithubLoading(true);
-
-      const result = await signInWithGitHub();
-
-      if (result?.url) {
-        globalThis.location.href = result.url;
-      } else {
-        setIsGithubLoading(false);
-        setError('Failed to get GitHub OAuth URL');
+  const onVerify = (e: FormEvent): void => {
+    e.preventDefault();
+    if (!pendingEmail) return;
+    setError(null);
+    verifyOtp.mutate(
+      { email: pendingEmail, otp: otp.trim() },
+      {
+        onSuccess: () => {
+          toast.success('Email verified! Welcome.');
+          navigate({ to: '/' });
+        },
+        onError: (err) => setError(err.message || 'Invalid code'),
       }
-    } catch (err) {
-      console.error('[Signup] GitHub login failed:', err);
-      setError((err as Error).message || 'GitHub login failed');
-      setIsGithubLoading(false);
-    }
+    );
+  };
+
+  const onResend = (): void => {
+    if (!pendingEmail) return;
+    sendOtp.mutate(
+      { email: pendingEmail },
+      {
+        onSuccess: () => toast.success('A new code has been sent.'),
+        onError: (err) => toast.error(err.message || 'Failed to send code'),
+      }
+    );
   };
 
   const inputBaseClass =
@@ -98,11 +107,75 @@ function SignupPage() {
   const inputErrorClass = 'border-red-500';
   const inputNormalClass = 'border-gray-300';
 
+  if (pendingEmail) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+        <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg border border-gray-200">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Verify Your Email
+            </h2>
+            <p className="text-gray-600">
+              Enter the code we sent to <strong>{pendingEmail}</strong>
+            </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={onVerify} className="space-y-4">
+            <div>
+              <label
+                htmlFor="otp"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Verification Code
+              </label>
+              <input
+                id="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="123456"
+                disabled={verifyOtp.isPending}
+                className={`${inputBaseClass} ${inputNormalClass} tracking-widest text-center`}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={!otp.trim() || verifyOtp.isPending}
+              className="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
+              {verifyOtp.isPending ? 'Verifying...' : 'Verify Email'}
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={onResend}
+            disabled={sendOtp.isPending}
+            className="w-full mt-4 py-3 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer disabled:cursor-not-allowed"
+          >
+            {sendOtp.isPending ? 'Sending...' : 'Resend code'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
       <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg border border-gray-200">
         <div className="flex items-center justify-between mb-6">
           <button
+            type="button"
             onClick={() => navigate({ to: '/' })}
             className="cursor-pointer text-primary-500 hover:text-primary-600 text-base font-sans flex items-center"
           >
@@ -253,37 +326,6 @@ function SignupPage() {
             {isSubmitting ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
-
-        <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">OR</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-
-        <button
-          onClick={handleGithubLogin}
-          disabled={isGithubLoading}
-          type="button"
-          className="w-full py-3 flex items-center justify-center gap-2 bg-gray-100 border border-gray-300 rounded-lg font-semibold text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors cursor-pointer"
-        >
-          <GithubOutlined className="text-xl" />
-          <span>
-            {isGithubLoading ? 'Connecting...' : 'Sign up with GitHub'}
-          </span>
-        </button>
-
-        <p className="mt-3 text-xs text-center text-gray-500">
-          Make sure your GitHub email is{' '}
-          <a
-            href="https://github.com/settings/emails"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary-600 hover:underline"
-          >
-            set to public
-          </a>{' '}
-          for GitHub sign up to work.
-        </p>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">

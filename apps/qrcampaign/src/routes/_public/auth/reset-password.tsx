@@ -1,43 +1,38 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
-import {
-  useResetPassword,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
-import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
+import { useResetPassword } from '@imphnen-frontend-service/service/session';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { type FormEvent, type ReactElement, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+const PASSWORD_MIN_LENGTH = 8;
 
 export const Route = createFileRoute('/_public/auth/reset-password')({
   component: ResetPasswordPage,
 });
 
-function ResetPasswordPage() {
+function ResetPasswordPage(): ReactElement {
   const navigate = useNavigate();
-  const { clearSession } = useAuthStore();
   const resetPasswordMutation = useResetPassword();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(
-      globalThis.location.hash.substring(1)
-    );
     const queryParams = new URLSearchParams(globalThis.location.search);
-    const token =
-      hashParams.get('access_token') || queryParams.get('access_token');
+    const token = queryParams.get('token');
+    const linkError = queryParams.get('error');
 
-    if (token) {
-      setAccessToken(token);
+    if (token && !linkError) {
+      setResetToken(token);
     } else {
       toast.error('Invalid or expired reset link');
       setTimeout(() => navigate({ to: '/auth/forgot-password' }), 2000);
     }
   }, [navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -45,32 +40,33 @@ function ResetPasswordPage() {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      toast.error(
+        `Password must be at least ${PASSWORD_MIN_LENGTH} characters`
+      );
       return;
     }
 
-    if (!accessToken) {
+    if (!resetToken) {
       toast.error('Invalid reset token');
       return;
     }
 
     try {
       await resetPasswordMutation.mutateAsync({
-        access_token: accessToken,
-        new_password: password,
+        token: resetToken,
+        newPassword: password,
       });
 
       toast.success('Password updated successfully!');
 
-      clearSession();
       navigate({ to: '/auth/login' });
     } catch (err) {
       toast.error((err as Error).message || 'Failed to reset password');
     }
   };
 
-  if (!accessToken) {
+  if (!resetToken) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <div className="text-center">
@@ -109,7 +105,7 @@ function ResetPasswordPage() {
                 disabled={resetPasswordMutation.isPending}
                 className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white text-gray-900"
                 required
-                minLength={6}
+                minLength={PASSWORD_MIN_LENGTH}
               />
               <button
                 type="button"
@@ -141,7 +137,7 @@ function ResetPasswordPage() {
                 disabled={resetPasswordMutation.isPending}
                 className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed bg-white text-gray-900"
                 required
-                minLength={6}
+                minLength={PASSWORD_MIN_LENGTH}
               />
               <button
                 type="button"

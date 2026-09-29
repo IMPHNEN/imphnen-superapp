@@ -1,23 +1,27 @@
 import {
   AppstoreOutlined,
-  UsergroupAddOutlined,
-  QrcodeOutlined,
-  LogoutOutlined,
   DownOutlined,
+  LogoutOutlined,
+  QrcodeOutlined,
   RightOutlined,
 } from '@ant-design/icons';
+import { roleLabel } from '@app/messages';
+import { PERMISSION, type TPermission } from '@app/permissions';
+import {
+  useCurrentUser,
+  useSignOut,
+} from '@imphnen-frontend-service/service/session';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
-import { type FC, type ReactElement, useState } from 'react';
-import { Link, useLocation } from '@tanstack/react-router';
 import { cn, For } from '@imphnen-frontend-service/utils';
-import { useAuthStore } from '../app/features/auth/store/auth.store';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { type FC, type ReactElement, useState } from 'react';
 
 type MenuItem = {
   label: string;
   href?: string;
   icon?: ReactElement;
   children?: Array<{ label: string; href: string; icon?: ReactElement }>;
-  roles?: string[];
+  permissions?: TPermission[];
 };
 
 const MENUS: MenuItem[] = [
@@ -25,19 +29,12 @@ const MENUS: MenuItem[] = [
     label: 'QR Generator',
     href: '/',
     icon: <QrcodeOutlined className="text-[20px]" />,
-    roles: ['User', 'Admin', 'Super Admin'],
   },
   {
     label: 'Campaign Management',
     href: '/admin/campaigns',
     icon: <AppstoreOutlined className="text-[20px]" />,
-    roles: ['Admin', 'Super Admin'],
-  },
-  {
-    label: 'User Management',
-    href: '/admin/users',
-    icon: <UsergroupAddOutlined className="text-[20px]" />,
-    roles: ['Admin', 'Super Admin'],
+    permissions: [PERMISSION.QR_CAMPAIGN_READ],
   },
 ];
 
@@ -50,11 +47,19 @@ export const Sidebar: FC<SidebarProps> = ({
   isOpen = false,
   onClose,
 }): ReactElement => {
-  const { user, logout } = useAuthStore();
+  const { me, can } = useCurrentUser();
+  const signOut = useSignOut();
+  const navigate = useNavigate();
   const location = useLocation();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const userRole = user?.role?.name || 'User';
+  const user = me?.user;
+
+  const logout = (): void => {
+    signOut.mutate(undefined, {
+      onSuccess: () => navigate({ to: '/auth/login' }),
+    });
+  };
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
@@ -66,8 +71,8 @@ export const Sidebar: FC<SidebarProps> = ({
   };
 
   const filteredMenus = MENUS.filter((menu) => {
-    if (!menu.roles) return true;
-    return menu.roles.includes(userRole);
+    if (!menu.permissions) return true;
+    return can(...menu.permissions);
   });
 
   const sidebarContent = (
@@ -180,20 +185,21 @@ export const Sidebar: FC<SidebarProps> = ({
           </div>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold text-xs ring-2 ring-white">
-              {user?.fullname?.charAt(0) || 'U'}
+              {user?.name?.charAt(0) || 'U'}
             </div>
             <div className="flex flex-col overflow-hidden">
               <span className="text-sm font-medium truncate text-gray-900">
-                {user?.fullname}
+                {user?.name}
               </span>
               <span className="text-xs text-gray-500 truncate">
-                {user?.role?.name}
+                {user ? roleLabel(user.role) : ''}
               </span>
             </div>
           </div>
         </div>
         <Button
           onClick={logout}
+          disabled={signOut.isPending}
           variant="text"
           className="items-center justify-start gap-3 px-2 py-2.5 text-gray-600 hover:text-red-600 dark:hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-50 transition-colors w-full rounded-md"
         >

@@ -1,11 +1,10 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
-import { GithubOutlined } from '@ant-design/icons';
-import { toast } from 'sonner';
-import { Icon } from '@iconify/react';
-import { useAuthStore } from '../../../app/features/auth/store/auth.store';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Icon } from '@iconify/react';
+import { useSignIn } from '@imphnen-frontend-service/service/session';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { type ReactElement, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -21,14 +20,12 @@ export const Route = createFileRoute('/_public/auth/login')({
   component: LoginPage,
 });
 
-function LoginPage() {
+function LoginPage(): ReactElement {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const signIn = useSignIn();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = signIn.isPending;
 
   const {
     register,
@@ -40,24 +37,16 @@ function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
-  useEffect(() => {
-    if (isAuthenticated) navigate({ to: '/' });
-  }, [isAuthenticated, navigate]);
-
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit((data) => {
     setError(null);
-    setIsSubmitting(true);
-    try {
-      const success = await login(data.email, data.password);
-      if (success) {
+    signIn.mutate(data, {
+      onSuccess: () => {
         toast.success('Login successful!');
         navigate({ to: '/' });
-      } else setError('Login failed. Please check your credentials.');
-    } catch {
-      setError('Login failed. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+      onError: (err) =>
+        setError(err.message || 'Login failed. Please check your credentials.'),
+    });
   });
 
   return (
@@ -151,24 +140,6 @@ function LoginPage() {
             {isSubmitting ? 'Signing in...' : 'Sign in with Email'}
           </button>
         </form>
-
-        <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">OR</span>
-          <div className="flex-1 border-t border-gray-300"></div>
-        </div>
-
-        <button
-          onClick={() => toast.info('GitHub login coming soon')}
-          disabled={isGithubLoading}
-          type="button"
-          className="w-full py-3 flex items-center justify-center gap-2 bg-gray-100 border border-gray-300 rounded-lg font-semibold text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors cursor-pointer"
-        >
-          <GithubOutlined className="text-xl" />
-          <span>
-            {isGithubLoading ? 'Connecting...' : 'Sign in with GitHub'}
-          </span>
-        </button>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">
