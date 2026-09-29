@@ -3,10 +3,21 @@ import { type FC, type ReactElement, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button } from '../../atoms/button';
 import { useModalLogin } from '@imphnen-frontend-service/utils';
-import { useSession } from '@imphnen-frontend-service/service';
+import {
+  useCurrentUser,
+  useSignOut,
+} from '@imphnen-frontend-service/service/session';
 
 export const Navbar: FC = (): ReactElement => {
-  const { session, signOut, isAuthenticated } = useSession();
+  const { me, isAuthenticated } = useCurrentUser();
+  const signOutMutation = useSignOut();
+  const signOut = (): void => {
+    signOutMutation.mutate(undefined, {
+      onSuccess: (): void => {
+        window.location.href = '/auth/login';
+      },
+    });
+  };
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { setShowModalLogin } = useModalLogin();
 
@@ -51,7 +62,7 @@ export const Navbar: FC = (): ReactElement => {
               ) : (
                 <li className="flex gap-x-4">
                   <span className="lg:text-p3 pb-[10px] self-end">
-                    {session?.user?.fullname}
+                    {me?.user.name}
                   </span>
                   <Button
                     onClick={signOut}
@@ -104,7 +115,7 @@ export const Navbar: FC = (): ReactElement => {
                     ) : (
                       <>
                         <li className="px-4 py-2 text-center text-gray-600 font-semibold">
-                          {session?.user?.fullname}
+                          {me?.user.name}
                         </li>
                         <li>
                           <div

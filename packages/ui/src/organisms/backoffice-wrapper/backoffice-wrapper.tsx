@@ -1,7 +1,10 @@
 import type * as React from 'react';
 import { LogOut, User, Settings } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useAuthStore, useSession } from '@imphnen-frontend-service/service';
+import {
+  useCurrentUser,
+  useSignOut,
+} from '@imphnen-frontend-service/service/session';
 import { cn } from '@imphnen-frontend-service/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../../atoms/avatar';
 import { Button } from '../../atoms/button';
@@ -35,11 +38,11 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
   classHeader,
   classTitle,
 }) => {
-  const { session } = useAuthStore();
-  const { signOut } = useSession();
+  const { me } = useCurrentUser();
+  const signOutMutation = useSignOut();
   const navigate = useNavigate();
-  const user = session?.user;
-  const initials = (user?.fullname ?? 'U')
+  const user = me?.user;
+  const initials = (user?.name ?? 'U')
     .split(' ')
     .map((s) => s[0])
     .slice(0, 2)
@@ -84,14 +87,14 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
               >
                 <div className="hidden text-right md:flex md:flex-col md:leading-tight">
                   <span className="text-sm font-medium text-foreground">
-                    {user?.fullname ?? 'Admin'}
+                    {user?.name ?? 'Admin'}
                   </span>
                   <span className="text-xs text-muted-foreground">Admin</span>
                 </div>
                 <Avatar>
                   <AvatarImage
-                    src={user?.avatar || '/images/asd687hwq6nds4dfjj2983.webp'}
-                    alt={user?.fullname ?? 'User avatar'}
+                    src={user?.image || '/images/asd687hwq6nds4dfjj2983.webp'}
+                    alt={user?.name ?? 'User avatar'}
                   />
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
@@ -100,7 +103,7 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuLabel className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium">
-                  {user?.fullname ?? 'Admin'}
+                  {user?.name ?? 'Admin'}
                 </span>
                 <span className="text-xs font-normal text-muted-foreground">
                   {user?.email ?? 'admin@imphnen.dev'}
@@ -119,8 +122,11 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
               <DropdownMenuItem
                 variant="destructive"
                 onSelect={() => {
-                  signOut();
-                  navigate({ to: '/auth/login' });
+                  signOutMutation.mutate(undefined, {
+                    onSuccess: (): void => {
+                      navigate({ to: '/auth/login' });
+                    },
+                  });
                 }}
               >
                 <LogOut />
