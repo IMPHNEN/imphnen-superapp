@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.server.json",
-  "include": ["src/**/*.ts", "vitest.config.ts"],
-  "compilerOptions": {
-    "types": ["node"],
-    "erasableSyntaxOnly": true
-  }
-}

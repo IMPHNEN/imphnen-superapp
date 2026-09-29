@@ -1,7 +1,6 @@
 packages:
   - "apps/*"
   - "packages/*"
-  - "tools/*"
 
 catalog:
   "@mobily/ts-belt": "^3.13.1"
