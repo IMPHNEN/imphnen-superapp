@@ -15,7 +15,8 @@
     "arch": "node scripts/check-architecture.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
-    "db:migrate:remote": "wrangler d1 migrations apply DB --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:seed:local": "node scripts/seed-local.ts && wrangler d1 execute DB --local --file .wrangler/seed/seed-local.sql"
   },
   "dependencies": {
     "@app/activity": "workspace:*",
@@ -25,6 +26,7 @@
     "@app/schemas": "workspace:*",
     "@app/version": "workspace:*",
     "@mobily/ts-belt": "catalog:",
+    "@noble/hashes": "^2.4.0",
     "@orpc/json-schema": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

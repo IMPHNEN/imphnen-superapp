@@ -185,6 +185,9 @@ importers:
       '@mobily/ts-belt':
         specifier: 'catalog:'
         version: 3.13.1(patch_hash=089c2961d9dcaf34a971874c8717d7a961ff3c49d4508968d9c4dd22fab7300a)
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
       '@orpc/json-schema':
         specifier: 'catalog:'
         version: 1.15.4(crossws@0.3.5)(ws@8.22.0)

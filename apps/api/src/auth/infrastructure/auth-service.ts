@@ -14,6 +14,7 @@ import { MailService } from '#/platform/mail/mail-service.ts';
 import { passwordResetMailBuild } from '#/platform/mail/password-reset-mail.ts';
 import { APP_MESSAGE } from '@app/messages';
 import type { TPasswordResetMail } from '#/auth/infrastructure/better-auth.ts';
+import { otpMailBuild, type TOtpMail } from '#/auth/infrastructure/otp-mail.ts';
 import type { TServiceId } from '#/shared/service-id.ts';
 import { SERVICE_TAG } from '#/platform/service-tags.ts';
 
@@ -53,10 +54,16 @@ export const authServiceLayer = Layer.effect(
         mail.send(passwordResetMailBuild({ ...input, brand: APP_MESSAGE.NAME }))
       );
 
+    const otpSend = (input: TOtpMail): Promise<void> =>
+      Effect.runPromise(
+        mail.send(otpMailBuild({ ...input, brand: APP_MESSAGE.NAME }))
+      );
+
     const auth = authCreate({
       db,
       activityRepo,
       passwordResetSend,
+      otpSend,
       permissionsFor,
     });
 
@@ -89,6 +96,14 @@ export const authServiceLayer = Layer.effect(
               )
               .with(
                 { user: P.nullish },
+                (): TSessionEffect => Effect.succeed(null)
+              )
+              .with(
+                { user: { isActive: false } },
+                (): TSessionEffect => Effect.succeed(null)
+              )
+              .with(
+                { user: { deletedAt: P.instanceOf(Date) } },
                 (): TSessionEffect => Effect.succeed(null)
               )
               .otherwise(({ user }) =>

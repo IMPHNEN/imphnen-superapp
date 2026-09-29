@@ -5,8 +5,9 @@ import {
 import type { TAuthServiceId } from '#/auth/infrastructure/auth-service.ts';
 import { meRouterBuild } from '#/auth/presentation/me-router.ts';
 import { authMount } from '#/auth/presentation/mount-auth.ts';
+import { AUTH_PROVIDER } from '#/auth/domain/auth-provider.ts';
 
-export { AuthService, authMount };
+export { AUTH_PROVIDER, AuthService, authMount };
 export type { TAuthServiceId };
 
 export const authModule: {

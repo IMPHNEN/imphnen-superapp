@@ -15,6 +15,8 @@ export const user = sqliteTable('user', {
     .default(false),
   image: text('image'),
   role: text('role').notNull().default(DEFAULT_ROLE),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  deletedAt: timestampColumn('deleted_at'),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });
@@ -57,4 +59,13 @@ export const verification = sqliteTable('verification', {
   expiresAt: timestampColumn('expires_at').notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
+});
+
+export const rateLimit = sqliteTable('rate_limit', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn((): string => crypto.randomUUID()),
+  key: text('key').notNull().unique(),
+  count: integer('count').notNull(),
+  lastRequest: integer('last_request').notNull(),
 });
