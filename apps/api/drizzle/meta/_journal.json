@@ -15,6 +15,13 @@
       "when": 1790689657192,
       "tag": "0001_burly_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790689727883,
+      "tag": "0002_careless_vulcan",
+      "breakpoints": true
     }
   ]
 }
