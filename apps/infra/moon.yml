@@ -1,0 +1,41 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'infra'
+layer: 'application'
+language: 'typescript'
+tags: ['app']
+stack: 'frontend'
+
+tasks:
+  dev:
+    command: 'pnpm dev'
+    options:
+      persistent: true
+      runInCI: false
+
+  build:
+    command: 'pnpm build'
+    inputs:
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'index.html'
+      - 'vite.config.*'
+      - 'postcss.config.mjs'
+      - 'package.json'
+    outputs:
+      - 'dist'
+
+  preview:
+    command: 'pnpm preview'
+    deps: ['build']
+    options:
+      persistent: true
+      runInCI: false
+
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig*.json'
+      - 'package.json'
+      - '/tsconfig.base.json'

@@ -1,0 +1,41 @@
+{
+  "name": "@imphnen/hackathon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ant-design/icons": "catalog:",
+    "@hookform/resolvers": "catalog:",
+    "@iconify/react": "catalog:",
+    "@imphnen-frontend-service/service": "workspace:*",
+    "@imphnen-frontend-service/ui": "workspace:*",
+    "@imphnen-frontend-service/utils": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "html2canvas": "catalog:",
+    "qrcode": "^1.5.4",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-hook-form": "catalog:",
+    "sonner": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "@types/node": "catalog:",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

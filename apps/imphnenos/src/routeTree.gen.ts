@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
-import { Route as SiteFeaturesRouteImport } from './routes/_site/features'
-import { Route as SiteFaqRouteImport } from './routes/_site/faq'
-import { Route as SiteDownloadRouteImport } from './routes/_site/download'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
+import { Route as SiteDownloadRouteImport } from './routes/_site/download'
+import { Route as SiteFaqRouteImport } from './routes/_site/faq'
+import { Route as SiteFeaturesRouteImport } from './routes/_site/features'
 import { Route as SiteWikiIndexRouteImport } from './routes/_site/wiki/index'
 import { Route as SiteWikiSlugRouteImport } from './routes/_site/wiki/$slug'
 
@@ -27,14 +27,9 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteFeaturesRoute = SiteFeaturesRouteImport.update({
-  id: '/features',
-  path: '/features',
-  getParentRoute: () => SiteRoute,
-} as any)
-const SiteFaqRoute = SiteFaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
+const SiteAboutRoute = SiteAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteDownloadRoute = SiteDownloadRouteImport.update({
@@ -42,9 +37,14 @@ const SiteDownloadRoute = SiteDownloadRouteImport.update({
   path: '/download',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteAboutRoute = SiteAboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const SiteFaqRoute = SiteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteFeaturesRoute = SiteFeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteWikiIndexRoute = SiteWikiIndexRouteImport.update({
@@ -138,18 +138,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/features': {
-      id: '/_site/features'
-      path: '/features'
-      fullPath: '/features'
-      preLoaderRoute: typeof SiteFeaturesRouteImport
-      parentRoute: typeof SiteRoute
-    }
-    '/_site/faq': {
-      id: '/_site/faq'
-      path: '/faq'
-      fullPath: '/faq'
-      preLoaderRoute: typeof SiteFaqRouteImport
+    '/_site/about': {
+      id: '/_site/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof SiteAboutRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/download': {
@@ -159,11 +152,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteDownloadRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/about': {
-      id: '/_site/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof SiteAboutRouteImport
+    '/_site/faq': {
+      id: '/_site/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof SiteFaqRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/features': {
+      id: '/_site/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof SiteFeaturesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/wiki/': {

@@ -1,13 +1,10 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 
 export default defineConfig(() => ({
-  root: __dirname,
-  cacheDir: '../../node_modules/.vite/apps/dimentorin',
+  root: import.meta.dirname,
   server: {
     port: 3000,
     host: 'localhost',
@@ -16,21 +13,21 @@ export default defineConfig(() => ({
     port: 3001,
     host: 'localhost',
   },
-  build: { rolldownOptions: { output: { codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] } } } },
   plugins: [
     TanStackRouterVite({
       routeFileIgnorePattern: '_components|_hooks|_hook|_data',
     }),
     react(),
-    nxViteTsPaths(),
-    nxCopyAssetsPlugin(['*.md']),
   ],
   build: {
-    outDir: '../../dist/apps/dimentorin',
+    outDir: 'dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
       transformMixedEsModules: true,
+    },
+    rolldownOptions: {
+      output: { codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] } },
     },
   },
   test: {
@@ -40,7 +37,7 @@ export default defineConfig(() => ({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../coverage/apps/dimentorin',
+      reportsDirectory: 'coverage',
       provider: 'v8' as const,
     },
   },

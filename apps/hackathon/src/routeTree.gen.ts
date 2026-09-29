@@ -9,105 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PublicRouteImport } from './routes/_public'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PublicWinnersRouteImport } from './routes/_public/winners'
-import { Route as PublicMaintenanceRouteImport } from './routes/_public/maintenance'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as PublicCertificateCertIdRouteImport } from './routes/_public/certificate/$certId'
-import { Route as PublicAuthSignupRouteImport } from './routes/_public/auth/signup'
-import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
-import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
-import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
-import { Route as PublicAuthCallbackRouteImport } from './routes/_public/auth/callback'
-import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
-import { Route as AuthenticatedTeamsCreateRouteImport } from './routes/_authenticated/teams/create'
-import { Route as AuthenticatedTeamsBrowseRouteImport } from './routes/_authenticated/teams/browse'
-import { Route as AuthenticatedTeamsTeamIdRouteImport } from './routes/_authenticated/teams/$teamId'
+import { Route as PublicMaintenanceRouteImport } from './routes/_public/maintenance'
+import { Route as PublicWinnersRouteImport } from './routes/_public/winners'
 import { Route as AuthenticatedOnboardingUserRouteImport } from './routes/_authenticated/onboarding/user'
-import { Route as PublicCertificateWinnerCertIdRouteImport } from './routes/_public/certificate/winner/$certId'
-import { Route as AuthenticatedTeamsTeamIdSubmitRouteImport } from './routes/_authenticated/teams/$teamId/submit'
-import { Route as AuthenticatedTeamsTeamIdSubmissionRouteImport } from './routes/_authenticated/teams/$teamId/submission'
-import { Route as AuthenticatedTeamsTeamIdMembersRouteImport } from './routes/_authenticated/teams/$teamId/members'
-import { Route as AuthenticatedTeamsTeamIdEditRouteImport } from './routes/_authenticated/teams/$teamId/edit'
+import { Route as AuthenticatedTeamsTeamIdRouteImport } from './routes/_authenticated/teams/$teamId'
+import { Route as AuthenticatedTeamsBrowseRouteImport } from './routes/_authenticated/teams/browse'
+import { Route as AuthenticatedTeamsCreateRouteImport } from './routes/_authenticated/teams/create'
+import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
+import { Route as PublicAuthCallbackRouteImport } from './routes/_public/auth/callback'
+import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
+import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
+import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
+import { Route as PublicAuthSignupRouteImport } from './routes/_public/auth/signup'
+import { Route as PublicCertificateCertIdRouteImport } from './routes/_public/certificate/$certId'
 import { Route as AuthenticatedTeamsTeamIdChatRouteImport } from './routes/_authenticated/teams/$teamId/chat'
+import { Route as AuthenticatedTeamsTeamIdEditRouteImport } from './routes/_authenticated/teams/$teamId/edit'
+import { Route as AuthenticatedTeamsTeamIdMembersRouteImport } from './routes/_authenticated/teams/$teamId/members'
+import { Route as AuthenticatedTeamsTeamIdSubmissionRouteImport } from './routes/_authenticated/teams/$teamId/submission'
+import { Route as AuthenticatedTeamsTeamIdSubmitRouteImport } from './routes/_authenticated/teams/$teamId/submit'
+import { Route as PublicCertificateWinnerCertIdRouteImport } from './routes/_public/certificate/winner/$certId'
 
-const PublicRoute = PublicRouteImport.update({
-  id: '/_public',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
-} as any)
-const PublicWinnersRoute = PublicWinnersRouteImport.update({
-  id: '/winners',
-  path: '/winners',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicMaintenanceRoute = PublicMaintenanceRouteImport.update({
-  id: '/maintenance',
-  path: '/maintenance',
-  getParentRoute: () => PublicRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const PublicCertificateCertIdRoute = PublicCertificateCertIdRouteImport.update({
-  id: '/certificate/$certId',
-  path: '/certificate/$certId',
+const PublicMaintenanceRoute = PublicMaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicAuthSignupRoute = PublicAuthSignupRouteImport.update({
-  id: '/auth/signup',
-  path: '/auth/signup',
+const PublicWinnersRoute = PublicWinnersRouteImport.update({
+  id: '/winners',
+  path: '/winners',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicAuthResetPasswordRoute = PublicAuthResetPasswordRouteImport.update({
-  id: '/auth/reset-password',
-  path: '/auth/reset-password',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicAuthForgotPasswordRoute =
-  PublicAuthForgotPasswordRouteImport.update({
-    id: '/auth/forgot-password',
-    path: '/auth/forgot-password',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthCallbackRoute = PublicAuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => PublicRoute,
-} as any)
-const AuthenticatedUsersUserIdRoute =
-  AuthenticatedUsersUserIdRouteImport.update({
-    id: '/users/$userId',
-    path: '/users/$userId',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedTeamsCreateRoute =
-  AuthenticatedTeamsCreateRouteImport.update({
-    id: '/teams/create',
-    path: '/teams/create',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedTeamsBrowseRoute =
-  AuthenticatedTeamsBrowseRouteImport.update({
-    id: '/teams/browse',
-    path: '/teams/browse',
+const AuthenticatedOnboardingUserRoute =
+  AuthenticatedOnboardingUserRouteImport.update({
+    id: '/onboarding/user',
+    path: '/onboarding/user',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedTeamsTeamIdRoute =
@@ -116,34 +73,59 @@ const AuthenticatedTeamsTeamIdRoute =
     path: '/teams/$teamId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedOnboardingUserRoute =
-  AuthenticatedOnboardingUserRouteImport.update({
-    id: '/onboarding/user',
-    path: '/onboarding/user',
+const AuthenticatedTeamsBrowseRoute =
+  AuthenticatedTeamsBrowseRouteImport.update({
+    id: '/teams/browse',
+    path: '/teams/browse',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const PublicCertificateWinnerCertIdRoute =
-  PublicCertificateWinnerCertIdRouteImport.update({
-    id: '/certificate/winner/$certId',
-    path: '/certificate/winner/$certId',
+const AuthenticatedTeamsCreateRoute =
+  AuthenticatedTeamsCreateRouteImport.update({
+    id: '/teams/create',
+    path: '/teams/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUsersUserIdRoute =
+  AuthenticatedUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const PublicAuthCallbackRoute = PublicAuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthForgotPasswordRoute =
+  PublicAuthForgotPasswordRouteImport.update({
+    id: '/auth/forgot-password',
+    path: '/auth/forgot-password',
     getParentRoute: () => PublicRoute,
   } as any)
-const AuthenticatedTeamsTeamIdSubmitRoute =
-  AuthenticatedTeamsTeamIdSubmitRouteImport.update({
-    id: '/submit',
-    path: '/submit',
-    getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
-  } as any)
-const AuthenticatedTeamsTeamIdSubmissionRoute =
-  AuthenticatedTeamsTeamIdSubmissionRouteImport.update({
-    id: '/submission',
-    path: '/submission',
-    getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
-  } as any)
-const AuthenticatedTeamsTeamIdMembersRoute =
-  AuthenticatedTeamsTeamIdMembersRouteImport.update({
-    id: '/members',
-    path: '/members',
+const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthResetPasswordRoute = PublicAuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthSignupRoute = PublicAuthSignupRouteImport.update({
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCertificateCertIdRoute = PublicCertificateCertIdRouteImport.update({
+  id: '/certificate/$certId',
+  path: '/certificate/$certId',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AuthenticatedTeamsTeamIdChatRoute =
+  AuthenticatedTeamsTeamIdChatRouteImport.update({
+    id: '/chat',
+    path: '/chat',
     getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
   } as any)
 const AuthenticatedTeamsTeamIdEditRoute =
@@ -152,11 +134,29 @@ const AuthenticatedTeamsTeamIdEditRoute =
     path: '/edit',
     getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
   } as any)
-const AuthenticatedTeamsTeamIdChatRoute =
-  AuthenticatedTeamsTeamIdChatRouteImport.update({
-    id: '/chat',
-    path: '/chat',
+const AuthenticatedTeamsTeamIdMembersRoute =
+  AuthenticatedTeamsTeamIdMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
     getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
+  } as any)
+const AuthenticatedTeamsTeamIdSubmissionRoute =
+  AuthenticatedTeamsTeamIdSubmissionRouteImport.update({
+    id: '/submission',
+    path: '/submission',
+    getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
+  } as any)
+const AuthenticatedTeamsTeamIdSubmitRoute =
+  AuthenticatedTeamsTeamIdSubmitRouteImport.update({
+    id: '/submit',
+    path: '/submit',
+    getParentRoute: () => AuthenticatedTeamsTeamIdRoute,
+  } as any)
+const PublicCertificateWinnerCertIdRoute =
+  PublicCertificateWinnerCertIdRouteImport.update({
+    id: '/certificate/winner/$certId',
+    path: '/certificate/winner/$certId',
+    getParentRoute: () => PublicRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -313,11 +313,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_public': {
-      id: '/_public'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof PublicRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -327,26 +327,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_public/winners': {
-      id: '/_public/winners'
-      path: '/winners'
-      fullPath: '/winners'
-      preLoaderRoute: typeof PublicWinnersRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/maintenance': {
-      id: '/_public/maintenance'
-      path: '/maintenance'
-      fullPath: '/maintenance'
-      preLoaderRoute: typeof PublicMaintenanceRouteImport
-      parentRoute: typeof PublicRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -355,67 +341,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_public/certificate/$certId': {
-      id: '/_public/certificate/$certId'
-      path: '/certificate/$certId'
-      fullPath: '/certificate/$certId'
-      preLoaderRoute: typeof PublicCertificateCertIdRouteImport
+    '/_public/maintenance': {
+      id: '/_public/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof PublicMaintenanceRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/auth/signup': {
-      id: '/_public/auth/signup'
-      path: '/auth/signup'
-      fullPath: '/auth/signup'
-      preLoaderRoute: typeof PublicAuthSignupRouteImport
+    '/_public/winners': {
+      id: '/_public/winners'
+      path: '/winners'
+      fullPath: '/winners'
+      preLoaderRoute: typeof PublicWinnersRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/auth/reset-password': {
-      id: '/_public/auth/reset-password'
-      path: '/auth/reset-password'
-      fullPath: '/auth/reset-password'
-      preLoaderRoute: typeof PublicAuthResetPasswordRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/login': {
-      id: '/_public/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof PublicAuthLoginRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/forgot-password': {
-      id: '/_public/auth/forgot-password'
-      path: '/auth/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof PublicAuthForgotPasswordRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/callback': {
-      id: '/_public/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof PublicAuthCallbackRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_authenticated/users/$userId': {
-      id: '/_authenticated/users/$userId'
-      path: '/users/$userId'
-      fullPath: '/users/$userId'
-      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/teams/create': {
-      id: '/_authenticated/teams/create'
-      path: '/teams/create'
-      fullPath: '/teams/create'
-      preLoaderRoute: typeof AuthenticatedTeamsCreateRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/teams/browse': {
-      id: '/_authenticated/teams/browse'
-      path: '/teams/browse'
-      fullPath: '/teams/browse'
-      preLoaderRoute: typeof AuthenticatedTeamsBrowseRouteImport
+    '/_authenticated/onboarding/user': {
+      id: '/_authenticated/onboarding/user'
+      path: '/onboarding/user'
+      fullPath: '/onboarding/user'
+      preLoaderRoute: typeof AuthenticatedOnboardingUserRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/teams/$teamId': {
@@ -425,39 +369,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamsTeamIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/onboarding/user': {
-      id: '/_authenticated/onboarding/user'
-      path: '/onboarding/user'
-      fullPath: '/onboarding/user'
-      preLoaderRoute: typeof AuthenticatedOnboardingUserRouteImport
+    '/_authenticated/teams/browse': {
+      id: '/_authenticated/teams/browse'
+      path: '/teams/browse'
+      fullPath: '/teams/browse'
+      preLoaderRoute: typeof AuthenticatedTeamsBrowseRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_public/certificate/winner/$certId': {
-      id: '/_public/certificate/winner/$certId'
-      path: '/certificate/winner/$certId'
-      fullPath: '/certificate/winner/$certId'
-      preLoaderRoute: typeof PublicCertificateWinnerCertIdRouteImport
+    '/_authenticated/teams/create': {
+      id: '/_authenticated/teams/create'
+      path: '/teams/create'
+      fullPath: '/teams/create'
+      preLoaderRoute: typeof AuthenticatedTeamsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/users/$userId': {
+      id: '/_authenticated/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_public/auth/callback': {
+      id: '/_public/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof PublicAuthCallbackRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_authenticated/teams/$teamId/submit': {
-      id: '/_authenticated/teams/$teamId/submit'
-      path: '/submit'
-      fullPath: '/teams/$teamId/submit'
-      preLoaderRoute: typeof AuthenticatedTeamsTeamIdSubmitRouteImport
-      parentRoute: typeof AuthenticatedTeamsTeamIdRoute
+    '/_public/auth/forgot-password': {
+      id: '/_public/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof PublicAuthForgotPasswordRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/_authenticated/teams/$teamId/submission': {
-      id: '/_authenticated/teams/$teamId/submission'
-      path: '/submission'
-      fullPath: '/teams/$teamId/submission'
-      preLoaderRoute: typeof AuthenticatedTeamsTeamIdSubmissionRouteImport
-      parentRoute: typeof AuthenticatedTeamsTeamIdRoute
+    '/_public/auth/login': {
+      id: '/_public/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof PublicAuthLoginRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/_authenticated/teams/$teamId/members': {
-      id: '/_authenticated/teams/$teamId/members'
-      path: '/members'
-      fullPath: '/teams/$teamId/members'
-      preLoaderRoute: typeof AuthenticatedTeamsTeamIdMembersRouteImport
+    '/_public/auth/reset-password': {
+      id: '/_public/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof PublicAuthResetPasswordRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/signup': {
+      id: '/_public/auth/signup'
+      path: '/auth/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof PublicAuthSignupRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/certificate/$certId': {
+      id: '/_public/certificate/$certId'
+      path: '/certificate/$certId'
+      fullPath: '/certificate/$certId'
+      preLoaderRoute: typeof PublicCertificateCertIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_authenticated/teams/$teamId/chat': {
+      id: '/_authenticated/teams/$teamId/chat'
+      path: '/chat'
+      fullPath: '/teams/$teamId/chat'
+      preLoaderRoute: typeof AuthenticatedTeamsTeamIdChatRouteImport
       parentRoute: typeof AuthenticatedTeamsTeamIdRoute
     }
     '/_authenticated/teams/$teamId/edit': {
@@ -467,12 +446,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamsTeamIdEditRouteImport
       parentRoute: typeof AuthenticatedTeamsTeamIdRoute
     }
-    '/_authenticated/teams/$teamId/chat': {
-      id: '/_authenticated/teams/$teamId/chat'
-      path: '/chat'
-      fullPath: '/teams/$teamId/chat'
-      preLoaderRoute: typeof AuthenticatedTeamsTeamIdChatRouteImport
+    '/_authenticated/teams/$teamId/members': {
+      id: '/_authenticated/teams/$teamId/members'
+      path: '/members'
+      fullPath: '/teams/$teamId/members'
+      preLoaderRoute: typeof AuthenticatedTeamsTeamIdMembersRouteImport
       parentRoute: typeof AuthenticatedTeamsTeamIdRoute
+    }
+    '/_authenticated/teams/$teamId/submission': {
+      id: '/_authenticated/teams/$teamId/submission'
+      path: '/submission'
+      fullPath: '/teams/$teamId/submission'
+      preLoaderRoute: typeof AuthenticatedTeamsTeamIdSubmissionRouteImport
+      parentRoute: typeof AuthenticatedTeamsTeamIdRoute
+    }
+    '/_authenticated/teams/$teamId/submit': {
+      id: '/_authenticated/teams/$teamId/submit'
+      path: '/submit'
+      fullPath: '/teams/$teamId/submit'
+      preLoaderRoute: typeof AuthenticatedTeamsTeamIdSubmitRouteImport
+      parentRoute: typeof AuthenticatedTeamsTeamIdRoute
+    }
+    '/_public/certificate/winner/$certId': {
+      id: '/_public/certificate/winner/$certId'
+      path: '/certificate/winner/$certId'
+      fullPath: '/certificate/winner/$certId'
+      preLoaderRoute: typeof PublicCertificateWinnerCertIdRouteImport
+      parentRoute: typeof PublicRoute
     }
   }
 }

@@ -1,0 +1,17 @@
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+projects:
+  - 'apps/*'
+  - 'packages/*'
+
+vcs:
+  client: 'git'
+  defaultBranch: 'develop'
+
+# ui -> service -> utils, never the reverse. Apps may use all three.
+constraints:
+  tagRelationships:
+    utils: ['utils']
+    service: ['utils']
+    ui: ['utils', 'service']
+    app: ['utils', 'service', 'ui']

@@ -1,30 +1,14 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@imphnen-frontend-service/service": ["libs/service/src/index.ts"],
-      "@imphnen-frontend-service/ui/atoms": ["libs/ui/src/atoms/index.ts"],
-      "@imphnen-frontend-service/ui/molecules": [
-        "libs/ui/src/molecules/index.ts"
-      ],
-      "@imphnen-frontend-service/ui/organisms": [
-        "libs/ui/src/organisms/index.ts"
-      ],
-      "@imphnen-frontend-service/utils": ["libs/utils/src/index.ts"]
-    }
-  },
-  "exclude": ["node_modules", "tmp"]
+    "strict": true
+  }
 }

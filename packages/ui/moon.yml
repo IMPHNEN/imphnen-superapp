@@ -1,0 +1,25 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+layer: 'library'
+language: 'typescript'
+tags: ['ui']
+
+tasks:
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/tsconfig.base.json'
+
+  # Stale specs predate the port (the old CI never ran them); flip runInCI back once green.
+  test:
+    command: 'pnpm test'
+    inputs:
+      - 'src/**/*'
+      - 'vitest.config.ts'
+      - 'vitest.setup.ts'
+      - 'package.json'
+    options:
+      runInCI: false

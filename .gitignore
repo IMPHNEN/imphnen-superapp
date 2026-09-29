@@ -38,8 +38,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.nx/cache
-.nx/workspace-data
 
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
@@ -62,14 +60,15 @@ storybook-static
 # Next.js
 .next
 out
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
 
 .env.local
 
-# Nix
-.direnv
-result
+# moon
+.moon/cache
+.moon/docker
+
+# Cloudflare
+.wrangler
 
 .claude/worktrees
 .claude/settings.local.json

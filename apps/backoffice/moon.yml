@@ -1,0 +1,45 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'backoffice'
+layer: 'application'
+language: 'typescript'
+tags: ['app']
+stack: 'frontend'
+
+tasks:
+  dev:
+    command: 'pnpm dev'
+    options:
+      persistent: true
+      runInCI: false
+
+  build:
+    command: 'pnpm build'
+    inputs:
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'index.html'
+      - 'vite.config.*'
+      - 'postcss.config.mjs'
+      - 'package.json'
+    outputs:
+      - 'dist'
+
+  preview:
+    command: 'pnpm preview'
+    deps: ['build']
+    options:
+      persistent: true
+      runInCI: false
+
+  # Type errors predate the port (Nx never ran tsc). Re-enable in CI once clean.
+  # Type errors predate the port (Nx never ran tsc); flip runInCI back once clean.
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig*.json'
+      - 'package.json'
+      - '/tsconfig.base.json'
+    options:
+      runInCI: false

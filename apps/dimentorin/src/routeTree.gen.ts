@@ -9,81 +9,81 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SiteRouteImport } from './routes/_site'
-import { Route as PublicRouteImport } from './routes/_public'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SiteResourcesRouteImport } from './routes/_site/resources'
-import { Route as SiteProfileRouteImport } from './routes/_site/profile'
-import { Route as SiteMentoringRouteImport } from './routes/_site/mentoring'
-import { Route as SiteArticlesRouteImport } from './routes/_site/articles'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as SiteRouteImport } from './routes/_site'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as SiteArticlesRouteImport } from './routes/_site/articles'
+import { Route as SiteMentoringRouteImport } from './routes/_site/mentoring'
+import { Route as SiteProfileRouteImport } from './routes/_site/profile'
+import { Route as SiteResourcesRouteImport } from './routes/_site/resources'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
-import { Route as SiteProfileIdRouteImport } from './routes/_site/profile_/$id'
-import { Route as SiteMentoringIdRouteImport } from './routes/_site/mentoring_/$id'
-import { Route as SiteArticlesSlugRouteImport } from './routes/_site/articles_/$slug'
-import { Route as PublicAuthRegisterMentorRouteImport } from './routes/_public/auth/register-mentor'
-import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
-import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
-import { Route as PublicAuthGoogleOauthPopupRouteImport } from './routes/_public/auth/google-oauth-popup'
-import { Route as PublicAuthGoogleCallbackRouteImport } from './routes/_public/auth/google-callback'
-import { Route as PublicAuthForgotRouteImport } from './routes/_public/auth/forgot'
 import { Route as AuthenticatedDashboardArticleBuilderRouteImport } from './routes/_authenticated/dashboard/article-builder'
-import { Route as AuthenticatedDashboardUserIndexRouteImport } from './routes/_authenticated/dashboard/user/index'
+import { Route as PublicAuthForgotRouteImport } from './routes/_public/auth/forgot'
+import { Route as PublicAuthGoogleCallbackRouteImport } from './routes/_public/auth/google-callback'
+import { Route as PublicAuthGoogleOauthPopupRouteImport } from './routes/_public/auth/google-oauth-popup'
+import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
+import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
+import { Route as PublicAuthRegisterMentorRouteImport } from './routes/_public/auth/register-mentor'
+import { Route as SiteArticlesSlugRouteImport } from './routes/_site/articles_/$slug'
+import { Route as SiteMentoringIdRouteImport } from './routes/_site/mentoring_/$id'
+import { Route as SiteProfileIdRouteImport } from './routes/_site/profile_/$id'
 import { Route as AuthenticatedDashboardMentorIndexRouteImport } from './routes/_authenticated/dashboard/mentor/index'
-import { Route as PublicAuthRegisterSuccessRouteImport } from './routes/_public/auth/register_/success'
-import { Route as PublicAuthRegisterOtpRouteImport } from './routes/_public/auth/register_/otp'
-import { Route as PublicAuthRegisterMentorSuccessRouteImport } from './routes/_public/auth/register-mentor_/success'
-import { Route as PublicAuthRegisterMentorPendingRouteImport } from './routes/_public/auth/register-mentor_/pending'
-import { Route as PublicAuthForgotSummonRouteImport } from './routes/_public/auth/forgot_/summon'
-import { Route as PublicAuthForgotOtpRouteImport } from './routes/_public/auth/forgot_/otp'
-import { Route as AuthenticatedDashboardUserSettingsRouteImport } from './routes/_authenticated/dashboard/user/settings'
-import { Route as AuthenticatedDashboardUserRoadmapDiscoveryRouteImport } from './routes/_authenticated/dashboard/user/roadmap-discovery'
-import { Route as AuthenticatedDashboardUserMentoringRouteImport } from './routes/_authenticated/dashboard/user/mentoring'
-import { Route as AuthenticatedDashboardUserLearningPathRouteImport } from './routes/_authenticated/dashboard/user/learning-path'
-import { Route as AuthenticatedDashboardMentorSettingsRouteImport } from './routes/_authenticated/dashboard/mentor/settings'
-import { Route as AuthenticatedDashboardMentorMentoringSetupRouteImport } from './routes/_authenticated/dashboard/mentor/mentoring-setup'
-import { Route as AuthenticatedDashboardMentorListMenteeRouteImport } from './routes/_authenticated/dashboard/mentor/list-mentee'
 import { Route as AuthenticatedDashboardMentorFeedbackRouteImport } from './routes/_authenticated/dashboard/mentor/feedback'
+import { Route as AuthenticatedDashboardMentorListMenteeRouteImport } from './routes/_authenticated/dashboard/mentor/list-mentee'
+import { Route as AuthenticatedDashboardMentorMentoringSetupRouteImport } from './routes/_authenticated/dashboard/mentor/mentoring-setup'
+import { Route as AuthenticatedDashboardMentorSettingsRouteImport } from './routes/_authenticated/dashboard/mentor/settings'
+import { Route as AuthenticatedDashboardUserIndexRouteImport } from './routes/_authenticated/dashboard/user/index'
+import { Route as AuthenticatedDashboardUserLearningPathRouteImport } from './routes/_authenticated/dashboard/user/learning-path'
+import { Route as AuthenticatedDashboardUserMentoringRouteImport } from './routes/_authenticated/dashboard/user/mentoring'
+import { Route as AuthenticatedDashboardUserRoadmapDiscoveryRouteImport } from './routes/_authenticated/dashboard/user/roadmap-discovery'
+import { Route as AuthenticatedDashboardUserSettingsRouteImport } from './routes/_authenticated/dashboard/user/settings'
+import { Route as PublicAuthForgotOtpRouteImport } from './routes/_public/auth/forgot_/otp'
+import { Route as PublicAuthForgotSummonRouteImport } from './routes/_public/auth/forgot_/summon'
+import { Route as PublicAuthRegisterMentorPendingRouteImport } from './routes/_public/auth/register-mentor_/pending'
+import { Route as PublicAuthRegisterMentorSuccessRouteImport } from './routes/_public/auth/register-mentor_/success'
+import { Route as PublicAuthRegisterOtpRouteImport } from './routes/_public/auth/register_/otp'
+import { Route as PublicAuthRegisterSuccessRouteImport } from './routes/_public/auth/register_/success'
 import { Route as AuthenticatedDashboardMentorSettingsIndexRouteImport } from './routes/_authenticated/dashboard/mentor/settings.index'
-import { Route as AuthenticatedDashboardUserSettingsReportRouteImport } from './routes/_authenticated/dashboard/user/settings.report'
-import { Route as AuthenticatedDashboardUserSettingsPrivacyRouteImport } from './routes/_authenticated/dashboard/user/settings.privacy'
-import { Route as AuthenticatedDashboardUserSettingsPreferencesRouteImport } from './routes/_authenticated/dashboard/user/settings.preferences'
-import { Route as AuthenticatedDashboardUserSettingsFeedbackRouteImport } from './routes/_authenticated/dashboard/user/settings.feedback'
-import { Route as AuthenticatedDashboardUserSettingsFaqRouteImport } from './routes/_authenticated/dashboard/user/settings.faq'
-import { Route as AuthenticatedDashboardUserSettingsAccountRouteImport } from './routes/_authenticated/dashboard/user/settings.account'
-import { Route as AuthenticatedDashboardMentorSettingsReportRouteImport } from './routes/_authenticated/dashboard/mentor/settings.report'
-import { Route as AuthenticatedDashboardMentorSettingsPrivacyRouteImport } from './routes/_authenticated/dashboard/mentor/settings.privacy'
-import { Route as AuthenticatedDashboardMentorSettingsPreferencesRouteImport } from './routes/_authenticated/dashboard/mentor/settings.preferences'
-import { Route as AuthenticatedDashboardMentorSettingsFeedbackRouteImport } from './routes/_authenticated/dashboard/mentor/settings.feedback'
-import { Route as AuthenticatedDashboardMentorSettingsFaqRouteImport } from './routes/_authenticated/dashboard/mentor/settings.faq'
 import { Route as AuthenticatedDashboardMentorSettingsAccountRouteImport } from './routes/_authenticated/dashboard/mentor/settings.account'
+import { Route as AuthenticatedDashboardMentorSettingsFaqRouteImport } from './routes/_authenticated/dashboard/mentor/settings.faq'
+import { Route as AuthenticatedDashboardMentorSettingsFeedbackRouteImport } from './routes/_authenticated/dashboard/mentor/settings.feedback'
+import { Route as AuthenticatedDashboardMentorSettingsPreferencesRouteImport } from './routes/_authenticated/dashboard/mentor/settings.preferences'
+import { Route as AuthenticatedDashboardMentorSettingsPrivacyRouteImport } from './routes/_authenticated/dashboard/mentor/settings.privacy'
+import { Route as AuthenticatedDashboardMentorSettingsReportRouteImport } from './routes/_authenticated/dashboard/mentor/settings.report'
+import { Route as AuthenticatedDashboardUserSettingsAccountRouteImport } from './routes/_authenticated/dashboard/user/settings.account'
+import { Route as AuthenticatedDashboardUserSettingsFaqRouteImport } from './routes/_authenticated/dashboard/user/settings.faq'
+import { Route as AuthenticatedDashboardUserSettingsFeedbackRouteImport } from './routes/_authenticated/dashboard/user/settings.feedback'
+import { Route as AuthenticatedDashboardUserSettingsPreferencesRouteImport } from './routes/_authenticated/dashboard/user/settings.preferences'
+import { Route as AuthenticatedDashboardUserSettingsPrivacyRouteImport } from './routes/_authenticated/dashboard/user/settings.privacy'
+import { Route as AuthenticatedDashboardUserSettingsReportRouteImport } from './routes/_authenticated/dashboard/user/settings.report'
 
-const SiteRoute = SiteRouteImport.update({
-  id: '/_site',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PublicRoute = PublicRouteImport.update({
-  id: '/_public',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SiteResourcesRoute = SiteResourcesRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => SiteRoute,
+const SiteRoute = SiteRouteImport.update({
+  id: '/_site',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const SiteProfileRoute = SiteProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const SiteArticlesRoute = SiteArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteMentoringRoute = SiteMentoringRouteImport.update({
@@ -91,15 +91,15 @@ const SiteMentoringRoute = SiteMentoringRouteImport.update({
   path: '/mentoring',
   getParentRoute: () => SiteRoute,
 } as any)
-const SiteArticlesRoute = SiteArticlesRouteImport.update({
-  id: '/articles',
-  path: '/articles',
+const SiteProfileRoute = SiteProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => SiteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRoute,
+const SiteResourcesRoute = SiteResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => SiteRoute,
 } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
@@ -107,20 +107,38 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const SiteProfileIdRoute = SiteProfileIdRouteImport.update({
-  id: '/profile_/$id',
-  path: '/profile/$id',
-  getParentRoute: () => SiteRoute,
+const AuthenticatedDashboardArticleBuilderRoute =
+  AuthenticatedDashboardArticleBuilderRouteImport.update({
+    id: '/article-builder',
+    path: '/article-builder',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const PublicAuthForgotRoute = PublicAuthForgotRouteImport.update({
+  id: '/auth/forgot',
+  path: '/auth/forgot',
+  getParentRoute: () => PublicRoute,
 } as any)
-const SiteMentoringIdRoute = SiteMentoringIdRouteImport.update({
-  id: '/mentoring_/$id',
-  path: '/mentoring/$id',
-  getParentRoute: () => SiteRoute,
+const PublicAuthGoogleCallbackRoute =
+  PublicAuthGoogleCallbackRouteImport.update({
+    id: '/auth/google-callback',
+    path: '/auth/google-callback',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicAuthGoogleOauthPopupRoute =
+  PublicAuthGoogleOauthPopupRouteImport.update({
+    id: '/auth/google-oauth-popup',
+    path: '/auth/google-oauth-popup',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => PublicRoute,
 } as any)
-const SiteArticlesSlugRoute = SiteArticlesSlugRouteImport.update({
-  id: '/articles_/$slug',
-  path: '/articles/$slug',
-  getParentRoute: () => SiteRoute,
+const PublicAuthRegisterRoute = PublicAuthRegisterRouteImport.update({
+  id: '/auth/register',
+  path: '/auth/register',
+  getParentRoute: () => PublicRoute,
 } as any)
 const PublicAuthRegisterMentorRoute =
   PublicAuthRegisterMentorRouteImport.update({
@@ -128,124 +146,25 @@ const PublicAuthRegisterMentorRoute =
     path: '/auth/register-mentor',
     getParentRoute: () => PublicRoute,
   } as any)
-const PublicAuthRegisterRoute = PublicAuthRegisterRouteImport.update({
-  id: '/auth/register',
-  path: '/auth/register',
-  getParentRoute: () => PublicRoute,
+const SiteArticlesSlugRoute = SiteArticlesSlugRouteImport.update({
+  id: '/articles_/$slug',
+  path: '/articles/$slug',
+  getParentRoute: () => SiteRoute,
 } as any)
-const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => PublicRoute,
+const SiteMentoringIdRoute = SiteMentoringIdRouteImport.update({
+  id: '/mentoring_/$id',
+  path: '/mentoring/$id',
+  getParentRoute: () => SiteRoute,
 } as any)
-const PublicAuthGoogleOauthPopupRoute =
-  PublicAuthGoogleOauthPopupRouteImport.update({
-    id: '/auth/google-oauth-popup',
-    path: '/auth/google-oauth-popup',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthGoogleCallbackRoute =
-  PublicAuthGoogleCallbackRouteImport.update({
-    id: '/auth/google-callback',
-    path: '/auth/google-callback',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthForgotRoute = PublicAuthForgotRouteImport.update({
-  id: '/auth/forgot',
-  path: '/auth/forgot',
-  getParentRoute: () => PublicRoute,
+const SiteProfileIdRoute = SiteProfileIdRouteImport.update({
+  id: '/profile_/$id',
+  path: '/profile/$id',
+  getParentRoute: () => SiteRoute,
 } as any)
-const AuthenticatedDashboardArticleBuilderRoute =
-  AuthenticatedDashboardArticleBuilderRouteImport.update({
-    id: '/article-builder',
-    path: '/article-builder',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardUserIndexRoute =
-  AuthenticatedDashboardUserIndexRouteImport.update({
-    id: '/user/',
-    path: '/user/',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
 const AuthenticatedDashboardMentorIndexRoute =
   AuthenticatedDashboardMentorIndexRouteImport.update({
     id: '/mentor/',
     path: '/mentor/',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const PublicAuthRegisterSuccessRoute =
-  PublicAuthRegisterSuccessRouteImport.update({
-    id: '/auth/register_/success',
-    path: '/auth/register/success',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthRegisterOtpRoute = PublicAuthRegisterOtpRouteImport.update({
-  id: '/auth/register_/otp',
-  path: '/auth/register/otp',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicAuthRegisterMentorSuccessRoute =
-  PublicAuthRegisterMentorSuccessRouteImport.update({
-    id: '/auth/register-mentor_/success',
-    path: '/auth/register-mentor/success',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthRegisterMentorPendingRoute =
-  PublicAuthRegisterMentorPendingRouteImport.update({
-    id: '/auth/register-mentor_/pending',
-    path: '/auth/register-mentor/pending',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthForgotSummonRoute = PublicAuthForgotSummonRouteImport.update({
-  id: '/auth/forgot_/summon',
-  path: '/auth/forgot/summon',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicAuthForgotOtpRoute = PublicAuthForgotOtpRouteImport.update({
-  id: '/auth/forgot_/otp',
-  path: '/auth/forgot/otp',
-  getParentRoute: () => PublicRoute,
-} as any)
-const AuthenticatedDashboardUserSettingsRoute =
-  AuthenticatedDashboardUserSettingsRouteImport.update({
-    id: '/user/settings',
-    path: '/user/settings',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardUserRoadmapDiscoveryRoute =
-  AuthenticatedDashboardUserRoadmapDiscoveryRouteImport.update({
-    id: '/user/roadmap-discovery',
-    path: '/user/roadmap-discovery',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardUserMentoringRoute =
-  AuthenticatedDashboardUserMentoringRouteImport.update({
-    id: '/user/mentoring',
-    path: '/user/mentoring',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardUserLearningPathRoute =
-  AuthenticatedDashboardUserLearningPathRouteImport.update({
-    id: '/user/learning-path',
-    path: '/user/learning-path',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardMentorSettingsRoute =
-  AuthenticatedDashboardMentorSettingsRouteImport.update({
-    id: '/mentor/settings',
-    path: '/mentor/settings',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardMentorMentoringSetupRoute =
-  AuthenticatedDashboardMentorMentoringSetupRouteImport.update({
-    id: '/mentor/mentoring-setup',
-    path: '/mentor/mentoring-setup',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardMentorListMenteeRoute =
-  AuthenticatedDashboardMentorListMenteeRouteImport.update({
-    id: '/mentor/list-mentee',
-    path: '/mentor/list-mentee',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardMentorFeedbackRoute =
@@ -254,70 +173,97 @@ const AuthenticatedDashboardMentorFeedbackRoute =
     path: '/mentor/feedback',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardMentorListMenteeRoute =
+  AuthenticatedDashboardMentorListMenteeRouteImport.update({
+    id: '/mentor/list-mentee',
+    path: '/mentor/list-mentee',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardMentorMentoringSetupRoute =
+  AuthenticatedDashboardMentorMentoringSetupRouteImport.update({
+    id: '/mentor/mentoring-setup',
+    path: '/mentor/mentoring-setup',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardMentorSettingsRoute =
+  AuthenticatedDashboardMentorSettingsRouteImport.update({
+    id: '/mentor/settings',
+    path: '/mentor/settings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUserIndexRoute =
+  AuthenticatedDashboardUserIndexRouteImport.update({
+    id: '/user/',
+    path: '/user/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUserLearningPathRoute =
+  AuthenticatedDashboardUserLearningPathRouteImport.update({
+    id: '/user/learning-path',
+    path: '/user/learning-path',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUserMentoringRoute =
+  AuthenticatedDashboardUserMentoringRouteImport.update({
+    id: '/user/mentoring',
+    path: '/user/mentoring',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUserRoadmapDiscoveryRoute =
+  AuthenticatedDashboardUserRoadmapDiscoveryRouteImport.update({
+    id: '/user/roadmap-discovery',
+    path: '/user/roadmap-discovery',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsRoute =
+  AuthenticatedDashboardUserSettingsRouteImport.update({
+    id: '/user/settings',
+    path: '/user/settings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const PublicAuthForgotOtpRoute = PublicAuthForgotOtpRouteImport.update({
+  id: '/auth/forgot_/otp',
+  path: '/auth/forgot/otp',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthForgotSummonRoute = PublicAuthForgotSummonRouteImport.update({
+  id: '/auth/forgot_/summon',
+  path: '/auth/forgot/summon',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthRegisterMentorPendingRoute =
+  PublicAuthRegisterMentorPendingRouteImport.update({
+    id: '/auth/register-mentor_/pending',
+    path: '/auth/register-mentor/pending',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicAuthRegisterMentorSuccessRoute =
+  PublicAuthRegisterMentorSuccessRouteImport.update({
+    id: '/auth/register-mentor_/success',
+    path: '/auth/register-mentor/success',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicAuthRegisterOtpRoute = PublicAuthRegisterOtpRouteImport.update({
+  id: '/auth/register_/otp',
+  path: '/auth/register/otp',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAuthRegisterSuccessRoute =
+  PublicAuthRegisterSuccessRouteImport.update({
+    id: '/auth/register_/success',
+    path: '/auth/register/success',
+    getParentRoute: () => PublicRoute,
+  } as any)
 const AuthenticatedDashboardMentorSettingsIndexRoute =
   AuthenticatedDashboardMentorSettingsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
   } as any)
-const AuthenticatedDashboardUserSettingsReportRoute =
-  AuthenticatedDashboardUserSettingsReportRouteImport.update({
-    id: '/report',
-    path: '/report',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardUserSettingsPrivacyRoute =
-  AuthenticatedDashboardUserSettingsPrivacyRouteImport.update({
-    id: '/privacy',
-    path: '/privacy',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardUserSettingsPreferencesRoute =
-  AuthenticatedDashboardUserSettingsPreferencesRouteImport.update({
-    id: '/preferences',
-    path: '/preferences',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardUserSettingsFeedbackRoute =
-  AuthenticatedDashboardUserSettingsFeedbackRouteImport.update({
-    id: '/feedback',
-    path: '/feedback',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardUserSettingsFaqRoute =
-  AuthenticatedDashboardUserSettingsFaqRouteImport.update({
-    id: '/faq',
-    path: '/faq',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardUserSettingsAccountRoute =
-  AuthenticatedDashboardUserSettingsAccountRouteImport.update({
+const AuthenticatedDashboardMentorSettingsAccountRoute =
+  AuthenticatedDashboardMentorSettingsAccountRouteImport.update({
     id: '/account',
     path: '/account',
-    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
-  } as any)
-const AuthenticatedDashboardMentorSettingsReportRoute =
-  AuthenticatedDashboardMentorSettingsReportRouteImport.update({
-    id: '/report',
-    path: '/report',
-    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
-  } as any)
-const AuthenticatedDashboardMentorSettingsPrivacyRoute =
-  AuthenticatedDashboardMentorSettingsPrivacyRouteImport.update({
-    id: '/privacy',
-    path: '/privacy',
-    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
-  } as any)
-const AuthenticatedDashboardMentorSettingsPreferencesRoute =
-  AuthenticatedDashboardMentorSettingsPreferencesRouteImport.update({
-    id: '/preferences',
-    path: '/preferences',
-    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
-  } as any)
-const AuthenticatedDashboardMentorSettingsFeedbackRoute =
-  AuthenticatedDashboardMentorSettingsFeedbackRouteImport.update({
-    id: '/feedback',
-    path: '/feedback',
     getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
   } as any)
 const AuthenticatedDashboardMentorSettingsFaqRoute =
@@ -326,11 +272,65 @@ const AuthenticatedDashboardMentorSettingsFaqRoute =
     path: '/faq',
     getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
   } as any)
-const AuthenticatedDashboardMentorSettingsAccountRoute =
-  AuthenticatedDashboardMentorSettingsAccountRouteImport.update({
+const AuthenticatedDashboardMentorSettingsFeedbackRoute =
+  AuthenticatedDashboardMentorSettingsFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
+    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
+  } as any)
+const AuthenticatedDashboardMentorSettingsPreferencesRoute =
+  AuthenticatedDashboardMentorSettingsPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
+  } as any)
+const AuthenticatedDashboardMentorSettingsPrivacyRoute =
+  AuthenticatedDashboardMentorSettingsPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
+  } as any)
+const AuthenticatedDashboardMentorSettingsReportRoute =
+  AuthenticatedDashboardMentorSettingsReportRouteImport.update({
+    id: '/report',
+    path: '/report',
+    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsAccountRoute =
+  AuthenticatedDashboardUserSettingsAccountRouteImport.update({
     id: '/account',
     path: '/account',
-    getParentRoute: () => AuthenticatedDashboardMentorSettingsRoute,
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsFaqRoute =
+  AuthenticatedDashboardUserSettingsFaqRouteImport.update({
+    id: '/faq',
+    path: '/faq',
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsFeedbackRoute =
+  AuthenticatedDashboardUserSettingsFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsPreferencesRoute =
+  AuthenticatedDashboardUserSettingsPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsPrivacyRoute =
+  AuthenticatedDashboardUserSettingsPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
+  } as any)
+const AuthenticatedDashboardUserSettingsReportRoute =
+  AuthenticatedDashboardUserSettingsReportRouteImport.update({
+    id: '/report',
+    path: '/report',
+    getParentRoute: () => AuthenticatedDashboardUserSettingsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -636,18 +636,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_site': {
-      id: '/_site'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof SiteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_public': {
-      id: '/_public'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PublicRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -657,25 +650,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_site/resources': {
-      id: '/_site/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof SiteResourcesRouteImport
-      parentRoute: typeof SiteRoute
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_site/profile': {
-      id: '/_site/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof SiteProfileRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_site/articles': {
+      id: '/_site/articles'
+      path: '/articles'
+      fullPath: '/articles'
+      preLoaderRoute: typeof SiteArticlesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/mentoring': {
@@ -685,19 +685,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteMentoringRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_site/articles': {
-      id: '/_site/articles'
-      path: '/articles'
-      fullPath: '/articles'
-      preLoaderRoute: typeof SiteArticlesRouteImport
+    '/_site/profile': {
+      id: '/_site/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof SiteProfileRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/_site/resources': {
+      id: '/_site/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof SiteResourcesRouteImport
+      parentRoute: typeof SiteRoute
     }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
@@ -706,53 +706,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_site/profile_/$id': {
-      id: '/_site/profile_/$id'
-      path: '/profile/$id'
-      fullPath: '/profile/$id'
-      preLoaderRoute: typeof SiteProfileIdRouteImport
-      parentRoute: typeof SiteRoute
+    '/_authenticated/dashboard/article-builder': {
+      id: '/_authenticated/dashboard/article-builder'
+      path: '/article-builder'
+      fullPath: '/dashboard/article-builder'
+      preLoaderRoute: typeof AuthenticatedDashboardArticleBuilderRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_site/mentoring_/$id': {
-      id: '/_site/mentoring_/$id'
-      path: '/mentoring/$id'
-      fullPath: '/mentoring/$id'
-      preLoaderRoute: typeof SiteMentoringIdRouteImport
-      parentRoute: typeof SiteRoute
-    }
-    '/_site/articles_/$slug': {
-      id: '/_site/articles_/$slug'
-      path: '/articles/$slug'
-      fullPath: '/articles/$slug'
-      preLoaderRoute: typeof SiteArticlesSlugRouteImport
-      parentRoute: typeof SiteRoute
-    }
-    '/_public/auth/register-mentor': {
-      id: '/_public/auth/register-mentor'
-      path: '/auth/register-mentor'
-      fullPath: '/auth/register-mentor'
-      preLoaderRoute: typeof PublicAuthRegisterMentorRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register': {
-      id: '/_public/auth/register'
-      path: '/auth/register'
-      fullPath: '/auth/register'
-      preLoaderRoute: typeof PublicAuthRegisterRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/login': {
-      id: '/_public/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof PublicAuthLoginRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/google-oauth-popup': {
-      id: '/_public/auth/google-oauth-popup'
-      path: '/auth/google-oauth-popup'
-      fullPath: '/auth/google-oauth-popup'
-      preLoaderRoute: typeof PublicAuthGoogleOauthPopupRouteImport
+    '/_public/auth/forgot': {
+      id: '/_public/auth/forgot'
+      path: '/auth/forgot'
+      fullPath: '/auth/forgot'
+      preLoaderRoute: typeof PublicAuthForgotRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/auth/google-callback': {
@@ -762,123 +727,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAuthGoogleCallbackRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/auth/forgot': {
-      id: '/_public/auth/forgot'
-      path: '/auth/forgot'
-      fullPath: '/auth/forgot'
-      preLoaderRoute: typeof PublicAuthForgotRouteImport
+    '/_public/auth/google-oauth-popup': {
+      id: '/_public/auth/google-oauth-popup'
+      path: '/auth/google-oauth-popup'
+      fullPath: '/auth/google-oauth-popup'
+      preLoaderRoute: typeof PublicAuthGoogleOauthPopupRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_authenticated/dashboard/article-builder': {
-      id: '/_authenticated/dashboard/article-builder'
-      path: '/article-builder'
-      fullPath: '/dashboard/article-builder'
-      preLoaderRoute: typeof AuthenticatedDashboardArticleBuilderRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+    '/_public/auth/login': {
+      id: '/_public/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof PublicAuthLoginRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/_authenticated/dashboard/user/': {
-      id: '/_authenticated/dashboard/user/'
-      path: '/user'
-      fullPath: '/dashboard/user/'
-      preLoaderRoute: typeof AuthenticatedDashboardUserIndexRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+    '/_public/auth/register': {
+      id: '/_public/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof PublicAuthRegisterRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/register-mentor': {
+      id: '/_public/auth/register-mentor'
+      path: '/auth/register-mentor'
+      fullPath: '/auth/register-mentor'
+      preLoaderRoute: typeof PublicAuthRegisterMentorRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_site/articles_/$slug': {
+      id: '/_site/articles_/$slug'
+      path: '/articles/$slug'
+      fullPath: '/articles/$slug'
+      preLoaderRoute: typeof SiteArticlesSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/mentoring_/$id': {
+      id: '/_site/mentoring_/$id'
+      path: '/mentoring/$id'
+      fullPath: '/mentoring/$id'
+      preLoaderRoute: typeof SiteMentoringIdRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/profile_/$id': {
+      id: '/_site/profile_/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof SiteProfileIdRouteImport
+      parentRoute: typeof SiteRoute
     }
     '/_authenticated/dashboard/mentor/': {
       id: '/_authenticated/dashboard/mentor/'
       path: '/mentor'
       fullPath: '/dashboard/mentor/'
       preLoaderRoute: typeof AuthenticatedDashboardMentorIndexRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_public/auth/register_/success': {
-      id: '/_public/auth/register_/success'
-      path: '/auth/register/success'
-      fullPath: '/auth/register/success'
-      preLoaderRoute: typeof PublicAuthRegisterSuccessRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register_/otp': {
-      id: '/_public/auth/register_/otp'
-      path: '/auth/register/otp'
-      fullPath: '/auth/register/otp'
-      preLoaderRoute: typeof PublicAuthRegisterOtpRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register-mentor_/success': {
-      id: '/_public/auth/register-mentor_/success'
-      path: '/auth/register-mentor/success'
-      fullPath: '/auth/register-mentor/success'
-      preLoaderRoute: typeof PublicAuthRegisterMentorSuccessRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register-mentor_/pending': {
-      id: '/_public/auth/register-mentor_/pending'
-      path: '/auth/register-mentor/pending'
-      fullPath: '/auth/register-mentor/pending'
-      preLoaderRoute: typeof PublicAuthRegisterMentorPendingRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/forgot_/summon': {
-      id: '/_public/auth/forgot_/summon'
-      path: '/auth/forgot/summon'
-      fullPath: '/auth/forgot/summon'
-      preLoaderRoute: typeof PublicAuthForgotSummonRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/forgot_/otp': {
-      id: '/_public/auth/forgot_/otp'
-      path: '/auth/forgot/otp'
-      fullPath: '/auth/forgot/otp'
-      preLoaderRoute: typeof PublicAuthForgotOtpRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_authenticated/dashboard/user/settings': {
-      id: '/_authenticated/dashboard/user/settings'
-      path: '/user/settings'
-      fullPath: '/dashboard/user/settings'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/user/roadmap-discovery': {
-      id: '/_authenticated/dashboard/user/roadmap-discovery'
-      path: '/user/roadmap-discovery'
-      fullPath: '/dashboard/user/roadmap-discovery'
-      preLoaderRoute: typeof AuthenticatedDashboardUserRoadmapDiscoveryRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/user/mentoring': {
-      id: '/_authenticated/dashboard/user/mentoring'
-      path: '/user/mentoring'
-      fullPath: '/dashboard/user/mentoring'
-      preLoaderRoute: typeof AuthenticatedDashboardUserMentoringRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/user/learning-path': {
-      id: '/_authenticated/dashboard/user/learning-path'
-      path: '/user/learning-path'
-      fullPath: '/dashboard/user/learning-path'
-      preLoaderRoute: typeof AuthenticatedDashboardUserLearningPathRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/mentor/settings': {
-      id: '/_authenticated/dashboard/mentor/settings'
-      path: '/mentor/settings'
-      fullPath: '/dashboard/mentor/settings'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/mentor/mentoring-setup': {
-      id: '/_authenticated/dashboard/mentor/mentoring-setup'
-      path: '/mentor/mentoring-setup'
-      fullPath: '/dashboard/mentor/mentoring-setup'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorMentoringSetupRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/mentor/list-mentee': {
-      id: '/_authenticated/dashboard/mentor/list-mentee'
-      path: '/mentor/list-mentee'
-      fullPath: '/dashboard/mentor/list-mentee'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorListMenteeRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/mentor/feedback': {
@@ -888,6 +790,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMentorFeedbackRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/mentor/list-mentee': {
+      id: '/_authenticated/dashboard/mentor/list-mentee'
+      path: '/mentor/list-mentee'
+      fullPath: '/dashboard/mentor/list-mentee'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorListMenteeRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/mentor/mentoring-setup': {
+      id: '/_authenticated/dashboard/mentor/mentoring-setup'
+      path: '/mentor/mentoring-setup'
+      fullPath: '/dashboard/mentor/mentoring-setup'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorMentoringSetupRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/mentor/settings': {
+      id: '/_authenticated/dashboard/mentor/settings'
+      path: '/mentor/settings'
+      fullPath: '/dashboard/mentor/settings'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/user/': {
+      id: '/_authenticated/dashboard/user/'
+      path: '/user'
+      fullPath: '/dashboard/user/'
+      preLoaderRoute: typeof AuthenticatedDashboardUserIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/user/learning-path': {
+      id: '/_authenticated/dashboard/user/learning-path'
+      path: '/user/learning-path'
+      fullPath: '/dashboard/user/learning-path'
+      preLoaderRoute: typeof AuthenticatedDashboardUserLearningPathRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/user/mentoring': {
+      id: '/_authenticated/dashboard/user/mentoring'
+      path: '/user/mentoring'
+      fullPath: '/dashboard/user/mentoring'
+      preLoaderRoute: typeof AuthenticatedDashboardUserMentoringRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/user/roadmap-discovery': {
+      id: '/_authenticated/dashboard/user/roadmap-discovery'
+      path: '/user/roadmap-discovery'
+      fullPath: '/dashboard/user/roadmap-discovery'
+      preLoaderRoute: typeof AuthenticatedDashboardUserRoadmapDiscoveryRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/user/settings': {
+      id: '/_authenticated/dashboard/user/settings'
+      path: '/user/settings'
+      fullPath: '/dashboard/user/settings'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_public/auth/forgot_/otp': {
+      id: '/_public/auth/forgot_/otp'
+      path: '/auth/forgot/otp'
+      fullPath: '/auth/forgot/otp'
+      preLoaderRoute: typeof PublicAuthForgotOtpRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/forgot_/summon': {
+      id: '/_public/auth/forgot_/summon'
+      path: '/auth/forgot/summon'
+      fullPath: '/auth/forgot/summon'
+      preLoaderRoute: typeof PublicAuthForgotSummonRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/register-mentor_/pending': {
+      id: '/_public/auth/register-mentor_/pending'
+      path: '/auth/register-mentor/pending'
+      fullPath: '/auth/register-mentor/pending'
+      preLoaderRoute: typeof PublicAuthRegisterMentorPendingRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/register-mentor_/success': {
+      id: '/_public/auth/register-mentor_/success'
+      path: '/auth/register-mentor/success'
+      fullPath: '/auth/register-mentor/success'
+      preLoaderRoute: typeof PublicAuthRegisterMentorSuccessRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/register_/otp': {
+      id: '/_public/auth/register_/otp'
+      path: '/auth/register/otp'
+      fullPath: '/auth/register/otp'
+      preLoaderRoute: typeof PublicAuthRegisterOtpRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/auth/register_/success': {
+      id: '/_public/auth/register_/success'
+      path: '/auth/register/success'
+      fullPath: '/auth/register/success'
+      preLoaderRoute: typeof PublicAuthRegisterSuccessRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_authenticated/dashboard/mentor/settings/': {
       id: '/_authenticated/dashboard/mentor/settings/'
       path: '/'
@@ -895,74 +895,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
     }
-    '/_authenticated/dashboard/user/settings/report': {
-      id: '/_authenticated/dashboard/user/settings/report'
-      path: '/report'
-      fullPath: '/dashboard/user/settings/report'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsReportRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/user/settings/privacy': {
-      id: '/_authenticated/dashboard/user/settings/privacy'
-      path: '/privacy'
-      fullPath: '/dashboard/user/settings/privacy'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsPrivacyRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/user/settings/preferences': {
-      id: '/_authenticated/dashboard/user/settings/preferences'
-      path: '/preferences'
-      fullPath: '/dashboard/user/settings/preferences'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsPreferencesRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/user/settings/feedback': {
-      id: '/_authenticated/dashboard/user/settings/feedback'
-      path: '/feedback'
-      fullPath: '/dashboard/user/settings/feedback'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsFeedbackRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/user/settings/faq': {
-      id: '/_authenticated/dashboard/user/settings/faq'
-      path: '/faq'
-      fullPath: '/dashboard/user/settings/faq'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsFaqRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/user/settings/account': {
-      id: '/_authenticated/dashboard/user/settings/account'
+    '/_authenticated/dashboard/mentor/settings/account': {
+      id: '/_authenticated/dashboard/mentor/settings/account'
       path: '/account'
-      fullPath: '/dashboard/user/settings/account'
-      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsAccountRouteImport
-      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
-    }
-    '/_authenticated/dashboard/mentor/settings/report': {
-      id: '/_authenticated/dashboard/mentor/settings/report'
-      path: '/report'
-      fullPath: '/dashboard/mentor/settings/report'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsReportRouteImport
-      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
-    }
-    '/_authenticated/dashboard/mentor/settings/privacy': {
-      id: '/_authenticated/dashboard/mentor/settings/privacy'
-      path: '/privacy'
-      fullPath: '/dashboard/mentor/settings/privacy'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsPrivacyRouteImport
-      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
-    }
-    '/_authenticated/dashboard/mentor/settings/preferences': {
-      id: '/_authenticated/dashboard/mentor/settings/preferences'
-      path: '/preferences'
-      fullPath: '/dashboard/mentor/settings/preferences'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsPreferencesRouteImport
-      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
-    }
-    '/_authenticated/dashboard/mentor/settings/feedback': {
-      id: '/_authenticated/dashboard/mentor/settings/feedback'
-      path: '/feedback'
-      fullPath: '/dashboard/mentor/settings/feedback'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsFeedbackRouteImport
+      fullPath: '/dashboard/mentor/settings/account'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
     }
     '/_authenticated/dashboard/mentor/settings/faq': {
@@ -972,12 +909,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsFaqRouteImport
       parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
     }
-    '/_authenticated/dashboard/mentor/settings/account': {
-      id: '/_authenticated/dashboard/mentor/settings/account'
-      path: '/account'
-      fullPath: '/dashboard/mentor/settings/account'
-      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsAccountRouteImport
+    '/_authenticated/dashboard/mentor/settings/feedback': {
+      id: '/_authenticated/dashboard/mentor/settings/feedback'
+      path: '/feedback'
+      fullPath: '/dashboard/mentor/settings/feedback'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsFeedbackRouteImport
       parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
+    }
+    '/_authenticated/dashboard/mentor/settings/preferences': {
+      id: '/_authenticated/dashboard/mentor/settings/preferences'
+      path: '/preferences'
+      fullPath: '/dashboard/mentor/settings/preferences'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsPreferencesRouteImport
+      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
+    }
+    '/_authenticated/dashboard/mentor/settings/privacy': {
+      id: '/_authenticated/dashboard/mentor/settings/privacy'
+      path: '/privacy'
+      fullPath: '/dashboard/mentor/settings/privacy'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsPrivacyRouteImport
+      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
+    }
+    '/_authenticated/dashboard/mentor/settings/report': {
+      id: '/_authenticated/dashboard/mentor/settings/report'
+      path: '/report'
+      fullPath: '/dashboard/mentor/settings/report'
+      preLoaderRoute: typeof AuthenticatedDashboardMentorSettingsReportRouteImport
+      parentRoute: typeof AuthenticatedDashboardMentorSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/account': {
+      id: '/_authenticated/dashboard/user/settings/account'
+      path: '/account'
+      fullPath: '/dashboard/user/settings/account'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsAccountRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/faq': {
+      id: '/_authenticated/dashboard/user/settings/faq'
+      path: '/faq'
+      fullPath: '/dashboard/user/settings/faq'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsFaqRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/feedback': {
+      id: '/_authenticated/dashboard/user/settings/feedback'
+      path: '/feedback'
+      fullPath: '/dashboard/user/settings/feedback'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsFeedbackRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/preferences': {
+      id: '/_authenticated/dashboard/user/settings/preferences'
+      path: '/preferences'
+      fullPath: '/dashboard/user/settings/preferences'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsPreferencesRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/privacy': {
+      id: '/_authenticated/dashboard/user/settings/privacy'
+      path: '/privacy'
+      fullPath: '/dashboard/user/settings/privacy'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsPrivacyRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
+    }
+    '/_authenticated/dashboard/user/settings/report': {
+      id: '/_authenticated/dashboard/user/settings/report'
+      path: '/report'
+      fullPath: '/dashboard/user/settings/report'
+      preLoaderRoute: typeof AuthenticatedDashboardUserSettingsReportRouteImport
+      parentRoute: typeof AuthenticatedDashboardUserSettingsRoute
     }
   }
 }

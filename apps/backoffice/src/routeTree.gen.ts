@@ -9,150 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PublicRouteImport } from './routes/_public'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedUsersDimentorinRouteImport } from './routes/_authenticated/users-dimentorin'
-import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
-import { Route as AuthenticatedSettingsDimentorinRouteImport } from './routes/_authenticated/settings-dimentorin'
-import { Route as AuthenticatedSessionDimentorinRouteImport } from './routes/_authenticated/session-dimentorin'
-import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
-import { Route as AuthenticatedRoadmapDimentorinRouteImport } from './routes/_authenticated/roadmap-dimentorin'
-import { Route as AuthenticatedPrizesRouteImport } from './routes/_authenticated/prizes'
-import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
-import { Route as AuthenticatedHackathonUsersRouteImport } from './routes/_authenticated/hackathon-users'
-import { Route as AuthenticatedHackathonTeamsRouteImport } from './routes/_authenticated/hackathon-teams'
-import { Route as AuthenticatedHackathonSubmissionsRouteImport } from './routes/_authenticated/hackathon-submissions'
-import { Route as AuthenticatedHackathonDashboardRouteImport } from './routes/_authenticated/hackathon-dashboard'
-import { Route as AuthenticatedGachaRollRouteImport } from './routes/_authenticated/gacha-roll'
-import { Route as AuthenticatedFeedbackReviewDimentorinRouteImport } from './routes/_authenticated/feedback-review-dimentorin'
-import { Route as AuthenticatedDashboardDimentorinRouteImport } from './routes/_authenticated/dashboard-dimentorin'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCmsTestimonialsRouteImport } from './routes/_authenticated/cms-testimonials'
-import { Route as AuthenticatedCmsEventsRouteImport } from './routes/_authenticated/cms-events'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
-import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
-import { Route as AuthenticatedUsersDimentorinIdRouteImport } from './routes/_authenticated/users-dimentorin_/$id'
-import { Route as AuthenticatedSessionDimentorinIdRouteImport } from './routes/_authenticated/session-dimentorin_/$id'
-import { Route as AuthenticatedRolesCreateRouteImport } from './routes/_authenticated/roles_/create'
-import { Route as AuthenticatedRolesIdRouteImport } from './routes/_authenticated/roles_/$id'
-import { Route as AuthenticatedRoadmapDimentorinCreateRouteImport } from './routes/_authenticated/roadmap-dimentorin_/create'
-import { Route as AuthenticatedRoadmapDimentorinIdRouteImport } from './routes/_authenticated/roadmap-dimentorin_/$id'
-import { Route as AuthenticatedPermissionsCreateRouteImport } from './routes/_authenticated/permissions_/create'
-import { Route as AuthenticatedPermissionsIdRouteImport } from './routes/_authenticated/permissions_/$id'
-import { Route as AuthenticatedGachaRollCreateRouteImport } from './routes/_authenticated/gacha-roll_/create'
-import { Route as AuthenticatedGachaRollIdRouteImport } from './routes/_authenticated/gacha-roll_/$id'
-import { Route as AuthenticatedDashboardCreateRouteImport } from './routes/_authenticated/dashboard_/create'
-import { Route as AuthenticatedDashboardIdRouteImport } from './routes/_authenticated/dashboard_/$id'
-import { Route as AuthenticatedCmsTestimonialsCreateRouteImport } from './routes/_authenticated/cms-testimonials_/create'
-import { Route as AuthenticatedCmsTestimonialsIdRouteImport } from './routes/_authenticated/cms-testimonials_/$id'
-import { Route as AuthenticatedCmsEventsCreateRouteImport } from './routes/_authenticated/cms-events_/create'
-import { Route as AuthenticatedCmsEventsIdRouteImport } from './routes/_authenticated/cms-events_/$id'
+import { Route as AuthenticatedCmsEventsRouteImport } from './routes/_authenticated/cms-events'
+import { Route as AuthenticatedCmsTestimonialsRouteImport } from './routes/_authenticated/cms-testimonials'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDashboardDimentorinRouteImport } from './routes/_authenticated/dashboard-dimentorin'
+import { Route as AuthenticatedFeedbackReviewDimentorinRouteImport } from './routes/_authenticated/feedback-review-dimentorin'
+import { Route as AuthenticatedGachaRollRouteImport } from './routes/_authenticated/gacha-roll'
+import { Route as AuthenticatedHackathonDashboardRouteImport } from './routes/_authenticated/hackathon-dashboard'
+import { Route as AuthenticatedHackathonSubmissionsRouteImport } from './routes/_authenticated/hackathon-submissions'
+import { Route as AuthenticatedHackathonTeamsRouteImport } from './routes/_authenticated/hackathon-teams'
+import { Route as AuthenticatedHackathonUsersRouteImport } from './routes/_authenticated/hackathon-users'
+import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
+import { Route as AuthenticatedPrizesRouteImport } from './routes/_authenticated/prizes'
+import { Route as AuthenticatedRoadmapDimentorinRouteImport } from './routes/_authenticated/roadmap-dimentorin'
+import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
+import { Route as AuthenticatedSessionDimentorinRouteImport } from './routes/_authenticated/session-dimentorin'
+import { Route as AuthenticatedSettingsDimentorinRouteImport } from './routes/_authenticated/settings-dimentorin'
+import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
+import { Route as AuthenticatedUsersDimentorinRouteImport } from './routes/_authenticated/users-dimentorin'
 import { Route as AuthenticatedAccountsIdRouteImport } from './routes/_authenticated/accounts_/$id'
+import { Route as AuthenticatedCmsEventsIdRouteImport } from './routes/_authenticated/cms-events_/$id'
+import { Route as AuthenticatedCmsEventsCreateRouteImport } from './routes/_authenticated/cms-events_/create'
+import { Route as AuthenticatedCmsTestimonialsIdRouteImport } from './routes/_authenticated/cms-testimonials_/$id'
+import { Route as AuthenticatedCmsTestimonialsCreateRouteImport } from './routes/_authenticated/cms-testimonials_/create'
+import { Route as AuthenticatedDashboardIdRouteImport } from './routes/_authenticated/dashboard_/$id'
+import { Route as AuthenticatedDashboardCreateRouteImport } from './routes/_authenticated/dashboard_/create'
+import { Route as AuthenticatedGachaRollIdRouteImport } from './routes/_authenticated/gacha-roll_/$id'
+import { Route as AuthenticatedGachaRollCreateRouteImport } from './routes/_authenticated/gacha-roll_/create'
+import { Route as AuthenticatedPermissionsIdRouteImport } from './routes/_authenticated/permissions_/$id'
+import { Route as AuthenticatedPermissionsCreateRouteImport } from './routes/_authenticated/permissions_/create'
+import { Route as AuthenticatedRoadmapDimentorinIdRouteImport } from './routes/_authenticated/roadmap-dimentorin_/$id'
+import { Route as AuthenticatedRoadmapDimentorinCreateRouteImport } from './routes/_authenticated/roadmap-dimentorin_/create'
+import { Route as AuthenticatedRolesIdRouteImport } from './routes/_authenticated/roles_/$id'
+import { Route as AuthenticatedRolesCreateRouteImport } from './routes/_authenticated/roles_/create'
+import { Route as AuthenticatedSessionDimentorinIdRouteImport } from './routes/_authenticated/session-dimentorin_/$id'
+import { Route as AuthenticatedUsersDimentorinIdRouteImport } from './routes/_authenticated/users-dimentorin_/$id'
+import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 
-const PublicRoute = PublicRouteImport.update({
-  id: '/_public',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUsersDimentorinRoute =
-  AuthenticatedUsersDimentorinRouteImport.update({
-    id: '/users-dimentorin',
-    path: '/users-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedTransactionsRoute =
-  AuthenticatedTransactionsRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedSettingsDimentorinRoute =
-  AuthenticatedSettingsDimentorinRouteImport.update({
-    id: '/settings-dimentorin',
-    path: '/settings-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedSessionDimentorinRoute =
-  AuthenticatedSessionDimentorinRouteImport.update({
-    id: '/session-dimentorin',
-    path: '/session-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
+const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedRoadmapDimentorinRoute =
-  AuthenticatedRoadmapDimentorinRouteImport.update({
-    id: '/roadmap-dimentorin',
-    path: '/roadmap-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPrizesRoute = AuthenticatedPrizesRouteImport.update({
-  id: '/prizes',
-  path: '/prizes',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedPermissionsRoute =
-  AuthenticatedPermissionsRouteImport.update({
-    id: '/permissions',
-    path: '/permissions',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedHackathonUsersRoute =
-  AuthenticatedHackathonUsersRouteImport.update({
-    id: '/hackathon-users',
-    path: '/hackathon-users',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedHackathonTeamsRoute =
-  AuthenticatedHackathonTeamsRouteImport.update({
-    id: '/hackathon-teams',
-    path: '/hackathon-teams',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedHackathonSubmissionsRoute =
-  AuthenticatedHackathonSubmissionsRouteImport.update({
-    id: '/hackathon-submissions',
-    path: '/hackathon-submissions',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedHackathonDashboardRoute =
-  AuthenticatedHackathonDashboardRouteImport.update({
-    id: '/hackathon-dashboard',
-    path: '/hackathon-dashboard',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedGachaRollRoute = AuthenticatedGachaRollRouteImport.update({
-  id: '/gacha-roll',
-  path: '/gacha-roll',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedFeedbackReviewDimentorinRoute =
-  AuthenticatedFeedbackReviewDimentorinRouteImport.update({
-    id: '/feedback-review-dimentorin',
-    path: '/feedback-review-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardDimentorinRoute =
-  AuthenticatedDashboardDimentorinRouteImport.update({
-    id: '/dashboard-dimentorin',
-    path: '/dashboard-dimentorin',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedCmsEventsRoute = AuthenticatedCmsEventsRouteImport.update({
+  id: '/cms-events',
+  path: '/cms-events',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCmsTestimonialsRoute =
@@ -161,102 +79,107 @@ const AuthenticatedCmsTestimonialsRoute =
     path: '/cms-testimonials',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedCmsEventsRoute = AuthenticatedCmsEventsRouteImport.update({
-  id: '/cms-events',
-  path: '/cms-events',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const AuthenticatedDashboardDimentorinRoute =
+  AuthenticatedDashboardDimentorinRouteImport.update({
+    id: '/dashboard-dimentorin',
+    path: '/dashboard-dimentorin',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFeedbackReviewDimentorinRoute =
+  AuthenticatedFeedbackReviewDimentorinRouteImport.update({
+    id: '/feedback-review-dimentorin',
+    path: '/feedback-review-dimentorin',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedGachaRollRoute = AuthenticatedGachaRollRouteImport.update({
+  id: '/gacha-roll',
+  path: '/gacha-roll',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => PublicRoute,
-} as any)
-const AuthenticatedUsersDimentorinIdRoute =
-  AuthenticatedUsersDimentorinIdRouteImport.update({
-    id: '/users-dimentorin_/$id',
-    path: '/users-dimentorin/$id',
+const AuthenticatedHackathonDashboardRoute =
+  AuthenticatedHackathonDashboardRouteImport.update({
+    id: '/hackathon-dashboard',
+    path: '/hackathon-dashboard',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedSessionDimentorinIdRoute =
-  AuthenticatedSessionDimentorinIdRouteImport.update({
-    id: '/session-dimentorin_/$id',
-    path: '/session-dimentorin/$id',
+const AuthenticatedHackathonSubmissionsRoute =
+  AuthenticatedHackathonSubmissionsRouteImport.update({
+    id: '/hackathon-submissions',
+    path: '/hackathon-submissions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedRolesCreateRoute =
-  AuthenticatedRolesCreateRouteImport.update({
-    id: '/roles_/create',
-    path: '/roles/create',
+const AuthenticatedHackathonTeamsRoute =
+  AuthenticatedHackathonTeamsRouteImport.update({
+    id: '/hackathon-teams',
+    path: '/hackathon-teams',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedRolesIdRoute = AuthenticatedRolesIdRouteImport.update({
-  id: '/roles_/$id',
-  path: '/roles/$id',
+const AuthenticatedHackathonUsersRoute =
+  AuthenticatedHackathonUsersRouteImport.update({
+    id: '/hackathon-users',
+    path: '/hackathon-users',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPermissionsRoute =
+  AuthenticatedPermissionsRouteImport.update({
+    id: '/permissions',
+    path: '/permissions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPrizesRoute = AuthenticatedPrizesRouteImport.update({
+  id: '/prizes',
+  path: '/prizes',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedRoadmapDimentorinCreateRoute =
-  AuthenticatedRoadmapDimentorinCreateRouteImport.update({
-    id: '/roadmap-dimentorin_/create',
-    path: '/roadmap-dimentorin/create',
+const AuthenticatedRoadmapDimentorinRoute =
+  AuthenticatedRoadmapDimentorinRouteImport.update({
+    id: '/roadmap-dimentorin',
+    path: '/roadmap-dimentorin',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedRoadmapDimentorinIdRoute =
-  AuthenticatedRoadmapDimentorinIdRouteImport.update({
-    id: '/roadmap-dimentorin_/$id',
-    path: '/roadmap-dimentorin/$id',
+const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSessionDimentorinRoute =
+  AuthenticatedSessionDimentorinRouteImport.update({
+    id: '/session-dimentorin',
+    path: '/session-dimentorin',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedPermissionsCreateRoute =
-  AuthenticatedPermissionsCreateRouteImport.update({
-    id: '/permissions_/create',
-    path: '/permissions/create',
+const AuthenticatedSettingsDimentorinRoute =
+  AuthenticatedSettingsDimentorinRouteImport.update({
+    id: '/settings-dimentorin',
+    path: '/settings-dimentorin',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedPermissionsIdRoute =
-  AuthenticatedPermissionsIdRouteImport.update({
-    id: '/permissions_/$id',
-    path: '/permissions/$id',
+const AuthenticatedTransactionsRoute =
+  AuthenticatedTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedGachaRollCreateRoute =
-  AuthenticatedGachaRollCreateRouteImport.update({
-    id: '/gacha-roll_/create',
-    path: '/gacha-roll/create',
+const AuthenticatedUsersDimentorinRoute =
+  AuthenticatedUsersDimentorinRouteImport.update({
+    id: '/users-dimentorin',
+    path: '/users-dimentorin',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedGachaRollIdRoute =
-  AuthenticatedGachaRollIdRouteImport.update({
-    id: '/gacha-roll_/$id',
-    path: '/gacha-roll/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardCreateRoute =
-  AuthenticatedDashboardCreateRouteImport.update({
-    id: '/dashboard_/create',
-    path: '/dashboard/create',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardIdRoute =
-  AuthenticatedDashboardIdRouteImport.update({
-    id: '/dashboard_/$id',
-    path: '/dashboard/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCmsTestimonialsCreateRoute =
-  AuthenticatedCmsTestimonialsCreateRouteImport.update({
-    id: '/cms-testimonials_/create',
-    path: '/cms-testimonials/create',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCmsTestimonialsIdRoute =
-  AuthenticatedCmsTestimonialsIdRouteImport.update({
-    id: '/cms-testimonials_/$id',
-    path: '/cms-testimonials/$id',
+const AuthenticatedAccountsIdRoute = AuthenticatedAccountsIdRouteImport.update({
+  id: '/accounts_/$id',
+  path: '/accounts/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCmsEventsIdRoute =
+  AuthenticatedCmsEventsIdRouteImport.update({
+    id: '/cms-events_/$id',
+    path: '/cms-events/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCmsEventsCreateRoute =
@@ -265,16 +188,93 @@ const AuthenticatedCmsEventsCreateRoute =
     path: '/cms-events/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedCmsEventsIdRoute =
-  AuthenticatedCmsEventsIdRouteImport.update({
-    id: '/cms-events_/$id',
-    path: '/cms-events/$id',
+const AuthenticatedCmsTestimonialsIdRoute =
+  AuthenticatedCmsTestimonialsIdRouteImport.update({
+    id: '/cms-testimonials_/$id',
+    path: '/cms-testimonials/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAccountsIdRoute = AuthenticatedAccountsIdRouteImport.update({
-  id: '/accounts_/$id',
-  path: '/accounts/$id',
+const AuthenticatedCmsTestimonialsCreateRoute =
+  AuthenticatedCmsTestimonialsCreateRouteImport.update({
+    id: '/cms-testimonials_/create',
+    path: '/cms-testimonials/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardIdRoute =
+  AuthenticatedDashboardIdRouteImport.update({
+    id: '/dashboard_/$id',
+    path: '/dashboard/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardCreateRoute =
+  AuthenticatedDashboardCreateRouteImport.update({
+    id: '/dashboard_/create',
+    path: '/dashboard/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedGachaRollIdRoute =
+  AuthenticatedGachaRollIdRouteImport.update({
+    id: '/gacha-roll_/$id',
+    path: '/gacha-roll/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedGachaRollCreateRoute =
+  AuthenticatedGachaRollCreateRouteImport.update({
+    id: '/gacha-roll_/create',
+    path: '/gacha-roll/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPermissionsIdRoute =
+  AuthenticatedPermissionsIdRouteImport.update({
+    id: '/permissions_/$id',
+    path: '/permissions/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPermissionsCreateRoute =
+  AuthenticatedPermissionsCreateRouteImport.update({
+    id: '/permissions_/create',
+    path: '/permissions/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRoadmapDimentorinIdRoute =
+  AuthenticatedRoadmapDimentorinIdRouteImport.update({
+    id: '/roadmap-dimentorin_/$id',
+    path: '/roadmap-dimentorin/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRoadmapDimentorinCreateRoute =
+  AuthenticatedRoadmapDimentorinCreateRouteImport.update({
+    id: '/roadmap-dimentorin_/create',
+    path: '/roadmap-dimentorin/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRolesIdRoute = AuthenticatedRolesIdRouteImport.update({
+  id: '/roles_/$id',
+  path: '/roles/$id',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRolesCreateRoute =
+  AuthenticatedRolesCreateRouteImport.update({
+    id: '/roles_/create',
+    path: '/roles/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSessionDimentorinIdRoute =
+  AuthenticatedSessionDimentorinIdRouteImport.update({
+    id: '/session-dimentorin_/$id',
+    path: '/session-dimentorin/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUsersDimentorinIdRoute =
+  AuthenticatedUsersDimentorinIdRouteImport.update({
+    id: '/users-dimentorin_/$id',
+    path: '/users-dimentorin/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const PublicAuthLoginRoute = PublicAuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => PublicRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -533,11 +533,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_public': {
-      id: '/_public'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof PublicRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -547,130 +547,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/users-dimentorin': {
-      id: '/_authenticated/users-dimentorin'
-      path: '/users-dimentorin'
-      fullPath: '/users-dimentorin'
-      preLoaderRoute: typeof AuthenticatedUsersDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/transactions': {
-      id: '/_authenticated/transactions'
-      path: '/transactions'
-      fullPath: '/transactions'
-      preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/settings-dimentorin': {
-      id: '/_authenticated/settings-dimentorin'
-      path: '/settings-dimentorin'
-      fullPath: '/settings-dimentorin'
-      preLoaderRoute: typeof AuthenticatedSettingsDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/session-dimentorin': {
-      id: '/_authenticated/session-dimentorin'
-      path: '/session-dimentorin'
-      fullPath: '/session-dimentorin'
-      preLoaderRoute: typeof AuthenticatedSessionDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/roles': {
-      id: '/_authenticated/roles'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof AuthenticatedRolesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/roadmap-dimentorin': {
-      id: '/_authenticated/roadmap-dimentorin'
-      path: '/roadmap-dimentorin'
-      fullPath: '/roadmap-dimentorin'
-      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/prizes': {
-      id: '/_authenticated/prizes'
-      path: '/prizes'
-      fullPath: '/prizes'
-      preLoaderRoute: typeof AuthenticatedPrizesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/permissions': {
-      id: '/_authenticated/permissions'
-      path: '/permissions'
-      fullPath: '/permissions'
-      preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/hackathon-users': {
-      id: '/_authenticated/hackathon-users'
-      path: '/hackathon-users'
-      fullPath: '/hackathon-users'
-      preLoaderRoute: typeof AuthenticatedHackathonUsersRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/hackathon-teams': {
-      id: '/_authenticated/hackathon-teams'
-      path: '/hackathon-teams'
-      fullPath: '/hackathon-teams'
-      preLoaderRoute: typeof AuthenticatedHackathonTeamsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/hackathon-submissions': {
-      id: '/_authenticated/hackathon-submissions'
-      path: '/hackathon-submissions'
-      fullPath: '/hackathon-submissions'
-      preLoaderRoute: typeof AuthenticatedHackathonSubmissionsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/hackathon-dashboard': {
-      id: '/_authenticated/hackathon-dashboard'
-      path: '/hackathon-dashboard'
-      fullPath: '/hackathon-dashboard'
-      preLoaderRoute: typeof AuthenticatedHackathonDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/gacha-roll': {
-      id: '/_authenticated/gacha-roll'
-      path: '/gacha-roll'
-      fullPath: '/gacha-roll'
-      preLoaderRoute: typeof AuthenticatedGachaRollRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/feedback-review-dimentorin': {
-      id: '/_authenticated/feedback-review-dimentorin'
-      path: '/feedback-review-dimentorin'
-      fullPath: '/feedback-review-dimentorin'
-      preLoaderRoute: typeof AuthenticatedFeedbackReviewDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard-dimentorin': {
-      id: '/_authenticated/dashboard-dimentorin'
-      path: '/dashboard-dimentorin'
-      fullPath: '/dashboard-dimentorin'
-      preLoaderRoute: typeof AuthenticatedDashboardDimentorinRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/cms-testimonials': {
-      id: '/_authenticated/cms-testimonials'
-      path: '/cms-testimonials'
-      fullPath: '/cms-testimonials'
-      preLoaderRoute: typeof AuthenticatedCmsTestimonialsRouteImport
+    '/_authenticated/accounts': {
+      id: '/_authenticated/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/cms-events': {
@@ -680,123 +568,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsEventsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/accounts': {
-      id: '/_authenticated/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
+    '/_authenticated/cms-testimonials': {
+      id: '/_authenticated/cms-testimonials'
+      path: '/cms-testimonials'
+      fullPath: '/cms-testimonials'
+      preLoaderRoute: typeof AuthenticatedCmsTestimonialsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_public/auth/login': {
-      id: '/_public/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof PublicAuthLoginRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_authenticated/users-dimentorin_/$id': {
-      id: '/_authenticated/users-dimentorin_/$id'
-      path: '/users-dimentorin/$id'
-      fullPath: '/users-dimentorin/$id'
-      preLoaderRoute: typeof AuthenticatedUsersDimentorinIdRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/session-dimentorin_/$id': {
-      id: '/_authenticated/session-dimentorin_/$id'
-      path: '/session-dimentorin/$id'
-      fullPath: '/session-dimentorin/$id'
-      preLoaderRoute: typeof AuthenticatedSessionDimentorinIdRouteImport
+    '/_authenticated/dashboard-dimentorin': {
+      id: '/_authenticated/dashboard-dimentorin'
+      path: '/dashboard-dimentorin'
+      fullPath: '/dashboard-dimentorin'
+      preLoaderRoute: typeof AuthenticatedDashboardDimentorinRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/roles_/create': {
-      id: '/_authenticated/roles_/create'
-      path: '/roles/create'
-      fullPath: '/roles/create'
-      preLoaderRoute: typeof AuthenticatedRolesCreateRouteImport
+    '/_authenticated/feedback-review-dimentorin': {
+      id: '/_authenticated/feedback-review-dimentorin'
+      path: '/feedback-review-dimentorin'
+      fullPath: '/feedback-review-dimentorin'
+      preLoaderRoute: typeof AuthenticatedFeedbackReviewDimentorinRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/roles_/$id': {
-      id: '/_authenticated/roles_/$id'
-      path: '/roles/$id'
-      fullPath: '/roles/$id'
-      preLoaderRoute: typeof AuthenticatedRolesIdRouteImport
+    '/_authenticated/gacha-roll': {
+      id: '/_authenticated/gacha-roll'
+      path: '/gacha-roll'
+      fullPath: '/gacha-roll'
+      preLoaderRoute: typeof AuthenticatedGachaRollRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/roadmap-dimentorin_/create': {
-      id: '/_authenticated/roadmap-dimentorin_/create'
-      path: '/roadmap-dimentorin/create'
-      fullPath: '/roadmap-dimentorin/create'
-      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinCreateRouteImport
+    '/_authenticated/hackathon-dashboard': {
+      id: '/_authenticated/hackathon-dashboard'
+      path: '/hackathon-dashboard'
+      fullPath: '/hackathon-dashboard'
+      preLoaderRoute: typeof AuthenticatedHackathonDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/roadmap-dimentorin_/$id': {
-      id: '/_authenticated/roadmap-dimentorin_/$id'
-      path: '/roadmap-dimentorin/$id'
-      fullPath: '/roadmap-dimentorin/$id'
-      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinIdRouteImport
+    '/_authenticated/hackathon-submissions': {
+      id: '/_authenticated/hackathon-submissions'
+      path: '/hackathon-submissions'
+      fullPath: '/hackathon-submissions'
+      preLoaderRoute: typeof AuthenticatedHackathonSubmissionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/permissions_/create': {
-      id: '/_authenticated/permissions_/create'
-      path: '/permissions/create'
-      fullPath: '/permissions/create'
-      preLoaderRoute: typeof AuthenticatedPermissionsCreateRouteImport
+    '/_authenticated/hackathon-teams': {
+      id: '/_authenticated/hackathon-teams'
+      path: '/hackathon-teams'
+      fullPath: '/hackathon-teams'
+      preLoaderRoute: typeof AuthenticatedHackathonTeamsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/permissions_/$id': {
-      id: '/_authenticated/permissions_/$id'
-      path: '/permissions/$id'
-      fullPath: '/permissions/$id'
-      preLoaderRoute: typeof AuthenticatedPermissionsIdRouteImport
+    '/_authenticated/hackathon-users': {
+      id: '/_authenticated/hackathon-users'
+      path: '/hackathon-users'
+      fullPath: '/hackathon-users'
+      preLoaderRoute: typeof AuthenticatedHackathonUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/gacha-roll_/create': {
-      id: '/_authenticated/gacha-roll_/create'
-      path: '/gacha-roll/create'
-      fullPath: '/gacha-roll/create'
-      preLoaderRoute: typeof AuthenticatedGachaRollCreateRouteImport
+    '/_authenticated/permissions': {
+      id: '/_authenticated/permissions'
+      path: '/permissions'
+      fullPath: '/permissions'
+      preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/gacha-roll_/$id': {
-      id: '/_authenticated/gacha-roll_/$id'
-      path: '/gacha-roll/$id'
-      fullPath: '/gacha-roll/$id'
-      preLoaderRoute: typeof AuthenticatedGachaRollIdRouteImport
+    '/_authenticated/prizes': {
+      id: '/_authenticated/prizes'
+      path: '/prizes'
+      fullPath: '/prizes'
+      preLoaderRoute: typeof AuthenticatedPrizesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/dashboard_/create': {
-      id: '/_authenticated/dashboard_/create'
-      path: '/dashboard/create'
-      fullPath: '/dashboard/create'
-      preLoaderRoute: typeof AuthenticatedDashboardCreateRouteImport
+    '/_authenticated/roadmap-dimentorin': {
+      id: '/_authenticated/roadmap-dimentorin'
+      path: '/roadmap-dimentorin'
+      fullPath: '/roadmap-dimentorin'
+      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/dashboard_/$id': {
-      id: '/_authenticated/dashboard_/$id'
-      path: '/dashboard/$id'
-      fullPath: '/dashboard/$id'
-      preLoaderRoute: typeof AuthenticatedDashboardIdRouteImport
+    '/_authenticated/roles': {
+      id: '/_authenticated/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AuthenticatedRolesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/cms-testimonials_/create': {
-      id: '/_authenticated/cms-testimonials_/create'
-      path: '/cms-testimonials/create'
-      fullPath: '/cms-testimonials/create'
-      preLoaderRoute: typeof AuthenticatedCmsTestimonialsCreateRouteImport
+    '/_authenticated/session-dimentorin': {
+      id: '/_authenticated/session-dimentorin'
+      path: '/session-dimentorin'
+      fullPath: '/session-dimentorin'
+      preLoaderRoute: typeof AuthenticatedSessionDimentorinRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/cms-testimonials_/$id': {
-      id: '/_authenticated/cms-testimonials_/$id'
-      path: '/cms-testimonials/$id'
-      fullPath: '/cms-testimonials/$id'
-      preLoaderRoute: typeof AuthenticatedCmsTestimonialsIdRouteImport
+    '/_authenticated/settings-dimentorin': {
+      id: '/_authenticated/settings-dimentorin'
+      path: '/settings-dimentorin'
+      fullPath: '/settings-dimentorin'
+      preLoaderRoute: typeof AuthenticatedSettingsDimentorinRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/cms-events_/create': {
-      id: '/_authenticated/cms-events_/create'
-      path: '/cms-events/create'
-      fullPath: '/cms-events/create'
-      preLoaderRoute: typeof AuthenticatedCmsEventsCreateRouteImport
+    '/_authenticated/transactions': {
+      id: '/_authenticated/transactions'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/users-dimentorin': {
+      id: '/_authenticated/users-dimentorin'
+      path: '/users-dimentorin'
+      fullPath: '/users-dimentorin'
+      preLoaderRoute: typeof AuthenticatedUsersDimentorinRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/accounts_/$id': {
+      id: '/_authenticated/accounts_/$id'
+      path: '/accounts/$id'
+      fullPath: '/accounts/$id'
+      preLoaderRoute: typeof AuthenticatedAccountsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/cms-events_/$id': {
@@ -806,12 +701,117 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCmsEventsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/accounts_/$id': {
-      id: '/_authenticated/accounts_/$id'
-      path: '/accounts/$id'
-      fullPath: '/accounts/$id'
-      preLoaderRoute: typeof AuthenticatedAccountsIdRouteImport
+    '/_authenticated/cms-events_/create': {
+      id: '/_authenticated/cms-events_/create'
+      path: '/cms-events/create'
+      fullPath: '/cms-events/create'
+      preLoaderRoute: typeof AuthenticatedCmsEventsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cms-testimonials_/$id': {
+      id: '/_authenticated/cms-testimonials_/$id'
+      path: '/cms-testimonials/$id'
+      fullPath: '/cms-testimonials/$id'
+      preLoaderRoute: typeof AuthenticatedCmsTestimonialsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cms-testimonials_/create': {
+      id: '/_authenticated/cms-testimonials_/create'
+      path: '/cms-testimonials/create'
+      fullPath: '/cms-testimonials/create'
+      preLoaderRoute: typeof AuthenticatedCmsTestimonialsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard_/$id': {
+      id: '/_authenticated/dashboard_/$id'
+      path: '/dashboard/$id'
+      fullPath: '/dashboard/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard_/create': {
+      id: '/_authenticated/dashboard_/create'
+      path: '/dashboard/create'
+      fullPath: '/dashboard/create'
+      preLoaderRoute: typeof AuthenticatedDashboardCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/gacha-roll_/$id': {
+      id: '/_authenticated/gacha-roll_/$id'
+      path: '/gacha-roll/$id'
+      fullPath: '/gacha-roll/$id'
+      preLoaderRoute: typeof AuthenticatedGachaRollIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/gacha-roll_/create': {
+      id: '/_authenticated/gacha-roll_/create'
+      path: '/gacha-roll/create'
+      fullPath: '/gacha-roll/create'
+      preLoaderRoute: typeof AuthenticatedGachaRollCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/permissions_/$id': {
+      id: '/_authenticated/permissions_/$id'
+      path: '/permissions/$id'
+      fullPath: '/permissions/$id'
+      preLoaderRoute: typeof AuthenticatedPermissionsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/permissions_/create': {
+      id: '/_authenticated/permissions_/create'
+      path: '/permissions/create'
+      fullPath: '/permissions/create'
+      preLoaderRoute: typeof AuthenticatedPermissionsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roadmap-dimentorin_/$id': {
+      id: '/_authenticated/roadmap-dimentorin_/$id'
+      path: '/roadmap-dimentorin/$id'
+      fullPath: '/roadmap-dimentorin/$id'
+      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roadmap-dimentorin_/create': {
+      id: '/_authenticated/roadmap-dimentorin_/create'
+      path: '/roadmap-dimentorin/create'
+      fullPath: '/roadmap-dimentorin/create'
+      preLoaderRoute: typeof AuthenticatedRoadmapDimentorinCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roles_/$id': {
+      id: '/_authenticated/roles_/$id'
+      path: '/roles/$id'
+      fullPath: '/roles/$id'
+      preLoaderRoute: typeof AuthenticatedRolesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/roles_/create': {
+      id: '/_authenticated/roles_/create'
+      path: '/roles/create'
+      fullPath: '/roles/create'
+      preLoaderRoute: typeof AuthenticatedRolesCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/session-dimentorin_/$id': {
+      id: '/_authenticated/session-dimentorin_/$id'
+      path: '/session-dimentorin/$id'
+      fullPath: '/session-dimentorin/$id'
+      preLoaderRoute: typeof AuthenticatedSessionDimentorinIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/users-dimentorin_/$id': {
+      id: '/_authenticated/users-dimentorin_/$id'
+      path: '/users-dimentorin/$id'
+      fullPath: '/users-dimentorin/$id'
+      preLoaderRoute: typeof AuthenticatedUsersDimentorinIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_public/auth/login': {
+      id: '/_public/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof PublicAuthLoginRouteImport
+      parentRoute: typeof PublicRoute
     }
   }
 }
