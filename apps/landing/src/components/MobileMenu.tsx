@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 import { LuMenu, LuX, LuLogIn, LuLogOut } from 'react-icons/lu';
-import { getApiUrl } from '../utils/api';
+import { useAuthControls } from '@/hooks/use-auth-controls';
+import { withQueryClient } from './providers/QueryIsland';
 
 interface Navigation {
   title: string;
@@ -12,36 +13,9 @@ interface Props {
   currentPath: string;
 }
 
-const TOKEN_KEY = 'token';
-
-function getTokenFromCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  const cookies = document.cookie.split(';');
-  const found = cookies.find((c) => c.trim().startsWith(`${TOKEN_KEY}=`));
-  if (!found) return null;
-  try {
-    const raw = found.split('=').slice(1).join('=');
-    const parsed = JSON.parse(decodeURIComponent(raw));
-    return parsed?.access_token || parsed?.token?.access_token || null;
-  } catch {
-    return null;
-  }
-}
-
-function clearToken() {
-  document.cookie = `${TOKEN_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  localStorage.removeItem('access_token');
-}
-
-export default function MobileMenu({ navigations, currentPath }: Props) {
+function MobileMenu({ navigations, currentPath }: Props): ReactElement {
   const [open, setOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  useEffect(() => {
-    const token = getTokenFromCookie() || localStorage.getItem('access_token');
-    setLoggedIn(!!token);
-  }, []);
+  const { isAuthenticated, isSigningOut, signOut } = useAuthControls();
 
   useEffect(() => {
     if (open) {
@@ -54,27 +28,9 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
     };
   }, [open]);
 
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      const token =
-        getTokenFromCookie() || localStorage.getItem('access_token');
-      if (token) {
-        await fetch(getApiUrl('/v1/iam/auth/logout'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }).catch(() => {});
-      }
-    } finally {
-      clearToken();
-      setLoggedIn(false);
-      setLoggingOut(false);
-      setOpen(false);
-      window.location.href = '/';
-    }
+  const handleLogout = (): void => {
+    setOpen(false);
+    signOut();
   };
 
   return (
@@ -124,14 +80,14 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
             ))}
 
             <div className="pt-4 border-t border-border w-full flex justify-center">
-              {loggedIn ? (
+              {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
-                  disabled={loggingOut}
+                  disabled={isSigningOut}
                   className="flex items-center gap-2 text-xl font-medium py-2 px-6 rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60"
                 >
                   <LuLogOut className="size-5" />
-                  {loggingOut ? 'Keluar...' : 'Logout'}
+                  {isSigningOut ? 'Keluar...' : 'Logout'}
                 </button>
               ) : (
                 <a
@@ -150,3 +106,5 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
     </>
   );
 }
+
+export default withQueryClient(MobileMenu);

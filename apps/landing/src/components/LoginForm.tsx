@@ -1,5 +1,11 @@
-import { useState, type FormEvent } from 'react';
-import { getApiUrl } from '../utils/api';
+import {
+  type CSSProperties,
+  type SubmitEvent,
+  type ReactElement,
+  useState,
+} from 'react';
+import { useLogin } from '@/hooks/use-login';
+import { withQueryClient } from './providers/QueryIsland';
 
 const ICON_MAIL = (
   <svg
@@ -98,65 +104,24 @@ const ICON_CHECK = (
   </svg>
 );
 
-export default function LoginForm() {
+const LOGIN_SUCCESS = 'Login berhasil! Mengalihkan...';
+
+function LoginForm(): ReactElement {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const { login, isPending, isSuccess, errorMessage } = useLogin();
+  const loading = isPending || isSuccess;
+  const error = errorMessage;
+  const success = isSuccess ? LOGIN_SUCCESS : '';
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    try {
-      const response = await fetch(getApiUrl('/v1/iam/auth/login'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            data.error ||
-            'Login gagal. Periksa kembali email dan password Anda.'
-        );
-      }
-
-      const payload = data.data ?? data;
-      const tokenObj = payload.token ?? payload;
-      const accessToken: string = tokenObj.access_token ?? tokenObj;
-
-      if (accessToken) {
-        const expires = new Date();
-        expires.setDate(expires.getDate() + (rememberMe ? 30 : 1));
-        const cookieValue = encodeURIComponent(JSON.stringify(tokenObj));
-        document.cookie = `token=${cookieValue}; expires=${expires.toUTCString()}; path=/; samesite=strict`;
-        localStorage.setItem('access_token', accessToken);
-      }
-
-      setSuccess('Login berhasil! Mengalihkan...');
-      setTimeout(() => {
-        const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get('redirect') || '/';
-        window.location.href = redirectTo;
-      }, 1200);
-    } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan saat login.');
-    } finally {
-      setLoading(false);
-    }
+    login(email.trim(), password);
   };
 
-  const inputStyle = (field: string): React.CSSProperties => ({
+  const inputStyle = (field: string): CSSProperties => ({
     width: '100%',
     paddingLeft: '44px',
     paddingRight: field === 'password' ? '44px' : '16px',
@@ -230,7 +195,7 @@ export default function LoginForm() {
               marginBottom: '8px',
             }}
           >
-            Email atau Username
+            Email
           </label>
           <div style={{ position: 'relative' }}>
             <span
@@ -249,19 +214,20 @@ export default function LoginForm() {
               {ICON_MAIL}
             </span>
             <input
-              type="text"
+              type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setFocusedField('email')}
               onBlur={() => setFocusedField(null)}
-              placeholder="nama@email.com atau username"
+              placeholder="nama@email.com"
               style={inputStyle('email')}
             />
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '28px' }}>
           <label
             style={{
               display: 'block',
@@ -291,6 +257,7 @@ export default function LoginForm() {
             </span>
             <input
               type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -325,40 +292,6 @@ export default function LoginForm() {
               {showPassword ? ICON_EYE_OFF : ICON_EYE}
             </button>
           </div>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '28px',
-          }}
-        >
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              fontSize: '13px',
-              color: '#6d6d6d',
-              userSelect: 'none',
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              style={{
-                width: '15px',
-                height: '15px',
-                accentColor: '#23a1eb',
-                cursor: 'pointer',
-              }}
-            />
-            <span>Ingat saya</span>
-          </label>
         </div>
 
         <button
@@ -428,3 +361,5 @@ export default function LoginForm() {
     </div>
   );
 }
+
+export default withQueryClient(LoginForm);
