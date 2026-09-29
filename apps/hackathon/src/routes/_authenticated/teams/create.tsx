@@ -3,55 +3,55 @@ import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
-import {
-  teamCreateSchema,
-  type TTeamCreateForm,
-  useCreateTeam,
-  ETeamVisibility,
-  useUploadFile,
-} from '@imphnen-frontend-service/service';
+import { HACKATHON_UPLOAD_KIND } from '@app/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
 import { CitySelect } from '../../../components/city-select';
+import { useHackathonUpload, useTeamCreate } from '../../../hooks/use-teams';
+import {
+  formatDeadline,
+  isTeamFeaturesClosed as teamFeaturesClosed,
+  TEAM_FEATURES_DEADLINE,
+} from '../../../lib/deadlines';
+import { toastError } from '../../../lib/errors';
+import {
+  TEAM_IMAGE_MAX_BYTES,
+  TEAM_VISIBILITY,
+  teamFormSchema,
+  type TTeamForm,
+} from '../../../lib/forms';
 
-export const Route = createFileRoute('/_authenticated/teams/create')({
-  component: CreateTeamPage,
-});
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
+const MAX_FILE_SIZE = TEAM_IMAGE_MAX_BYTES;
 
 const CreateTeamPage: FC = (): ReactElement => {
   const navigate = useNavigate();
 
-  const isTeamFeaturesClosed = new Date() >= TEAM_FEATURES_DEADLINE;
+  const isTeamFeaturesClosed = teamFeaturesClosed();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string>('');
 
-  const form = useForm<TTeamCreateForm>({
-    resolver: zodResolver(teamCreateSchema),
+  const form = useForm<TTeamForm>({
+    resolver: zodResolver(teamFormSchema),
     mode: 'all',
     defaultValues: {
-      visibility: ETeamVisibility.PUBLIC,
-      logo: null,
-      banner: null,
+      visibility: TEAM_VISIBILITY.PUBLIC,
     },
   });
 
-  const { mutateAsync: createTeam, isPending: isCreating } = useCreateTeam();
-  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
+  const { mutateAsync: createTeam, isPending: isCreating } = useTeamCreate();
+  const { mutateAsync: uploadFile, isPending: isUploading } =
+    useHackathonUpload();
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        toast.error('Logo image is too large. Maximum size is 2MB.');
+        toast.error('Logo image is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
@@ -68,7 +68,7 @@ const CreateTeamPage: FC = (): ReactElement => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        toast.error('Banner image is too large. Maximum size is 2MB.');
+        toast.error('Banner image is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
@@ -83,44 +83,29 @@ const CreateTeamPage: FC = (): ReactElement => {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      let logoUrl = null;
-      let bannerUrl = null;
+      const logo = logoFile
+        ? await uploadFile({
+            kind: HACKATHON_UPLOAD_KIND.TEAM_LOGO,
+            file: logoFile,
+          })
+        : undefined;
+      const banner = bannerFile
+        ? await uploadFile({
+            kind: HACKATHON_UPLOAD_KIND.TEAM_BANNER,
+            file: bannerFile,
+          })
+        : undefined;
 
-      if (logoFile) {
-        const logoResult = await uploadFile(logoFile);
-        logoUrl = logoResult.data.url;
-      }
-
-      if (bannerFile) {
-        const bannerResult = await uploadFile(bannerFile);
-        bannerUrl = bannerResult.data.url;
-      }
-
-      const result = await createTeam({
+      const team = await createTeam({
         ...data,
-        logo: logoUrl,
-        banner: bannerUrl,
+        logoKey: logo?.key,
+        bannerKey: banner?.key,
       });
 
       toast.success('Team created successfully!');
-      navigate({ to: `/teams/${result.data.id}` });
-    } catch (error: any) {
-      console.error('Failed to create team:', error);
-
-      const message = error?.message || '';
-      if (
-        message.includes('413') ||
-        message.includes('length limit') ||
-        message.includes('too large')
-      ) {
-        toast.error(
-          'Image file is too large. Please use smaller images (max 2MB each).'
-        );
-      } else if (message.includes('already a member')) {
-        toast.error(message);
-      } else {
-        toast.error(message || 'Failed to create team. Please try again.');
-      }
+      navigate({ to: '/teams/$teamId', params: { teamId: team.id } });
+    } catch (error) {
+      toastError(error, 'Failed to create team. Please try again.');
     }
   });
 
@@ -145,7 +130,8 @@ const CreateTeamPage: FC = (): ReactElement => {
 
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              The deadline for team features was November 30, 2025 at 23:59 WIB.
+              The deadline for team features was{' '}
+              {formatDeadline(TEAM_FEATURES_DEADLINE)}.
             </p>
 
             <button
@@ -215,12 +201,12 @@ const CreateTeamPage: FC = (): ReactElement => {
                       Click to upload banner
                     </p>
                     <p className="text-xs text-gray-400 dark:text-neutral-500 mt-1">
-                      1200x400 recommended. Max 2MB
+                      1200x400 recommended. Max 5MB
                     </p>
                   </div>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={handleBannerChange}
                   />
@@ -258,7 +244,7 @@ const CreateTeamPage: FC = (): ReactElement => {
                       <input
                         id="logo"
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
                         className="hidden"
                         onChange={handleLogoChange}
                       />
@@ -277,7 +263,7 @@ const CreateTeamPage: FC = (): ReactElement => {
                     )}
                   </div>
                   <p className="text-xs text-gray-400 dark:text-neutral-500 mt-2">
-                    Max 2MB
+                    Max 5MB
                   </p>
                 </div>
               </div>
@@ -346,8 +332,8 @@ const CreateTeamPage: FC = (): ReactElement => {
                       <input
                         type="radio"
                         {...field}
-                        value={ETeamVisibility.PUBLIC}
-                        checked={field.value === ETeamVisibility.PUBLIC}
+                        value={TEAM_VISIBILITY.PUBLIC}
+                        checked={field.value === TEAM_VISIBILITY.PUBLIC}
                         className="mt-1"
                       />
                       <div>
@@ -364,8 +350,8 @@ const CreateTeamPage: FC = (): ReactElement => {
                       <input
                         type="radio"
                         {...field}
-                        value={ETeamVisibility.PRIVATE}
-                        checked={field.value === ETeamVisibility.PRIVATE}
+                        value={TEAM_VISIBILITY.PRIVATE}
+                        checked={field.value === TEAM_VISIBILITY.PRIVATE}
                         className="mt-1"
                       />
                       <div>
@@ -413,3 +399,7 @@ const CreateTeamPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/create')({
+  component: CreateTeamPage,
+});

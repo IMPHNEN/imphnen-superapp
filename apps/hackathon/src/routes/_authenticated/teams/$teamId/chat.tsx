@@ -1,102 +1,58 @@
-import {
-  type FC,
-  type ReactElement,
-  useState,
-  useRef,
-  useEffect,
-  useMemo,
-} from 'react';
+import { type FC, type ReactElement, useState, useRef, useEffect } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import {
-  useTeamById,
-  useTeamMessages,
-  useSendMessage,
-  useDeleteMessage,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { useTeamChat } from '../../../../hooks/use-chat';
+import { useTeam, useTeamRole } from '../../../../hooks/use-teams';
+import { toastError } from '../../../../lib/errors';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
-
-export const Route = createFileRoute('/_authenticated/teams/$teamId/chat')({
-  component: TeamChatPage,
-});
 
 const TeamChatPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const { data: teamData } = useTeamById(teamId || '');
-  const { data: messages, isLoading } = useTeamMessages(teamId || '');
-  const { mutateAsync: sendMessage, isPending: isSending } = useSendMessage(
-    teamId || ''
-  );
-  const { mutateAsync: deleteMessage } = useDeleteMessage(teamId || '');
-
-  const team = teamData?.data;
-  const currentUserId = session?.user?.id;
-
-  interface ChatMessage {
-    id: string;
-    user_id: string;
-    user?: {
-      avatar?: string;
-      fullname?: string;
-    };
-    message: string;
-    created_at: string;
-  }
-
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-  const displayMessages = useMemo(() => {
-    const raw: ChatMessage[] = Array.isArray(messages)
-      ? (messages as ChatMessage[])
-      : [];
-    const seen = new Set<string>();
-    const dedup: ChatMessage[] = [];
-    for (const m of raw) {
-      const key = m.id ?? `${m.user_id}-${m.created_at}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        dedup.push(m);
-      }
-    }
-    dedup.sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-    return dedup;
-  }, [messages]);
+  const { data: team } = useTeam(teamId);
+  const { userId: currentUserId, isLeader, isMember } = useTeamRole(team);
+  const {
+    messages: displayMessages,
+    isLoading,
+    hasOlder,
+    isLoadingOlder,
+    loadOlder,
+    send,
+    remove,
+  } = useTeamChat(teamId, isMember);
+  const isSending = send.isPending;
+  const lastMessageId = displayMessages.at(-1)?.id;
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [displayMessages]);
+    if (lastMessageId) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [lastMessageId]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isSending) return;
 
     try {
-      await sendMessage(message.trim());
+      await send.mutateAsync({ teamId, body: message.trim() });
       setMessage('');
     } catch (error) {
-      console.error('Failed to send message:', error);
-      toast.error('Failed to send message');
+      toastError(error, 'Failed to send message');
     }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
     try {
-      await deleteMessage(messageId);
+      await remove.mutateAsync({ id: messageId });
       toast.success('Message deleted');
       setDeleteTargetId(null);
     } catch (error) {
-      console.error('Failed to delete message:', error);
-      toast.error('Failed to delete message');
+      toastError(error, 'Failed to delete message');
     }
   };
 
@@ -128,7 +84,9 @@ const TeamChatPage: FC = (): ReactElement => {
             </div>
             <Button
               variant="secondary"
-              onClick={() => navigate({ to: `/teams/${teamId}` })}
+              onClick={() =>
+                navigate({ to: '/teams/$teamId', params: { teamId } })
+              }
             >
               Back to Team
             </Button>
@@ -144,14 +102,29 @@ const TeamChatPage: FC = (): ReactElement => {
             </div>
           ) : displayMessages && displayMessages.length > 0 ? (
             <div className="space-y-4">
+              {hasOlder && (
+                <div className="flex justify-center">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={isLoadingOlder}
+                    onClick={() => {
+                      loadOlder().catch((error: unknown) =>
+                        toastError(error, 'Failed to load older messages')
+                      );
+                    }}
+                  >
+                    {isLoadingOlder ? 'Loading...' : 'Load older messages'}
+                  </Button>
+                </div>
+              )}
               {displayMessages.map((msg) => {
-                const isOwnMessage = msg.user_id === currentUserId;
-                const isLeader = team?.leader_id === currentUserId;
+                const isOwnMessage = msg.author.id === currentUserId;
                 const canDelete = isOwnMessage || isLeader;
 
                 return (
                   <div
-                    key={`${msg.id ?? 'message'}-${msg.created_at}`}
+                    key={msg.id}
                     className={`flex ${
                       isOwnMessage ? 'justify-end' : 'justify-start'
                     }`}
@@ -162,15 +135,15 @@ const TeamChatPage: FC = (): ReactElement => {
                       }`}
                     >
                       <div className="shrink-0">
-                        {msg.user?.avatar ? (
+                        {msg.author.image ? (
                           <img
-                            src={msg.user.avatar}
-                            alt={msg.user.fullname}
+                            src={msg.author.image}
+                            alt={msg.author.name}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
-                            {msg.user?.fullname?.charAt(0) || '?'}
+                            {msg.author.name.charAt(0) || '?'}
                           </div>
                         )}
                       </div>
@@ -183,10 +156,10 @@ const TeamChatPage: FC = (): ReactElement => {
                         >
                           <div className="flex items-baseline gap-2 mb-1">
                             <span className="font-semibold text-sm text-gray-900 dark:text-white">
-                              {isOwnMessage ? 'You' : msg.user?.fullname}
+                              {isOwnMessage ? 'You' : msg.author.name}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-500">
-                              {formatTime(msg.created_at)}
+                              {formatTime(msg.createdAt)}
                             </span>
                           </div>
                           <div
@@ -197,7 +170,7 @@ const TeamChatPage: FC = (): ReactElement => {
                             }`}
                           >
                             <p className="text-sm whitespace-pre-wrap wrap-break-word font-sans">
-                              {msg.message}
+                              {msg.body}
                             </p>
 
                             {canDelete && (
@@ -314,3 +287,7 @@ const TeamChatPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/$teamId/chat')({
+  component: TeamChatPage,
+});

@@ -1,54 +1,28 @@
-﻿import {
-  type FC,
-  type ReactElement,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type FC, type ReactElement, useEffect, useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import {
-  useMyTeams,
-  useMyInvitations,
-  useRespondToInvitation,
-  useAuthStore,
-  useWinners,
-} from '@imphnen-frontend-service/service';
+import { HACKATHON_DECISION_STATUS } from '@app/schemas';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { toast } from 'sonner';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Icon } from '@iconify/react';
 import ProfilePage from './_components/profile-modal';
-import { encodeWinnerCertificateId } from '../../utils/certificate';
-
-export const Route = createFileRoute('/_authenticated/dashboard')({
-  component: DashboardPage,
-});
-
-const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
-
-const SUBMISSION_DEADLINE = new Date('2025-12-07T16:59:00Z');
-
-type Invitation = {
-  id: string;
-  team: {
-    id?: string;
-    name?: string;
-    logo?: string;
-    banner?: string;
-    description?: string;
-    city?: string;
-    visibility?: string;
-    leader_id?: string;
-  };
-  inviter: {
-    id?: string;
-    fullname?: string;
-    email?: string;
-    avatar?: string;
-  };
-};
+import { useParticipantMe } from '../../hooks/use-participant';
+import { useMyCertificate } from '../../hooks/use-public';
+import {
+  useInvitationRespond,
+  useMyInvitations,
+} from '../../hooks/use-requests';
+import { useMyTeam } from '../../hooks/use-teams';
+import {
+  formatDeadline,
+  SUBMISSION_DEADLINE,
+  TEAM_FEATURES_DEADLINE,
+} from '../../lib/deadlines';
+import { toastError } from '../../lib/errors';
 
 const DashboardPage: FC = (): ReactElement => {
-  const { session } = useAuthStore();
+  const { me } = useCurrentUser();
+  const { data: participant } = useParticipantMe();
   const navigate = useNavigate();
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{
@@ -97,40 +71,41 @@ const DashboardPage: FC = (): ReactElement => {
       };
     }
   }, [showProfileModal]);
-  const { data: teamsData } = useMyTeams();
-  const { data: winnersResponse } = useWinners();
+  const { data: myTeam } = useMyTeam();
+  const { data: certificate } = useMyCertificate();
   const { data: invitationsData } = useMyInvitations();
-  const { mutateAsync: respondToInvitation } = useRespondToInvitation();
+  const { mutateAsync: respondToInvitation } = useInvitationRespond();
 
-  const user = session?.user;
-  const myTeams = teamsData?.data || [];
-  const invitations: Invitation[] = (invitationsData?.data ||
-    []) as Invitation[];
-
-  const winnerEntry = useMemo(() => {
-    const team = (myTeams[0] as { id?: string } | null | undefined) || null;
-    const winners = winnersResponse?.data || [];
-    if (!team?.id) return null;
-    return winners.find((w) => w.team_id === team.id) || null;
-  }, [myTeams, winnersResponse?.data]);
+  const user = me?.user
+    ? {
+        name: me.user.name,
+        email: me.user.email,
+        image: me.user.image,
+        location: participant?.location ?? null,
+        bio: participant?.bio ?? null,
+        skills: participant?.skills ?? [],
+      }
+    : undefined;
+  const invitations = (invitationsData?.items ?? []).filter(
+    (invitation) => invitation.status === HACKATHON_DECISION_STATUS.PENDING
+  );
+  const winnerEntry = certificate?.winner ?? null;
 
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
-      await respondToInvitation({ invitationId, action: 'accept' });
+      await respondToInvitation({ id: invitationId, accept: true });
       toast.success('Invitation accepted! You are now a team member.');
     } catch (error) {
-      console.error('Failed to accept invitation:', error);
-      toast.error('Failed to accept invitation');
+      toastError(error, 'Failed to accept invitation');
     }
   };
 
   const handleRejectInvitation = async (invitationId: string) => {
     try {
-      await respondToInvitation({ invitationId, action: 'reject' });
+      await respondToInvitation({ id: invitationId, accept: false });
       toast.success('Invitation declined');
     } catch (error) {
-      console.error('Failed to reject invitation:', error);
-      toast.error('Failed to decline invitation');
+      toastError(error, 'Failed to decline invitation');
     }
   };
 
@@ -139,7 +114,7 @@ const DashboardPage: FC = (): ReactElement => {
       <div className="p-6 md:p-8 md:max-w-7xl w-full mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome, {user?.fullname || user?.email?.split('@')[0] || 'User'}!
+            Welcome, {user?.name || user?.email?.split('@')[0] || 'User'}!
           </h1>
           {user?.location && (
             <p className="text-gray-600 dark:text-gray-400 mt-1 font-sans flex items-center space-x-1">
@@ -149,7 +124,7 @@ const DashboardPage: FC = (): ReactElement => {
           )}
         </div>
 
-        {winnerEntry && myTeams.length > 0 && (
+        {winnerEntry && certificate && (
           <div className="mb-8 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500 rounded-lg p-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -165,14 +140,12 @@ const DashboardPage: FC = (): ReactElement => {
                 </div>
               </div>
               <button
-                onClick={async () => {
-                  const team = myTeams[0] as { id?: string } | null | undefined;
-                  if (!team?.id) return;
-                  const certId = await encodeWinnerCertificateId(team.id);
+                onClick={() =>
                   navigate({
-                    to: `/certificate/winner/${encodeURIComponent(certId)}`,
-                  });
-                }}
+                    to: '/certificate/winner/$certId',
+                    params: { certId: certificate.id },
+                  })
+                }
                 className="shrink-0 px-6 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium rounded-lg transition-colors cursor-pointer"
               >
                 Generate Sertifikat Juara
@@ -190,7 +163,8 @@ const DashboardPage: FC = (): ReactElement => {
                   Submission Deadline
                 </h3>
                 <p className="text-blue-800 dark:text-blue-200 mt-2 text-sm font-sans">
-                  Project submissions close on December 7, 2025 at 23:59 WIB
+                  Project submissions close on{' '}
+                  {formatDeadline(SUBMISSION_DEADLINE)}
                 </p>
                 <div className="mt-4 grid grid-cols-4 gap-4">
                   <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
@@ -253,11 +227,10 @@ const DashboardPage: FC = (): ReactElement => {
                 >
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {invitation.team?.name ?? 'Unnamed Team'}
+                      {invitation.team.name}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Invited by{' '}
-                      {invitation.inviter?.fullname ?? 'Unknown User'}
+                      Invited by {invitation.inviter.name}
                     </p>
                   </div>
                   {!isTeamFeaturesClosed && (
@@ -283,9 +256,9 @@ const DashboardPage: FC = (): ReactElement => {
           </div>
         )}
 
-        {myTeams.length > 0 ? (
+        {myTeam ? (
           (() => {
-            const team = myTeams[0] as any;
+            const team = myTeam;
             return (
               <div className="mb-6 md:mb-8">
                 <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
@@ -296,15 +269,15 @@ const DashboardPage: FC = (): ReactElement => {
                   className="block bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border dark:border-gray-700"
                 >
                   <img
-                    src={team.banner || '/images/banner-imphnen.webp'}
+                    src={team.bannerUrl || '/images/banner-imphnen.webp'}
                     alt={team.name}
                     className="w-full aspect-3/1 object-cover"
                   />
                   <div className="p-4 md:p-6">
                     <div className="flex items-center space-x-4 mb-4">
-                      {team.logo ? (
+                      {team.logoUrl ? (
                         <img
-                          src={team.logo}
+                          src={team.logoUrl}
                           alt={team.name}
                           className="w-16 h-16 rounded-full object-cover shrink-0"
                         />
@@ -321,7 +294,7 @@ const DashboardPage: FC = (): ReactElement => {
                           {team.name}
                         </h3>
                         <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-3 font-sans mt-2">
-                          {team.has_submission && (
+                          {team.hasSubmission && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 shrink-0">
                               <Icon
                                 icon="mdi:check-circle"
@@ -341,13 +314,8 @@ const DashboardPage: FC = (): ReactElement => {
                           )}
                           <span className="flex items-center gap-1 shrink-0">
                             <Icon icon="mdi:account-group" />
-                            {team.member_count || team.members?.length || 0}{' '}
-                            member
-                            {(team.member_count ||
-                              team.members?.length ||
-                              0) !== 1
-                              ? 's'
-                              : ''}
+                            {team.memberCount} member
+                            {team.memberCount !== 1 ? 's' : ''}
                           </span>
                         </div>
                       </div>
@@ -381,10 +349,10 @@ const DashboardPage: FC = (): ReactElement => {
           <div className="px-4 md:px-8 pb-4 md:pb-8 max-w-7xl">
             <div className="flex flex-col md:flex-row md:items-start -mt-12 mb-4 md:mb-6">
               <div className="flex flex-col md:flex-row items-start">
-                {user?.avatar ? (
+                {user?.image ? (
                   <img
-                    src={user.avatar}
-                    alt={user.fullname || 'User'}
+                    src={user.image}
+                    alt={user.name || 'User'}
                     className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white dark:border-gray-700 shadow-lg object-cover"
                   />
                 ) : (
@@ -396,9 +364,7 @@ const DashboardPage: FC = (): ReactElement => {
                 )}
                 <div className="md:ml-6 mt-4 md:mt-14">
                   <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                    {user?.fullname ||
-                      user?.email?.split('@')[0] ||
-                      'Unnamed User'}
+                    {user?.name || user?.email?.split('@')[0] || 'Unnamed User'}
                   </h2>
 
                   {user?.location ? (
@@ -484,3 +450,7 @@ const DashboardPage: FC = (): ReactElement => {
     </>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/dashboard')({
+  component: DashboardPage,
+});

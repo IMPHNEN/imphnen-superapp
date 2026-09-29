@@ -7,27 +7,19 @@ import {
 } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import {
-  useTeams,
-  useJoinTeam,
-  useMyTeams,
-  ETeamVisibility,
-  joinTeamSchema,
-  type TJoinTeamForm,
-} from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CitySelect } from '../../../components/city-select';
+import { useJoinRequestCreate } from '../../../hooks/use-requests';
+import { useMyTeam, useTeamBrowse } from '../../../hooks/use-teams';
+import { isTeamFeaturesClosed as teamFeaturesClosed } from '../../../lib/deadlines';
+import { toastError } from '../../../lib/errors';
+import { joinTeamSchema, type TJoinTeamForm } from '../../../lib/forms';
 import { Icon } from '@iconify/react';
-
-export const Route = createFileRoute('/_authenticated/teams/browse')({
-  component: BrowseTeamsPage,
-});
 
 const DEFAULT_PER_PAGE = 12;
 const PER_PAGE_OPTIONS = [6, 12, 24, 48];
-
-const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
 
 const MEMBER_FILTER_OPTIONS = [
   {
@@ -95,7 +87,7 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     }
   };
 
-  const isTeamFeaturesClosed = new Date() >= TEAM_FEATURES_DEADLINE;
+  const isTeamFeaturesClosed = teamFeaturesClosed();
 
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
   const initialPerPage = parseInt(
@@ -221,33 +213,31 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     data: teamsData,
     isLoading,
     isFetching,
-  } = useTeams({
+  } = useTeamBrowse({
     page: currentPage,
-    limit: perPage,
-    search: debouncedSearch,
+    pageSize: perPage,
+    search: debouncedSearch || undefined,
     city: selectedCity || undefined,
-    visibility: ETeamVisibility.PUBLIC,
     minMembers: memberFilter?.minMembers,
     maxMembers: memberFilter?.maxMembers,
     hasSubmission: hasSubmissionFilter,
   });
 
-  const { data: myTeamsData } = useMyTeams();
-  const { mutateAsync: joinTeam, isPending: isJoining } = useJoinTeam();
+  const { data: myTeam } = useMyTeam();
+  const { mutateAsync: joinTeam, isPending: isJoining } =
+    useJoinRequestCreate();
 
   const form = useForm<TJoinTeamForm>({
     resolver: zodResolver(joinTeamSchema),
     mode: 'all',
   });
 
-  const teams = teamsData?.teams || [];
-  const totalPages = teamsData?.totalPages || 1;
-  const total = teamsData?.total || 0;
-  const myTeams = myTeamsData?.data || [];
+  const teams = teamsData?.items ?? [];
+  const total = teamsData?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const hasTeam = !!myTeam;
 
-  const isMyTeam = (teamId: string) => {
-    return myTeams.some((team: any) => team.id === teamId);
-  };
+  const isMyTeam = (teamId: string) => myTeam?.id === teamId;
 
   const handleJoinRequest = (teamId: string) => {
     setSelectedTeamId(teamId);
@@ -258,12 +248,13 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     if (!selectedTeamId) return;
 
     try {
-      await joinTeam({ teamId: selectedTeamId, data });
+      await joinTeam({ teamId: selectedTeamId, message: data.message });
+      toast.success('Join request sent!');
       setShowJoinModal(false);
       form.reset();
       setSelectedTeamId(null);
     } catch (error) {
-      console.error('Failed to send join request:', error);
+      toastError(error, 'Failed to send join request');
     }
   });
 
@@ -418,15 +409,15 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                   className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col border dark:border-gray-800"
                 >
                   <img
-                    src={team.banner || '/images/banner-imphnen.webp'}
+                    src={team.bannerUrl || '/images/banner-imphnen.webp'}
                     alt={team.name}
                     className="w-full aspect-3/1 object-cover"
                   />
                   <div className="p-6 flex flex-col flex-1">
                     <div className="flex items-center space-x-3 mb-3">
-                      {team.logo ? (
+                      {team.logoUrl ? (
                         <img
-                          src={team.logo}
+                          src={team.logoUrl}
                           alt={team.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -442,7 +433,7 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                           {team.name}
                         </h3>
                         <div className="text-sm font-sans text-gray-600 dark:text-gray-400 flex items-center gap-2 mt-1">
-                          {team.has_submission && (
+                          {team.hasSubmission && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 shrink-0">
                               <Icon
                                 icon="mdi:check-circle"
@@ -456,8 +447,8 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                             <span>{team.city}</span>
                           </p>
                           <p className="whitespace-nowrap shrink-0 flex items-center gap-x-1">
-                            <Icon icon="mdi:account-group" />{' '}
-                            {team.member_count || 0} members
+                            <Icon icon="mdi:account-group" /> {team.memberCount}{' '}
+                            members
                           </p>
                         </div>
                       </div>
@@ -466,33 +457,37 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                       {team.description}
                     </p>
                     <div className="space-y-3 mt-auto">
-                      {(team.member_count || 0) === 1 &&
-                        !team.has_submission && (
-                          <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                            <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                              <Icon
-                                icon="mdi:alert"
-                                className="text-sm shrink-0"
-                              />
-                              <span>
-                                This team needs at least 2 members to submit
-                              </span>
-                            </p>
-                          </div>
-                        )}
+                      {team.memberCount === 1 && !team.hasSubmission && (
+                        <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                          <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                            <Icon
+                              icon="mdi:alert"
+                              className="text-sm shrink-0"
+                            />
+                            <span>
+                              This team needs at least 2 members to submit
+                            </span>
+                          </p>
+                        </div>
+                      )}
                       {isMyTeam(team.id) ? (
                         <Button
                           className="w-full"
                           variant="secondary"
-                          onClick={() => navigate({ to: `/teams/${team.id}` })}
+                          onClick={() =>
+                            navigate({
+                              to: '/teams/$teamId',
+                              params: { teamId: team.id },
+                            })
+                          }
                         >
                           Your Team
                         </Button>
                       ) : (
                         <>
-                          {myTeams.length === 0 &&
-                            (team.member_count || 0) < 5 &&
-                            !team.has_submission &&
+                          {!hasTeam &&
+                            team.memberCount < 5 &&
+                            !team.hasSubmission &&
                             !isTeamFeaturesClosed && (
                               <Button
                                 className="w-full"
@@ -505,7 +500,10 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                             className="w-full"
                             variant="secondary"
                             onClick={() =>
-                              navigate({ to: `/teams/${team.id}` })
+                              navigate({
+                                to: '/teams/$teamId',
+                                params: { teamId: team.id },
+                              })
                             }
                           >
                             View Team
@@ -668,3 +666,7 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/browse')({
+  component: BrowseTeamsPage,
+});

@@ -3,50 +3,46 @@ import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
-import {
-  teamUpdateSchema,
-  type TTeamUpdateForm,
-  useUpdateTeam,
-  useTeamById,
-  ETeamVisibility,
-  useUploadFile,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { HACKATHON_UPLOAD_KIND } from '@app/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { CitySelect } from '../../../../components/city-select';
+import {
+  useHackathonUpload,
+  useTeam,
+  useTeamRole,
+  useTeamUpdate,
+} from '../../../../hooks/use-teams';
+import { toastError } from '../../../../lib/errors';
+import {
+  TEAM_IMAGE_MAX_BYTES,
+  TEAM_VISIBILITY,
+  teamFormSchema,
+  type TTeamForm,
+} from '../../../../lib/forms';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/teams/$teamId/edit')({
-  component: EditTeamPage,
-});
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const MAX_FILE_SIZE = TEAM_IMAGE_MAX_BYTES;
 
 const EditTeamPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
+  const [logoKey, setLogoKey] = useState<string | null>(null);
+  const [bannerKey, setBannerKey] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string>('');
 
-  const { data: teamData, isLoading: isLoadingTeam } = useTeamById(
-    teamId || ''
-  );
-  const { mutateAsync: updateTeam, isPending: isUpdating } = useUpdateTeam(
-    teamId || ''
-  );
-  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
+  const { data: team, isLoading: isLoadingTeam } = useTeam(teamId);
+  const { mutateAsync: updateTeam, isPending: isUpdating } = useTeamUpdate();
+  const { mutateAsync: uploadFile, isPending: isUploading } =
+    useHackathonUpload();
+  const { isLeader } = useTeamRole(team);
 
-  const team = teamData?.data;
-  const currentUserId = session?.user?.id;
-  const isLeader = currentUserId === team?.leader_id;
-
-  const form = useForm<TTeamUpdateForm>({
-    resolver: zodResolver(teamUpdateSchema),
+  const form = useForm<TTeamForm>({
+    resolver: zodResolver(teamFormSchema),
     mode: 'all',
   });
 
@@ -54,14 +50,14 @@ const EditTeamPage: FC = (): ReactElement => {
     if (team) {
       form.reset({
         name: team.name,
-        description: team.description,
+        description: team.description ?? '',
         city: team.city,
         visibility: team.visibility,
-        logo: team.logo,
-        banner: team.banner,
       });
-      if (team.logo) setLogoPreview(team.logo);
-      if (team.banner) setBannerPreview(team.banner);
+      setLogoKey(team.logoKey);
+      setBannerKey(team.bannerKey);
+      setLogoPreview(team.logoUrl ?? '');
+      setBannerPreview(team.bannerUrl ?? '');
     }
   }, [team, form]);
 
@@ -93,7 +89,7 @@ const EditTeamPage: FC = (): ReactElement => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        toast.error('Logo image is too large. Maximum size is 2MB.');
+        toast.error('Logo image is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
@@ -110,7 +106,7 @@ const EditTeamPage: FC = (): ReactElement => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        toast.error('Banner image is too large. Maximum size is 2MB.');
+        toast.error('Banner image is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
@@ -125,28 +121,34 @@ const EditTeamPage: FC = (): ReactElement => {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      let logoUrl = data.logo;
-      let bannerUrl = data.banner;
-
-      if (logoFile) {
-        const logoResult = await uploadFile(logoFile);
-        logoUrl = logoResult.data.url;
-      }
-
-      if (bannerFile) {
-        const bannerResult = await uploadFile(bannerFile);
-        bannerUrl = bannerResult.data.url;
-      }
+      const nextLogoKey = logoFile
+        ? (
+            await uploadFile({
+              kind: HACKATHON_UPLOAD_KIND.TEAM_LOGO,
+              file: logoFile,
+            })
+          ).key
+        : logoKey;
+      const nextBannerKey = bannerFile
+        ? (
+            await uploadFile({
+              kind: HACKATHON_UPLOAD_KIND.TEAM_BANNER,
+              file: bannerFile,
+            })
+          ).key
+        : bannerKey;
 
       await updateTeam({
+        id: teamId,
         ...data,
-        logo: logoUrl,
-        banner: bannerUrl,
+        logoKey: nextLogoKey,
+        bannerKey: nextBannerKey,
       });
 
-      navigate({ to: `/teams/${teamId}` });
+      toast.success('Team updated successfully!');
+      navigate({ to: '/teams/$teamId', params: { teamId } });
     } catch (error) {
-      console.error('Failed to update team:', error);
+      toastError(error, 'Failed to update team');
     }
   });
 
@@ -183,9 +185,9 @@ const EditTeamPage: FC = (): ReactElement => {
                   <button
                     type="button"
                     onClick={() => {
-                      setBannerFile(null);
                       setBannerPreview('');
-                      form.setValue('banner', null);
+                      setBannerFile(null);
+                      setBannerKey(null);
                     }}
                     className="absolute top-2 right-2 bg-danger-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-danger-700 cursor-pointer"
                   >
@@ -199,12 +201,12 @@ const EditTeamPage: FC = (): ReactElement => {
                       Click to upload banner
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      1200x400 recommended. Max 2MB
+                      1200x400 recommended. Max 5MB
                     </p>
                   </div>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={handleBannerChange}
                   />
@@ -239,7 +241,7 @@ const EditTeamPage: FC = (): ReactElement => {
                       <input
                         id="logo"
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
                         className="hidden"
                         onChange={handleLogoChange}
                       />
@@ -248,9 +250,9 @@ const EditTeamPage: FC = (): ReactElement => {
                       <button
                         type="button"
                         onClick={() => {
-                          setLogoFile(null);
                           setLogoPreview('');
-                          form.setValue('logo', null);
+                          setLogoFile(null);
+                          setLogoKey(null);
                         }}
                         className="px-4 py-2 text-sm bg-danger-600 text-white rounded-lg hover:bg-danger-700 cursor-pointer"
                       >
@@ -259,7 +261,7 @@ const EditTeamPage: FC = (): ReactElement => {
                     )}
                   </div>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                    Max 2MB
+                    Max 5MB
                   </p>
                 </div>
               </div>
@@ -332,8 +334,8 @@ const EditTeamPage: FC = (): ReactElement => {
                       <input
                         type="radio"
                         {...field}
-                        value={ETeamVisibility.PUBLIC}
-                        checked={field.value === ETeamVisibility.PUBLIC}
+                        value={TEAM_VISIBILITY.PUBLIC}
+                        checked={field.value === TEAM_VISIBILITY.PUBLIC}
                         className="mt-1"
                       />
                       <div>
@@ -349,8 +351,8 @@ const EditTeamPage: FC = (): ReactElement => {
                       <input
                         type="radio"
                         {...field}
-                        value={ETeamVisibility.PRIVATE}
-                        checked={field.value === ETeamVisibility.PRIVATE}
+                        value={TEAM_VISIBILITY.PRIVATE}
+                        checked={field.value === TEAM_VISIBILITY.PRIVATE}
                         className="mt-1"
                       />
                       <div>
@@ -390,3 +392,7 @@ const EditTeamPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/$teamId/edit')({
+  component: EditTeamPage,
+});

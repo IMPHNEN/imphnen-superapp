@@ -1,57 +1,48 @@
 import { type FC, type ReactElement, useState } from 'react';
 import { Button, Input } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import {
-  useTeamById,
-  useTeamMembers,
-  useTeamJoinRequests,
-  useInviteMember,
-  useRemoveMember,
-  useRespondToJoinRequest,
-  ETeamMemberStatus,
-  inviteMemberSchema,
-  type TInviteMemberForm,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { HACKATHON_MEMBER_ROLE } from '@app/schemas';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-
-export const Route = createFileRoute('/_authenticated/teams/$teamId/members')({
-  component: ManageMembersPage,
-});
+import {
+  useInvitationCreate,
+  useJoinRequestRespond,
+  useTeamJoinRequests,
+} from '../../../../hooks/use-requests';
+import {
+  useMemberRemove,
+  useTeam,
+  useTeamRole,
+} from '../../../../hooks/use-teams';
+import { toastError } from '../../../../lib/errors';
+import {
+  inviteMemberSchema,
+  type TInviteMemberForm,
+} from '../../../../lib/forms';
 
 const ManageMembersPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const { data: teamData, isLoading: isLoadingTeam } = useTeamById(
-    teamId || ''
-  );
-  const { data: membersData, isLoading: isLoadingMembers } = useTeamMembers(
-    teamId || ''
-  );
-  const { data: joinRequestsData } = useTeamJoinRequests(teamId || '');
+  const { data: team, isLoading: isLoadingTeam } = useTeam(teamId);
+  const isLoadingMembers = isLoadingTeam;
+  const { isLeader } = useTeamRole(team);
+  const { data: joinRequestsData } = useTeamJoinRequests(teamId, isLeader);
 
-  const { mutateAsync: inviteMember, isPending: isInviting } = useInviteMember(
-    teamId || ''
-  );
-  const { mutateAsync: removeMember, isPending: isRemoving } = useRemoveMember(
-    teamId || ''
-  );
+  const { mutateAsync: inviteMember, isPending: isInviting } =
+    useInvitationCreate();
+  const { mutateAsync: removeMember, isPending: isRemoving } =
+    useMemberRemove();
   const { mutateAsync: respondToRequest, isPending: isResponding } =
-    useRespondToJoinRequest(teamId || '');
+    useJoinRequestRespond();
 
-  const team = teamData?.data;
-  const members = membersData?.data || [];
-  const joinRequests = Array.isArray(joinRequestsData?.data)
-    ? joinRequestsData.data
-    : [];
-  const currentUserId = session?.user?.id;
-  const isLeader = currentUserId === team?.leader_id;
-  const hasSubmission = team?.has_submission;
+  const members = team?.members ?? [];
+  const joinRequests = (joinRequestsData?.items ?? []).filter(
+    (request) => request.status === 'pending'
+  );
+  const hasSubmission = team?.hasSubmission;
 
   const form = useForm<TInviteMemberForm>({
     resolver: zodResolver(inviteMemberSchema),
@@ -75,7 +66,9 @@ const ManageMembersPage: FC = (): ReactElement => {
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           Only the team leader can manage members
         </p>
-        <Button onClick={() => navigate({ to: `/teams/${teamId}` })}>
+        <Button
+          onClick={() => navigate({ to: '/teams/$teamId', params: { teamId } })}
+        >
           Back to Team
         </Button>
       </div>
@@ -84,11 +77,12 @@ const ManageMembersPage: FC = (): ReactElement => {
 
   const handleInvite = form.handleSubmit(async (data) => {
     try {
-      await inviteMember(data);
+      await inviteMember({ teamId, email: data.email });
+      toast.success('Invitation sent successfully!');
       setShowInviteModal(false);
       form.reset();
     } catch (error) {
-      console.error('Failed to invite member:', error);
+      toastError(error, 'Failed to send invitation');
     }
   });
 
@@ -96,30 +90,29 @@ const ManageMembersPage: FC = (): ReactElement => {
     // eslint-disable-next-line no-restricted-globals
     if (confirm('Are you sure you want to remove this member?')) {
       try {
-        await removeMember(userId);
+        await removeMember({ teamId, userId });
+        toast.success('Member removed');
       } catch (error) {
-        console.error('Failed to remove member:', error);
+        toastError(error, 'Failed to remove member');
       }
     }
   };
 
   const handleApproveRequest = async (requestId: string) => {
     try {
-      await respondToRequest({ requestId, action: 'approve' });
+      await respondToRequest({ id: requestId, accept: true });
       toast.success('Member added successfully!');
     } catch (error) {
-      console.error('Failed to approve request:', error);
-      toast.error((error as Error).message || 'Failed to approve request');
+      toastError(error, 'Failed to approve request');
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
     try {
-      await respondToRequest({ requestId, action: 'reject' });
+      await respondToRequest({ id: requestId, accept: false });
       toast.success('Request rejected');
     } catch (error) {
-      console.error('Failed to reject request:', error);
-      toast.error((error as Error).message || 'Failed to reject request');
+      toastError(error, 'Failed to reject request');
     }
   };
 
@@ -150,7 +143,9 @@ const ManageMembersPage: FC = (): ReactElement => {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => navigate({ to: `/teams/${teamId}` })}
+                onClick={() =>
+                  navigate({ to: '/teams/$teamId', params: { teamId } })
+                }
               >
                 Back to Team
               </Button>
@@ -190,10 +185,10 @@ const ManageMembersPage: FC = (): ReactElement => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3 flex-1">
-                      {request.user.avatar ? (
+                      {request.user.image ? (
                         <img
-                          src={request.user.avatar}
-                          alt={request.user.fullname}
+                          src={request.user.image}
+                          alt={request.user.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
                       ) : (
@@ -205,16 +200,8 @@ const ManageMembersPage: FC = (): ReactElement => {
                       )}
                       <div className="flex-1">
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {request.user.fullname}
+                          {request.user.name}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {request.user.email}
-                        </p>
-                        {request.user.location && (
-                          <p className="text-sm text-gray-500 dark:text-gray-500">
-                            📍 {request.user.location}
-                          </p>
-                        )}
                         <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 italic">
                           "{request.message}"
                         </p>
@@ -261,14 +248,14 @@ const ManageMembersPage: FC = (): ReactElement => {
             <div className="space-y-3">
               {members.map((member) => (
                 <div
-                  key={member.id}
+                  key={member.user.id}
                   className="border dark:border-gray-700 rounded-lg p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-3">
-                    {member.user.avatar ? (
+                    {member.user.image ? (
                       <img
-                        src={member.user.avatar}
-                        alt={member.user.fullname}
+                        src={member.user.image}
+                        alt={member.user.name}
                         className="w-12 h-12 rounded-full object-cover"
                       />
                     ) : (
@@ -280,40 +267,33 @@ const ManageMembersPage: FC = (): ReactElement => {
                     )}
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {member.user.fullname}
+                        {member.user.name}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {member.user.email}
-                      </p>
-                      {member.user.location && (
-                        <p className="text-sm text-gray-500 dark:text-gray-500">
-                          📍 {member.user.location}
+                      {member.contact && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {member.contact.email}
                         </p>
                       )}
                       <div className="flex items-center space-x-2 mt-1">
-                        {member.role === 'leader' && (
+                        {member.role === HACKATHON_MEMBER_ROLE.LEADER && (
                           <span className="px-2 py-1 bg-blue-100 dark:bg-primary-900/30 text-blue-800 dark:text-primary-300 rounded text-xs font-medium">
                             Leader
-                          </span>
-                        )}
-                        {member.status === ETeamMemberStatus.PENDING && (
-                          <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
-                            Pending Invitation
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
-                  {member.role !== 'leader' && !hasSubmission && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => handleRemove(member.user_id)}
-                      disabled={isRemoving}
-                    >
-                      Remove
-                    </Button>
-                  )}
+                  {member.role !== HACKATHON_MEMBER_ROLE.LEADER &&
+                    !hasSubmission && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleRemove(member.user.id)}
+                        disabled={isRemoving}
+                      >
+                        Remove
+                      </Button>
+                    )}
                 </div>
               ))}
             </div>
@@ -343,7 +323,7 @@ const ManageMembersPage: FC = (): ReactElement => {
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-6">
               <p className="text-sm text-yellow-800 dark:text-yellow-200 font-sans">
                 <strong>Important:</strong> The email you enter must match the
-                GitHub email address the member uses to sign in.
+                email address the member uses to sign in.
               </p>
             </div>
             <form onSubmit={handleInvite} className="space-y-4">
@@ -390,3 +370,7 @@ const ManageMembersPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/$teamId/members')({
+  component: ManageMembersPage,
+});

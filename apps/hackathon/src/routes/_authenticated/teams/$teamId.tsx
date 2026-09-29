@@ -1,27 +1,24 @@
 import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import {
-  useTeamById,
-  useTeamMembers,
-  useInviteMember,
-  useTeamJoinRequests,
-  useRespondToJoinRequest,
-  useLeaveTeam,
-  useDeleteTeam,
-  ETeamMemberRole,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { HACKATHON_LIMIT, HACKATHON_MEMBER_ROLE } from '@app/schemas';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
+import {
+  useInvitationCreate,
+  useJoinRequestRespond,
+  useTeamJoinRequests,
+} from '../../../hooks/use-requests';
+import {
+  useTeam,
+  useTeamLeave,
+  useTeamRemove,
+  useTeamRole,
+} from '../../../hooks/use-teams';
+import { isTeamFeaturesClosed as teamFeaturesClosed } from '../../../lib/deadlines';
+import { toastError } from '../../../lib/errors';
 
-export const Route = createFileRoute('/_authenticated/teams/$teamId')({
-  component: TeamDashboardPage,
-});
-
-const MAX_TEAM_MEMBERS = 5;
-
-const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
+const MAX_TEAM_MEMBERS = HACKATHON_LIMIT.TEAM_MAX_MEMBERS;
 
 const ImageWithLoader: FC<{
   src: string;
@@ -56,9 +53,7 @@ const ImageWithLoader: FC<{
 const TeamDashboardPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
-
-  const isTeamFeaturesClosed = new Date() >= TEAM_FEATURES_DEADLINE;
+  const isTeamFeaturesClosed = teamFeaturesClosed();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showJoinRequestsModal, setShowJoinRequestsModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
@@ -88,36 +83,24 @@ const TeamDashboardPage: FC = (): ReactElement => {
     setImagesLoaded(true);
   }, []);
 
-  const { data: teamData, isLoading: isLoadingTeam } = useTeamById(
-    teamId || ''
-  );
-  const { data: membersData, isLoading: isLoadingMembers } = useTeamMembers(
-    teamId || ''
-  );
+  const { data: team, isLoading: isLoadingTeam } = useTeam(teamId);
 
-  const team = teamData?.data;
-  const members = membersData?.data || [];
-  const currentUserId = session?.user?.id;
-  const isLeader = currentUserId === team?.leader_id;
+  const members = team?.members ?? [];
+  const { isLeader, isMember } = useTeamRole(team);
+  const leaderContact = members.find(
+    (member) => member.role === HACKATHON_MEMBER_ROLE.LEADER
+  )?.contact;
 
-  const { data: joinRequestsData } = useTeamJoinRequests(
-    teamId || '',
-    !!teamId && isLeader
-  );
-  const { mutateAsync: inviteMember, isPending: isInviting } = useInviteMember(
-    teamId || ''
-  );
+  const { data: joinRequestsData } = useTeamJoinRequests(teamId, isLeader);
+  const { mutateAsync: inviteMember, isPending: isInviting } =
+    useInvitationCreate();
   const { mutateAsync: respondToJoinRequest, isPending: isResponding } =
-    useRespondToJoinRequest(teamId || '');
-  const { mutateAsync: leaveTeam, isPending: isLeaving } = useLeaveTeam();
-  const { mutateAsync: deleteTeam, isPending: isDeleting } = useDeleteTeam();
+    useJoinRequestRespond();
+  const { mutateAsync: leaveTeam, isPending: isLeaving } = useTeamLeave();
+  const { mutateAsync: deleteTeam, isPending: isDeleting } = useTeamRemove();
 
-  const joinRequests = joinRequestsData?.data || [];
-  const pendingJoinRequests = joinRequests.filter(
-    (req: any) => req.status === 'pending'
-  );
-  const isMember = members.some(
-    (member: any) => member.user_id === currentUserId
+  const pendingJoinRequests = (joinRequestsData?.items ?? []).filter(
+    (req) => req.status === 'pending'
   );
   const canInvite = isLeader && members.length < MAX_TEAM_MEMBERS;
 
@@ -126,13 +109,12 @@ const TeamDashboardPage: FC = (): ReactElement => {
     if (!inviteEmail.trim() || isInviting) return;
 
     try {
-      await inviteMember({ email: inviteEmail.trim() });
+      await inviteMember({ teamId, email: inviteEmail.trim() });
       toast.success('Invitation sent successfully!');
       setInviteEmail('');
       setShowInviteModal(false);
     } catch (error) {
-      console.error('Failed to invite member:', error);
-      toast.error('Failed to send invitation');
+      toastError(error, 'Failed to send invitation');
     }
   };
 
@@ -141,13 +123,15 @@ const TeamDashboardPage: FC = (): ReactElement => {
     action: 'approve' | 'reject'
   ) => {
     try {
-      await respondToJoinRequest({ requestId, action });
+      await respondToJoinRequest({
+        id: requestId,
+        accept: action === 'approve',
+      });
       toast.success(
         action === 'approve' ? 'Request approved!' : 'Request rejected'
       );
     } catch (error) {
-      console.error('Failed to respond to join request:', error);
-      toast.error('Failed to process request');
+      toastError(error, 'Failed to process request');
     }
   };
 
@@ -155,12 +139,11 @@ const TeamDashboardPage: FC = (): ReactElement => {
     if (!teamId) return;
 
     try {
-      await leaveTeam(teamId);
+      await leaveTeam({ id: teamId });
       toast.success('You have left the team');
       navigate({ to: '/dashboard' });
     } catch (error) {
-      console.error('Failed to leave team:', error);
-      toast.error('Failed to leave team');
+      toastError(error, 'Failed to leave team');
     }
   };
 
@@ -168,16 +151,15 @@ const TeamDashboardPage: FC = (): ReactElement => {
     if (!teamId) return;
 
     try {
-      await deleteTeam(teamId);
+      await deleteTeam({ id: teamId });
       toast.success('Team deleted successfully');
       navigate({ to: '/dashboard' });
-    } catch (error: any) {
-      console.error('Failed to delete team:', error);
-      toast.error(error?.message || 'Failed to delete team');
+    } catch (error) {
+      toastError(error, 'Failed to delete team');
     }
   };
 
-  if (isLoadingTeam || isLoadingMembers) {
+  if (isLoadingTeam) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="bg-white dark:bg-gray-950 border-b">
@@ -268,7 +250,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
       )}
 
       <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
-        {team.banner && (
+        {team.bannerUrl && (
           <div className="relative w-full aspect-3/1 overflow-hidden">
             <div
               className={`absolute inset-0 bg-gray-200 animate-pulse ${
@@ -276,7 +258,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
               }`}
             />
             <img
-              src={team.banner}
+              src={team.bannerUrl}
               alt={team.name}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
                 imagesLoaded ? 'opacity-100' : 'opacity-0'
@@ -290,13 +272,13 @@ const TeamDashboardPage: FC = (): ReactElement => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3 md:space-x-4">
-              {team.logo && (
+              {team.logoUrl && (
                 <div className="relative shrink-0">
                   {!imagesLoaded && (
                     <div className="absolute inset-0 w-20 h-20 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse -mt-10" />
                   )}
                   <img
-                    src={team.logo}
+                    src={team.logoUrl}
                     alt={team.name}
                     className={`w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white shadow-lg -mt-8 md:-mt-10 transition-opacity duration-300 shrink-0 ${
                       imagesLoaded ? 'opacity-100' : 'opacity-0'
@@ -363,7 +345,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                   Team Management
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {!team.has_submission && !isTeamFeaturesClosed && (
+                  {!team.hasSubmission && !isTeamFeaturesClosed && (
                     <>
                       <Button
                         className="w-full"
@@ -391,15 +373,15 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       </Button>
                     </>
                   )}
-                  {!team.has_submission && !isTeamFeaturesClosed && (
-                    <Link to={`/teams/${teamId}/edit`}>
+                  {!team.hasSubmission && !isTeamFeaturesClosed && (
+                    <Link to="/teams/$teamId/edit" params={{ teamId }}>
                       <Button className="w-full" variant="secondary">
                         <Icon icon="mdi:pencil" className="inline-block mr-2" />
                         Edit Team Info
                       </Button>
                     </Link>
                   )}
-                  <Link to={`/teams/${teamId}/members`}>
+                  <Link to="/teams/$teamId/members" params={{ teamId }}>
                     <Button className="w-full" variant="secondary">
                       <Icon
                         icon="mdi:account-group"
@@ -408,14 +390,14 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       View Members
                     </Button>
                   </Link>
-                  <Link to={`/teams/${teamId}/chat`}>
+                  <Link to="/teams/$teamId/chat" params={{ teamId }}>
                     <Button className="w-full" variant="secondary">
                       <Icon icon="mdi:chat" className="inline-block mr-2" />
                       Team Chat
                     </Button>
                   </Link>
-                  {team.has_submission ? (
-                    <Link to={`/teams/${teamId}/submission`}>
+                  {team.hasSubmission ? (
+                    <Link to="/teams/$teamId/submission" params={{ teamId }}>
                       <Button className="w-full" variant="secondary">
                         <Icon
                           icon="mdi:file-document"
@@ -425,7 +407,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       </Button>
                     </Link>
                   ) : (
-                    <Link to={`/teams/${teamId}/submit`}>
+                    <Link to="/teams/$teamId/submit" params={{ teamId }}>
                       <Button className="w-full" disabled={members.length < 2}>
                         <Icon icon="mdi:rocket" className="inline-block mr-2" />
                         Submit Project
@@ -433,7 +415,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                     </Link>
                   )}
                 </div>
-                {!team.has_submission &&
+                {!team.hasSubmission &&
                   !canInvite &&
                   members.length >= MAX_TEAM_MEMBERS && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 text-center">
@@ -441,7 +423,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                     </p>
                   )}
                 {members.length === 1 &&
-                  !team.has_submission &&
+                  !team.hasSubmission &&
                   !isTeamFeaturesClosed && (
                     <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <h3 className="text-sm font-medium text-red-600 dark:text-red-400 mb-3">
@@ -465,14 +447,14 @@ const TeamDashboardPage: FC = (): ReactElement => {
                   Quick Actions
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Link to={`/teams/${teamId}/chat`}>
+                  <Link to="/teams/$teamId/chat" params={{ teamId }}>
                     <Button className="w-full" variant="secondary">
                       <Icon icon="mdi:chat" className="inline-block mr-2" />
                       Team Chat
                     </Button>
                   </Link>
-                  {team.has_submission && (
-                    <Link to={`/teams/${teamId}/submission`}>
+                  {team.hasSubmission && (
+                    <Link to="/teams/$teamId/submission" params={{ teamId }}>
                       <Button className="w-full" variant="secondary">
                         <Icon
                           icon="mdi:file-document"
@@ -482,7 +464,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       </Button>
                     </Link>
                   )}
-                  {!team.has_submission && !isTeamFeaturesClosed && (
+                  {!team.hasSubmission && !isTeamFeaturesClosed && (
                     <Button
                       className="w-full bg-red-600 hover:bg-red-700 text-white"
                       onClick={() => setShowLeaveModal(true)}
@@ -495,7 +477,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
               </div>
             )}
 
-            {members.length === 1 && !team.has_submission && isMember && (
+            {members.length === 1 && !team.hasSubmission && isMember && (
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 md:p-6">
                 <div className="flex items-center space-x-3">
                   <span className="text-3xl">⚠️</span>
@@ -512,7 +494,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
               </div>
             )}
 
-            {team.has_submission && isMember && (
+            {team.hasSubmission && isMember && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 md:p-6">
                 <div className="flex items-center space-x-3">
                   <span className="text-3xl">✅</span>
@@ -525,7 +507,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                     </p>
                   </div>
                 </div>
-                <Link to={`/teams/${teamId}/submission`}>
+                <Link to="/teams/$teamId/submission" params={{ teamId }}>
                   <Button className="mt-4 w-full" variant="secondary">
                     View Submission Details
                   </Button>
@@ -541,13 +523,18 @@ const TeamDashboardPage: FC = (): ReactElement => {
               </h3>
               {team.leader && (
                 <button
-                  onClick={() => navigate({ to: `/users/${team.leader.id}` })}
+                  onClick={() =>
+                    navigate({
+                      to: '/users/$userId',
+                      params: { userId: team.leader.id },
+                    })
+                  }
                   className="w-full flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors text-left cursor-pointer"
                 >
-                  {team.leader.avatar ? (
+                  {team.leader.image ? (
                     <img
-                      src={team.leader.avatar}
-                      alt={team.leader.fullname}
+                      src={team.leader.image}
+                      alt={team.leader.name}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
@@ -559,11 +546,13 @@ const TeamDashboardPage: FC = (): ReactElement => {
                   )}
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {team.leader.fullname}
+                      {team.leader.name}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {team.leader.email}
-                    </p>
+                    {leaderContact && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {leaderContact.email}
+                      </p>
+                    )}
                   </div>
                 </button>
               )}
@@ -574,16 +563,21 @@ const TeamDashboardPage: FC = (): ReactElement => {
                 Members ({members.length})
               </h3>
               <div className="space-y-3">
-                {members.map((member: any) => (
+                {members.map((member) => (
                   <button
-                    key={member.id}
-                    onClick={() => navigate({ to: `/users/${member.user.id}` })}
+                    key={member.user.id}
+                    onClick={() =>
+                      navigate({
+                        to: '/users/$userId',
+                        params: { userId: member.user.id },
+                      })
+                    }
                     className="w-full flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 transition-colors text-left cursor-pointer"
                   >
-                    {member.user?.avatar ? (
+                    {member.user.image ? (
                       <img
-                        src={member.user.avatar}
-                        alt={member.user.fullname || 'Member'}
+                        src={member.user.image}
+                        alt={member.user.name || 'Member'}
                         className="w-10 h-10 rounded-full object-cover"
                         onLoad={handleImageLoad}
                         onError={handleImageError}
@@ -597,10 +591,10 @@ const TeamDashboardPage: FC = (): ReactElement => {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 dark:text-white truncate">
-                        {member.user?.fullname || 'Unknown'}
+                        {member.user.name || 'Unknown'}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {member.role === ETeamMemberRole.LEADER
+                        {member.role === HACKATHON_MEMBER_ROLE.LEADER
                           ? 'Leader'
                           : 'Member'}
                       </p>
@@ -626,7 +620,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-6">
               <p className="text-sm text-yellow-800 dark:text-yellow-300 font-sans">
                 <strong>Important:</strong> The email you enter must match the
-                GitHub email address the member uses to sign in.
+                email address the member uses to sign in.
               </p>
             </div>
             <form onSubmit={handleInviteMember} className="space-y-4">
@@ -701,17 +695,17 @@ const TeamDashboardPage: FC = (): ReactElement => {
               </div>
             ) : (
               <div className="space-y-4">
-                {pendingJoinRequests.map((request: any) => (
+                {pendingJoinRequests.map((request) => (
                   <div
                     key={request.id}
                     className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-3 flex-1">
-                        {request.user?.avatar ? (
+                        {request.user.image ? (
                           <img
-                            src={request.user.avatar}
-                            alt={request.user.fullname}
+                            src={request.user.image}
+                            alt={request.user.name}
                             className="w-12 h-12 rounded-full object-cover"
                           />
                         ) : (
@@ -726,10 +720,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                         )}
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900 dark:text-white">
-                            {request.user?.fullname || 'Unknown User'}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {request.user?.email}
+                            {request.user.name}
                           </p>
                           {request.message && (
                             <div className="mt-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
@@ -740,7 +731,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
                           )}
                           <p className="text-sm text-gray-500 dark:text-gray-500 mt-2 font-sans">
                             Requested{' '}
-                            {new Date(request.created_at).toLocaleDateString()}
+                            {new Date(request.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -901,3 +892,7 @@ const TeamDashboardPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/$teamId')({
+  component: TeamDashboardPage,
+});

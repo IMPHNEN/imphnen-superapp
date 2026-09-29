@@ -4,34 +4,46 @@ import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
 import {
-  projectSubmissionSchema,
-  type TProjectSubmissionForm,
-  useSubmitProject,
-  useTeamById,
-  useTeamSubmission,
-  useUploadSubmission,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+  HACKATHON_LIMIT,
+  HACKATHON_SUBMISSION_STATUS,
+  HACKATHON_UPLOAD_KIND,
+} from '@app/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
+import {
+  useSubmissionSubmit,
+  useTeamSubmission,
+} from '../../../../hooks/use-submission';
+import {
+  useHackathonUpload,
+  useTeam,
+  useTeamRole,
+} from '../../../../hooks/use-teams';
+import {
+  formatDeadline,
+  isSubmissionClosed,
+  SUBMISSION_DEADLINE,
+} from '../../../../lib/deadlines';
+import { toastError } from '../../../../lib/errors';
+import {
+  emptyToUndefined,
+  submissionFormSchema,
+  TEAM_IMAGE_MAX_BYTES,
+  type TSubmissionForm,
+} from '../../../../lib/forms';
 
-export const Route = createFileRoute('/_authenticated/teams/$teamId/submit')({
-  component: SubmitProjectPage,
-});
+const MIN_TEAM_MEMBERS = HACKATHON_LIMIT.SUBMIT_MIN_MEMBERS;
+const MAX_FILE_SIZE = TEAM_IMAGE_MAX_BYTES;
 
-const MIN_TEAM_MEMBERS = 2;
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-const SUBMISSION_DEADLINE = new Date('2025-12-07T16:59:00Z');
+type TScreenshot = { key: string; url: string };
 
 const SubmitProjectPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmText, setConfirmText] = useState('');
-  const [screenshots, setScreenshots] = useState<string[]>([]);
+  const [screenshots, setScreenshots] = useState<TScreenshot[]>([]);
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -39,7 +51,7 @@ const SubmitProjectPage: FC = (): ReactElement => {
     seconds: number;
   } | null>(null);
 
-  const isDeadlinePassed = new Date() >= SUBMISSION_DEADLINE;
+  const isDeadlinePassed = isSubmissionClosed();
 
   useEffect(() => {
     if (isDeadlinePassed) return;
@@ -67,24 +79,38 @@ const SubmitProjectPage: FC = (): ReactElement => {
     return () => clearInterval(timer);
   }, [isDeadlinePassed]);
 
-  const { data: teamData } = useTeamById(teamId || '');
-  const { data: submissionData } = useTeamSubmission(teamId || '', !!teamId);
+  const { data: team } = useTeam(teamId);
+  const { data: existingSubmission } = useTeamSubmission(teamId);
   const { mutateAsync: submitProject, isPending: isSubmitting } =
-    useSubmitProject(teamId || '');
+    useSubmissionSubmit();
   const { mutateAsync: uploadFile, isPending: isUploading } =
-    useUploadSubmission();
+    useHackathonUpload();
 
-  const team = teamData?.data;
-  const currentUserId = session?.user?.id;
-  const isLeader = currentUserId === team?.leader_id;
-  const hasSubmission = !!submissionData?.data;
-  const memberCount = team?.members?.length || 0;
+  const { isLeader } = useTeamRole(team);
+  const hasSubmission =
+    !!existingSubmission &&
+    existingSubmission.status !== HACKATHON_SUBMISSION_STATUS.DRAFT;
+  const memberCount = team?.members.length ?? 0;
   const hasEnoughMembers = memberCount >= MIN_TEAM_MEMBERS;
 
-  const form = useForm<TProjectSubmissionForm>({
-    resolver: zodResolver(projectSubmissionSchema),
+  const form = useForm<TSubmissionForm>({
+    resolver: zodResolver(submissionFormSchema),
     mode: 'all',
   });
+
+  useEffect(() => {
+    if (existingSubmission?.status !== HACKATHON_SUBMISSION_STATUS.DRAFT) {
+      return;
+    }
+    form.reset({
+      projectName: existingSubmission.projectName,
+      description: existingSubmission.description,
+      repositoryUrl: existingSubmission.repositoryUrl,
+      demoUrl: existingSubmission.demoUrl ?? '',
+      videoUrl: existingSubmission.videoUrl ?? '',
+    });
+    setScreenshots([...existingSubmission.screenshots]);
+  }, [existingSubmission, form]);
 
   if (!isLeader) {
     return (
@@ -95,7 +121,9 @@ const SubmitProjectPage: FC = (): ReactElement => {
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           Only the team leader can submit projects
         </p>
-        <Button onClick={() => navigate({ to: `/teams/${teamId}` })}>
+        <Button
+          onClick={() => navigate({ to: '/teams/$teamId', params: { teamId } })}
+        >
           Back to Team
         </Button>
       </div>
@@ -114,13 +142,17 @@ const SubmitProjectPage: FC = (): ReactElement => {
         </p>
         <div className="flex space-x-3">
           <Button
-            onClick={() => navigate({ to: `/teams/${teamId}/submission` })}
+            onClick={() =>
+              navigate({ to: '/teams/$teamId/submission', params: { teamId } })
+            }
           >
             View Submission
           </Button>
           <Button
             variant="secondary"
-            onClick={() => navigate({ to: `/teams/${teamId}` })}
+            onClick={() =>
+              navigate({ to: '/teams/$teamId', params: { teamId } })
+            }
           >
             Back to Team
           </Button>
@@ -150,11 +182,13 @@ const SubmitProjectPage: FC = (): ReactElement => {
 
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              The submission deadline was December 7, 2025 at 23:59 WIB.
+              The submission deadline was {formatDeadline(SUBMISSION_DEADLINE)}.
             </p>
 
             <button
-              onClick={() => navigate({ to: `/teams/${teamId}` })}
+              onClick={() =>
+                navigate({ to: '/teams/$teamId', params: { teamId } })
+              }
               className="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors cursor-pointer"
             >
               Back to Team
@@ -189,14 +223,28 @@ const SubmitProjectPage: FC = (): ReactElement => {
       return;
     }
 
+    if (screenshots.length + files.length > HACKATHON_LIMIT.SCREENSHOTS_MAX) {
+      toast.error(
+        `You can upload at most ${HACKATHON_LIMIT.SCREENSHOTS_MAX} screenshots.`
+      );
+      e.target.value = '';
+      return;
+    }
+
     try {
-      const uploadPromises = Array.from(files).map((file) => uploadFile(file));
-      const results = await Promise.all(uploadPromises);
-      const urls = results.map((r) => r.data.url);
-      setScreenshots([...screenshots, ...urls]);
+      const results = await Promise.all(
+        Array.from(files).map((file) =>
+          uploadFile({
+            kind: HACKATHON_UPLOAD_KIND.SUBMISSION_SCREENSHOT,
+            file,
+          })
+        )
+      );
+      setScreenshots((current) => [...current, ...results]);
     } catch (error) {
-      console.error('Failed to upload screenshots:', error);
-      toast.error('Failed to upload screenshots. Please try again.');
+      toastError(error, 'Failed to upload screenshots. Please try again.');
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -207,12 +255,23 @@ const SubmitProjectPage: FC = (): ReactElement => {
   const onSubmit = form.handleSubmit(async (data) => {
     try {
       await submitProject({
-        ...data,
-        screenshots,
+        existing: existingSubmission,
+        input: {
+          teamId,
+          projectName: data.projectName,
+          description: data.description,
+          repositoryUrl: data.repositoryUrl,
+          demoUrl: emptyToUndefined(data.demoUrl),
+          videoUrl: emptyToUndefined(data.videoUrl),
+          screenshotKeys: screenshots.map((screenshot) => screenshot.key),
+        },
       });
-      navigate({ to: `/teams/${teamId}/submission` });
+      toast.success('Project submitted!');
+      navigate({ to: '/teams/$teamId/submission', params: { teamId } });
     } catch (error) {
-      console.error('Failed to submit project:', error);
+      setShowConfirmModal(false);
+      setConfirmText('');
+      toastError(error, 'Failed to submit project');
     }
   });
 
@@ -237,7 +296,7 @@ const SubmitProjectPage: FC = (): ReactElement => {
                   Submission Deadline
                 </h3>
                 <p className="text-blue-800 dark:text-blue-200 mt-2 text-sm font-sans">
-                  Submissions close on December 7, 2025 at 23:59 WIB
+                  Submissions close on {formatDeadline(SUBMISSION_DEADLINE)}
                 </p>
                 <div className="mt-4 grid grid-cols-4 gap-4">
                   <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
@@ -331,7 +390,7 @@ const SubmitProjectPage: FC = (): ReactElement => {
               control={form.control}
               label="Project Name"
               placeholder="Enter your project name"
-              name="project_name"
+              name="projectName"
               size="lg"
               isRequired={true}
             />
@@ -370,8 +429,7 @@ const SubmitProjectPage: FC = (): ReactElement => {
               control={form.control}
               label="Repository URL (GitHub, GitLab, etc.)"
               placeholder="https://github.com/username/project"
-              name="repository_url"
-              type="url"
+              name="repositoryUrl"
               size="lg"
               isRequired={true}
             />
@@ -380,8 +438,15 @@ const SubmitProjectPage: FC = (): ReactElement => {
               control={form.control}
               label="Demo URL (Optional)"
               placeholder="https://your-project-demo.com"
-              name="demo_url"
-              type="url"
+              name="demoUrl"
+              size="lg"
+            />
+
+            <ControlledInputField
+              control={form.control}
+              label="Video URL (Optional)"
+              placeholder="https://youtube.com/watch?v=..."
+              name="videoUrl"
               size="lg"
             />
 
@@ -390,8 +455,8 @@ const SubmitProjectPage: FC = (): ReactElement => {
                 Project Screenshots (Optional)
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                {screenshots.map((url, index) => (
-                  <div key={index} className="relative">
+                {screenshots.map(({ key, url }, index) => (
+                  <div key={key} className="relative">
                     <img
                       src={url}
                       alt={`Screenshot ${index + 1}`}
@@ -413,12 +478,12 @@ const SubmitProjectPage: FC = (): ReactElement => {
                     Click to upload screenshots
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-sans">
-                    PNG, JPG. Max 2MB each
+                    PNG, JPG. Max 5MB each
                   </p>
                 </div>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   multiple
                   className="hidden"
                   onChange={handleScreenshotUpload}
@@ -432,7 +497,9 @@ const SubmitProjectPage: FC = (): ReactElement => {
                 type="button"
                 variant="secondary"
                 className="flex-1"
-                onClick={() => navigate({ to: `/teams/${teamId}` })}
+                onClick={() =>
+                  navigate({ to: '/teams/$teamId', params: { teamId } })
+                }
               >
                 Cancel
               </Button>
@@ -521,3 +588,7 @@ const SubmitProjectPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/teams/$teamId/submit')({
+  component: SubmitProjectPage,
+});

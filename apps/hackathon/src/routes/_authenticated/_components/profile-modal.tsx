@@ -2,13 +2,17 @@ import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { useForm, Controller } from 'react-hook-form';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import {
-  userEditProfileSchema,
-  type TUserEditProfileForm,
-  useUpdateUserMe,
-  useUploadAvatar,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+  useParticipantMe,
+  useProfileSave,
+} from '../../../hooks/use-participant';
+import {
+  AVATAR_MAX_BYTES,
+  AVATAR_TYPES,
+  profileSchema,
+  type TProfileForm,
+} from '../../../lib/forms';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { CitySelect } from '../../../components/city-select';
@@ -37,60 +41,44 @@ const ProfilePage: FC<ProfileModalProps> = ({
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMe();
-  const { mutateAsync: uploadAvatar, isPending: isUploading } =
-    useUploadAvatar();
-  const { session } = useAuthStore();
+  const { mutateAsync: saveProfile, isPending: isSaving } = useProfileSave();
+  const { me } = useCurrentUser();
+  const { data: participant } = useParticipantMe();
 
-  const form = useForm<TUserEditProfileForm>({
-    resolver: zodResolver(userEditProfileSchema),
+  const form = useForm<TProfileForm>({
+    resolver: zodResolver(profileSchema),
     mode: 'all',
     defaultValues: {
-      fullname: session?.user?.fullname || '',
-      avatar: session?.user?.avatar || null,
-      location: session?.user?.location || '',
-      bio: session?.user?.bio || '',
-      skills: session?.user?.skills || [],
+      fullname: me?.user.name || '',
+      location: participant?.location || '',
+      bio: participant?.bio || '',
+      skills: participant?.skills || [],
     },
   });
 
   useEffect(() => {
-    if (session?.user?.avatar && !avatarPreview) {
-      setAvatarPreview(session.user.avatar);
-    }
-    if (session?.user?.fullname) {
-      form.setValue('fullname', session.user.fullname);
-    }
-    if (session?.user?.location) {
-      form.setValue('location', session.user.location);
-    }
-    if (session?.user?.bio) {
-      form.setValue('bio', session.user.bio);
-    }
-    if (session?.user?.skills) {
-      form.setValue('skills', session.user.skills);
-    }
-  }, [
-    session?.user?.avatar,
-    session?.user?.fullname,
-    session?.user?.location,
-    session?.user?.bio,
-    session?.user?.skills,
-    avatarPreview,
-    form,
-  ]);
+    if (!open) return;
+    setAvatarFile(null);
+    setAvatarPreview(me?.user.image || '');
+    form.reset({
+      fullname: me?.user.name || '',
+      location: participant?.location || '',
+      bio: participant?.bio || '',
+      skills: participant?.skills || [],
+    });
+  }, [open, me?.user.image, me?.user.name, participant, form]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error('The file is too large. Maximum size is 2MB.');
+      if (file.size > AVATAR_MAX_BYTES) {
+        toast.error('The file is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
-        toast.error('The file must be an image');
+      if (!AVATAR_TYPES.includes(file.type)) {
+        toast.error('The file must be a JPG, PNG or WebP image');
         e.target.value = '';
         return;
       }
@@ -106,24 +94,17 @@ const ProfilePage: FC<ProfileModalProps> = ({
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      let avatarUrl = session?.user?.avatar || null;
-
-      if (avatarFile) {
-        const uploadResult = await uploadAvatar(avatarFile);
-        avatarUrl = uploadResult.data.url;
-      }
-
-      await updateUser({
-        fullname: data.fullname,
-        avatar: avatarUrl,
-        location: data.location,
-        bio: data.bio,
-        skills: data.skills,
+      await saveProfile({
+        name: data.fullname,
+        avatar: avatarFile,
+        participant: {
+          location: data.location,
+          bio: data.bio || null,
+          skills: data.skills ?? [],
+        },
       });
 
       toast.success('Profile updated successfully!');
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
       onClose();
     } catch (error) {
@@ -136,7 +117,7 @@ const ProfilePage: FC<ProfileModalProps> = ({
     }
   });
 
-  const isLoading = isUpdating || isUploading;
+  const isLoading = isSaving;
 
   return open ? (
     <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-md z-50 overflow-y-auto">
@@ -218,7 +199,7 @@ const ProfilePage: FC<ProfileModalProps> = ({
                   <input
                     id="avatar"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     className="hidden"
                     onChange={handleAvatarChange}
                     disabled={isLoading}
@@ -228,7 +209,7 @@ const ProfilePage: FC<ProfileModalProps> = ({
               <p className="text-sm text-gray-500 dark:text-neutral-400 text-center font-sans">
                 Click the camera icon to change your photo
                 <br />
-                Format: JPG, PNG. Max 2MB
+                Format: JPG, PNG, WebP. Max 5MB
               </p>
             </div>
 

@@ -1,24 +1,14 @@
 import type { FC, ReactElement } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
-import {
-  useUserDetailsById,
-  useTeamsByUserId,
-} from '@imphnen-frontend-service/service';
 import { Icon } from '@iconify/react';
-
-export const Route = createFileRoute('/_authenticated/users/$userId')({
-  component: UserProfilePage,
-});
+import { useParticipant } from '../../../hooks/use-participant';
 
 const UserProfilePage: FC = (): ReactElement => {
   const { userId } = Route.useParams();
   const navigate = useNavigate();
-  const { data: userData, isLoading, error } = useUserDetailsById(userId || '');
-  const { data: teamsData } = useTeamsByUserId(userId || '');
-
-  const user = userData?.data;
-  const userTeams = teamsData?.data || [];
+  const { data: user, isLoading, error } = useParticipant(userId);
+  const userTeams = user?.team ? [user.team] : [];
 
   if (isLoading) {
     return (
@@ -37,7 +27,7 @@ const UserProfilePage: FC = (): ReactElement => {
           User not found
         </h2>
         {error && (
-          <p className="text-red-600 dark:text-red-400 mb-4">{String(error)}</p>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error.message}</p>
         )}
         <Button onClick={() => navigate({ to: '/dashboard' })}>
           Back to Dashboard
@@ -52,10 +42,10 @@ const UserProfilePage: FC = (): ReactElement => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3 md:space-x-4">
-              {user.avatar ? (
+              {user.image ? (
                 <img
-                  src={user.avatar}
-                  alt={user.fullname}
+                  src={user.image}
+                  alt={user.name}
                   className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
                 />
               ) : (
@@ -67,11 +57,8 @@ const UserProfilePage: FC = (): ReactElement => {
               )}
               <div>
                 <h1 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                  {user.fullname}
+                  {user.name}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
-                  {user.email}
-                </p>
                 {user.location && (
                   <div className="flex items-center space-x-4 mt-2">
                     <span className="text-sm text-gray-500 dark:text-gray-500">
@@ -130,22 +117,23 @@ const UserProfilePage: FC = (): ReactElement => {
                   Team
                 </h2>
                 <div className="space-y-4">
-                  {userTeams.map((team: any) => (
+                  {userTeams.map((team) => (
                     <Link
                       key={team.id}
-                      to={'/teams/' + team.id}
+                      to="/teams/$teamId"
+                      params={{ teamId: team.id }}
                       className="block bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-950/50 overflow-hidden hover:shadow-lg transition-shadow border dark:border-gray-700"
                     >
                       <img
-                        src={team.banner || '/images/banner-imphnen.webp'}
+                        src={team.bannerUrl || '/images/banner-imphnen.webp'}
                         alt={team.name}
                         className="w-full aspect-3/1 object-cover"
                       />
                       <div className="p-4">
                         <div className="flex items-center space-x-3 mb-3">
-                          {team.logo ? (
+                          {team.logoUrl ? (
                             <img
-                              src={team.logo}
+                              src={team.logoUrl}
                               alt={team.name}
                               className="w-12 h-12 rounded-full object-cover"
                             />
@@ -162,7 +150,7 @@ const UserProfilePage: FC = (): ReactElement => {
                               {team.name}
                             </h3>
                             <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-3 font-sans mt-1">
-                              {team.has_submission && (
+                              {team.hasSubmission && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 shrink-0">
                                   <Icon
                                     icon="mdi:check-circle"
@@ -219,14 +207,6 @@ const UserProfilePage: FC = (): ReactElement => {
                 Contact Information
               </h3>
               <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Email
-                  </p>
-                  <p className="text-gray-900 dark:text-white font-medium">
-                    {user.email}
-                  </p>
-                </div>
                 {user.location && (
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -245,3 +225,7 @@ const UserProfilePage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/users/$userId')({
+  component: UserProfilePage,
+});

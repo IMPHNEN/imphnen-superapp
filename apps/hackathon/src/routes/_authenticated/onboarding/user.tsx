@@ -3,23 +3,22 @@ import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import {
-  userOnboardingSchema,
-  type TUserOnboardingForm,
-  useUpdateUserMe,
-  useUploadAvatar,
-  useUserMe,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+  useParticipantMe,
+  useProfileSave,
+} from '../../../hooks/use-participant';
+import {
+  AVATAR_MAX_BYTES,
+  AVATAR_TYPES,
+  profileSchema,
+  type TProfileForm,
+} from '../../../lib/forms';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 import { CitySelect } from '../../../components/city-select';
 import { Icon } from '@iconify/react';
-
-export const Route = createFileRoute('/_authenticated/onboarding/user')({
-  component: UserOnboardingPage,
-});
 
 const ROLE_OPTIONS = [
   'Frontend Developer',
@@ -37,40 +36,38 @@ const UserOnboardingPage: FC = (): ReactElement => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-  const { data: userData } = useUserMe();
-  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMe();
-  const { mutateAsync: uploadAvatar, isPending: isUploading } =
-    useUploadAvatar();
-  const { session } = useAuthStore();
+  const { me } = useCurrentUser();
+  const { data: participant } = useParticipantMe();
+  const { mutateAsync: saveProfile, isPending: isSaving } = useProfileSave();
 
-  const form = useForm<TUserOnboardingForm>({
-    resolver: zodResolver(userOnboardingSchema),
+  const form = useForm<TProfileForm>({
+    resolver: zodResolver(profileSchema),
     mode: 'all',
     defaultValues: {
-      fullname: session?.user?.fullname || userData?.data?.fullname || '',
-      location: session?.user?.location || '',
-      bio: session?.user?.bio || '',
-      skills: session?.user?.skills || [],
+      fullname: me?.user.name || '',
+      location: participant?.location || '',
+      bio: participant?.bio || '',
+      skills: participant?.skills || [],
     },
   });
 
   useEffect(() => {
-    if (session?.user?.avatar && !avatarPreview) {
-      setAvatarPreview(session.user.avatar);
+    if (me?.user.image && !avatarPreview) {
+      setAvatarPreview(me.user.image);
     }
-  }, [session?.user?.avatar, avatarPreview]);
+  }, [me?.user.image, avatarPreview]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error('The file is too large. Maximum size is 2MB.');
+      if (file.size > AVATAR_MAX_BYTES) {
+        toast.error('The file is too large. Maximum size is 5MB.');
         e.target.value = '';
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
-        toast.error('The file must be an image');
+      if (!AVATAR_TYPES.includes(file.type)) {
+        toast.error('The file must be a JPG, PNG or WebP image');
         e.target.value = '';
         return;
       }
@@ -86,24 +83,17 @@ const UserOnboardingPage: FC = (): ReactElement => {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      let avatarUrl = session?.user?.avatar || null;
-
-      if (avatarFile) {
-        const uploadResult = await uploadAvatar(avatarFile);
-        avatarUrl = uploadResult.data.url;
-      }
-
-      await updateUser({
-        fullname: data.fullname,
-        avatar: avatarUrl,
-        location: data.location,
-        bio: data.bio,
-        skills: data.skills,
+      await saveProfile({
+        name: data.fullname,
+        avatar: avatarFile,
+        participant: {
+          location: data.location,
+          bio: data.bio || null,
+          skills: data.skills ?? [],
+        },
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      globalThis.location.href = '/dashboard';
+      navigate({ to: '/dashboard' });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -153,13 +143,13 @@ const UserOnboardingPage: FC = (): ReactElement => {
                 <input
                   id="avatar"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   className="hidden"
                   onChange={handleAvatarChange}
                 />
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 text-center">
-                Optional, but highly recommended. Max 2MB
+                Optional, but highly recommended. Max 5MB
               </p>
             </div>
           </div>
@@ -261,12 +251,16 @@ const UserOnboardingPage: FC = (): ReactElement => {
           <Button
             className="w-full"
             type="submit"
-            disabled={!form.formState.isValid || isUpdating || isUploading}
+            disabled={!form.formState.isValid || isSaving}
           >
-            {isUpdating || isUploading ? 'Saving...' : 'Complete Setup'}
+            {isSaving ? 'Saving...' : 'Complete Setup'}
           </Button>
         </form>
       </div>
     </div>
   );
 };
+
+export const Route = createFileRoute('/_authenticated/onboarding/user')({
+  component: UserOnboardingPage,
+});

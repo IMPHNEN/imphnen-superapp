@@ -1,32 +1,35 @@
 import type { FC, ReactElement } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { HACKATHON_SUBMISSION_STATUS } from '@app/schemas';
+import { toast } from 'sonner';
+import { useMyCertificate } from '../../../../hooks/use-public';
 import {
-  useTeamById,
+  useSubmissionCancel,
   useTeamSubmission,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
-import { encodeCertificateId } from '../../../../utils/certificate';
-
-export const Route = createFileRoute(
-  '/_authenticated/teams/$teamId/submission'
-)({
-  component: SubmissionViewPage,
-});
+} from '../../../../hooks/use-submission';
+import { useTeam, useTeamRole } from '../../../../hooks/use-teams';
+import { isSubmissionClosed } from '../../../../lib/deadlines';
+import { toastError } from '../../../../lib/errors';
 
 const SubmissionViewPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
+  const { data: team } = useTeam(teamId);
+  const { isLeader } = useTeamRole(team);
+  const { data: submission, isLoading } = useTeamSubmission(teamId);
+  const { data: certificate } = useMyCertificate();
+  const { mutateAsync: cancelSubmission, isPending: isCancelling } =
+    useSubmissionCancel();
 
-  const { data: teamData } = useTeamById(teamId || '');
-  const { data: submissionData, isLoading } = useTeamSubmission(
-    teamId || '',
-    !!teamId
-  );
-
-  const team = teamData?.data;
-  const submission = submissionData?.data;
+  const handleCancel = async (id: string) => {
+    try {
+      await cancelSubmission({ id });
+      toast.success('Submission moved back to draft');
+    } catch (error) {
+      toastError(error, 'Failed to cancel submission');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -48,15 +51,17 @@ const SubmissionViewPage: FC = (): ReactElement => {
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           Your team hasn't submitted a project
         </p>
-        <Button onClick={() => navigate({ to: `/teams/${teamId}` })}>
+        <Button
+          onClick={() => navigate({ to: '/teams/$teamId', params: { teamId } })}
+        >
           Back to Team
         </Button>
       </div>
     );
   }
 
-  const submittedDate = submission.submitted_at
-    ? new Date(submission.submitted_at).toLocaleString('id-ID', {
+  const submittedDate = submission.submittedAt
+    ? new Date(submission.submittedAt).toLocaleString('id-ID', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -80,7 +85,9 @@ const SubmissionViewPage: FC = (): ReactElement => {
             </div>
             <Button
               variant="secondary"
-              onClick={() => navigate({ to: `/teams/${teamId}` })}
+              onClick={() =>
+                navigate({ to: '/teams/$teamId', params: { teamId } })
+              }
             >
               Back to Team
             </Button>
@@ -89,7 +96,7 @@ const SubmissionViewPage: FC = (): ReactElement => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {submission.status === 'submitted' ? (
+        {submission.status === HACKATHON_SUBMISSION_STATUS.SUBMITTED ? (
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-500 rounded-lg p-6 mb-6">
             <div className="flex items-center space-x-3">
               <span className="text-4xl">✅</span>
@@ -106,7 +113,7 @@ const SubmissionViewPage: FC = (): ReactElement => {
               </div>
             </div>
           </div>
-        ) : submission.status === 'pending_verification' ? (
+        ) : submission.status === HACKATHON_SUBMISSION_STATUS.PENDING ? (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 mb-6">
             <div className="flex items-center space-x-3">
               <span className="text-4xl">⏳</span>
@@ -117,6 +124,17 @@ const SubmissionViewPage: FC = (): ReactElement => {
                 <p className="text-yellow-700 dark:text-yellow-300 text-sm">
                   Your submission is being processed
                 </p>
+                {isLeader && !isSubmissionClosed() && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="mt-3"
+                    disabled={isCancelling}
+                    onClick={() => handleCancel(submission.id)}
+                  >
+                    {isCancelling ? 'Cancelling...' : 'Back to Draft'}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -136,44 +154,42 @@ const SubmissionViewPage: FC = (): ReactElement => {
           </div>
         )}
 
-        {submission.status === 'submitted' && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500 rounded-lg p-6 mb-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <span className="text-4xl shrink-0">🏆</span>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-amber-900 dark:text-amber-100 text-lg">
-                    View Your Certificate
-                  </h3>
-                  <p className="text-amber-700 dark:text-amber-300 text-sm">
-                    Congratulations! Your personalized certificate is ready to
-                    download and share.
-                  </p>
+        {submission.status === HACKATHON_SUBMISSION_STATUS.SUBMITTED &&
+          certificate &&
+          certificate.team.id === teamId && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500 rounded-lg p-6 mb-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <span className="text-4xl shrink-0">🏆</span>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-amber-900 dark:text-amber-100 text-lg">
+                      View Your Certificate
+                    </h3>
+                    <p className="text-amber-700 dark:text-amber-300 text-sm">
+                      Congratulations! Your personalized certificate is ready to
+                      download and share.
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() =>
+                    navigate({
+                      to: '/certificate/$certId',
+                      params: { certId: certificate.id },
+                    })
+                  }
+                  className="shrink-0 px-6 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Get Certificate
+                </button>
               </div>
-              <button
-                onClick={async () => {
-                  const certId = await encodeCertificateId(
-                    teamId || '',
-                    submission.id,
-                    session?.user?.id || ''
-                  );
-                  navigate({
-                    to: `/certificate/${encodeURIComponent(certId)}`,
-                  });
-                }}
-                className="shrink-0 px-6 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium rounded-lg transition-colors"
-              >
-                Get Certificate
-              </button>
             </div>
-          </div>
-        )}
+          )}
 
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md dark:shadow-gray-950/50 overflow-hidden">
           <div className="bg-linear-to-r from-blue-600 to-blue-800 text-white p-8">
             <h2 className="text-3xl font-bold mb-2">
-              {submission.project_name}
+              {submission.projectName}
             </h2>
             <p className="text-blue-100">Team: {team?.name}</p>
           </div>
@@ -196,29 +212,46 @@ const SubmissionViewPage: FC = (): ReactElement => {
                   Repository
                 </h3>
                 <a
-                  href={submission.repository_url}
+                  href={submission.repositoryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2 text-blue-600 dark:text-primary-400 hover:text-blue-800 dark:hover:text-primary-300"
                 >
                   <span>🔗</span>
-                  <span className="break-all">{submission.repository_url}</span>
+                  <span className="break-all">{submission.repositoryUrl}</span>
                 </a>
               </div>
 
-              {submission.demo_url && (
+              {submission.demoUrl && (
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
                     Live Demo
                   </h3>
                   <a
-                    href={submission.demo_url}
+                    href={submission.demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-blue-600 dark:text-primary-400 hover:text-blue-800 dark:hover:text-primary-300"
                   >
                     <span>🌐</span>
-                    <span className="break-all">{submission.demo_url}</span>
+                    <span className="break-all">{submission.demoUrl}</span>
+                  </a>
+                </div>
+              )}
+
+              {submission.videoUrl && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                    Video
+                  </h3>
+                  <a
+                    href={submission.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-blue-600 dark:text-primary-400 hover:text-blue-800 dark:hover:text-primary-300"
+                  >
+                    <span>🎬</span>
+                    <span className="break-all">{submission.videoUrl}</span>
                   </a>
                 </div>
               )}
@@ -230,9 +263,9 @@ const SubmissionViewPage: FC = (): ReactElement => {
                   Screenshots ({submission.screenshots.length})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {submission.screenshots.map((url, index) => (
+                  {submission.screenshots.map(({ key, url }, index) => (
                     <a
-                      key={index}
+                      key={key}
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -260,16 +293,19 @@ const SubmissionViewPage: FC = (): ReactElement => {
                   </span>
                   <span
                     className={`font-medium ${
-                      submission.status === 'submitted'
+                      submission.status ===
+                      HACKATHON_SUBMISSION_STATUS.SUBMITTED
                         ? 'text-green-600 dark:text-green-400'
-                        : submission.status === 'pending_verification'
+                        : submission.status ===
+                            HACKATHON_SUBMISSION_STATUS.PENDING
                           ? 'text-yellow-600 dark:text-yellow-400'
                           : 'text-orange-600 dark:text-orange-400'
                     }`}
                   >
-                    {submission.status === 'submitted'
+                    {submission.status === HACKATHON_SUBMISSION_STATUS.SUBMITTED
                       ? '✓ Submitted'
-                      : submission.status === 'pending_verification'
+                      : submission.status ===
+                          HACKATHON_SUBMISSION_STATUS.PENDING
                         ? '⏳ Pending Verification'
                         : '📝 Draft'}
                   </span>
@@ -306,3 +342,9 @@ const SubmissionViewPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute(
+  '/_authenticated/teams/$teamId/submission'
+)({
+  component: SubmissionViewPage,
+});
