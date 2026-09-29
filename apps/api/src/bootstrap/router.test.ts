@@ -60,6 +60,8 @@ const PUBLIC_DATA_PROCEDURES: readonly string[] = [
   'event.get',
   'testimonial.list',
   'testimonial.get',
+  'roadmap.list',
+  'roadmap.get',
 ];
 
 const SESSION: TSession = {

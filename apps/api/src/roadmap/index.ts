@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { roadmapItemRepoLayer } from '#/roadmap/infrastructure/roadmap-repository.ts';
 import { roadmapRouterBuild } from '#/roadmap/presentation/roadmap-router.ts';
 
-const roadmapLayer = Layer.empty;
-
 export const roadmapModule: {
-  layer: typeof roadmapLayer;
+  layer: typeof roadmapItemRepoLayer;
   routerBuild: typeof roadmapRouterBuild;
 } = {
-  layer: roadmapLayer,
+  layer: roadmapItemRepoLayer,
   routerBuild: roadmapRouterBuild,
 };

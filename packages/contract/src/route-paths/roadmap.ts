@@ -1,1 +1,7 @@
-export const ROADMAP_ROUTE_PATH = {} as const;
+const ROADMAP_RESOURCE = '/roadmap';
+
+export const ROADMAP_ROUTE_PATH = {
+  ROADMAP_ITEMS: ROADMAP_RESOURCE,
+  ROADMAP_ITEM: `${ROADMAP_RESOURCE}/{id}`,
+  ROADMAP_ITEM_VOTE: `${ROADMAP_RESOURCE}/{id}/vote`,
+} as const;
