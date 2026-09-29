@@ -55,8 +55,8 @@ const ProfileByIdContent: FC = (): ReactElement => {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
 
   const getProfileTitle = () => {
-    if (profileData?.fullname) {
-      return `${profileData.fullname}'s Profile`;
+    if (profileData?.name) {
+      return `${profileData.name}'s Profile`;
     }
     return profileType === 'user' ? 'User Profile' : 'Mentor Profile';
   };
@@ -105,7 +105,7 @@ const ProfileByIdContent: FC = (): ReactElement => {
         <div className="text-center">
           <p className="text-red-600 text-lg">Failed to load profile</p>
           <p className="text-gray-600 mt-2">
-            Profile not found or you don't have permission to view it.
+            Profile not found. Only mentors have a public profile.
           </p>
         </div>
       </main>

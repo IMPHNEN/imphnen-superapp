@@ -44,7 +44,7 @@ export const DescriptionSection: FC<DescriptionSectionProps> = ({
             onClick={() => setIsDescriptionModalOpen(true)}
             disabled={isLoading}
           />
-        ) : null
+        ) : undefined
       }
       delay={0.2}
     >

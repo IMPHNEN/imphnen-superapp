@@ -4,7 +4,8 @@ import { Modal, InputField } from '@imphnen-frontend-service/ui/molecules';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { useProfile } from '../contexts/profile-context';
 import { CameraOutlined } from '@ant-design/icons';
-import { useUploadAvatar } from '@imphnen-frontend-service/service';
+
+const DEFAULT_AVATAR = '/image/testimonial.webp';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -21,172 +22,65 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({
   onClose,
   showNotification,
 }) => {
-  const { profileData, profileType, updateProfile } = useProfile();
-  const uploadAvatarMutation = useUploadAvatar();
-  const [formData, setFormData] = useState({
-    fullname: '',
-    avatar: '',
-  });
-  const [previewUrl, setPreviewUrl] = useState<string>(
-    '/image/testimonial.webp'
-  );
-  const [isUploading, setIsUploading] = useState(false);
+  const { profileData, updateProfile, uploadAvatar, isUploadingAvatar } =
+    useProfile();
+  const [fullname, setFullname] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_AVATAR);
+  const [isSaving, setIsSaving] = useState(false);
+  const isUploading = isUploadingAvatar || isSaving;
 
   useEffect(() => {
-    if (profileData) {
-      const fullname =
-        profileData.fullname ||
-        (profileType === 'mentor' && 'legal_name' in profileData
-          ? profileData.legal_name
-          : '') ||
-        '';
-
-      const avatar =
-        profileType === 'user' && 'avatar' in profileData
-          ? profileData.avatar || '/image/testimonial.webp'
-          : '/image/testimonial.webp';
-
-      console.log('Modal - Profile data avatar URL:', avatar);
-      console.log('Modal - Profile data:', profileData);
-
-      setFormData({
-        fullname,
-        avatar:
-          profileType === 'user' && 'avatar' in profileData
-            ? profileData.avatar || ''
-            : '',
-      });
-
-      setPreviewUrl(avatar);
-    } else {
-      setPreviewUrl('/image/testimonial.webp');
-    }
-  }, [profileData, profileType]);
+    setFullname(profileData?.name ?? '');
+    setPreviewUrl(profileData?.image || DEFAULT_AVATAR);
+  }, [profileData]);
 
   const handleImageError = () => {
-    console.log('Image failed to load:', previewUrl);
-    setPreviewUrl('/image/testimonial.webp');
+    setPreviewUrl(DEFAULT_AVATAR);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, fullname: e.target.value }));
+    setFullname(e.target.value);
   };
 
+  // The avatar is stored as soon as it is uploaded (profile.avatarUpload).
   const handleImageUpload = async (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => setPreviewUrl(reader.result as string);
+    reader.readAsDataURL(file);
     try {
-      setIsUploading(true);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setPreviewUrl(result);
-      };
-      reader.readAsDataURL(file);
-
-      const uploadResult = await uploadAvatarMutation.mutateAsync(file);
-
-      console.log('Avatar upload response:', uploadResult);
-
-      interface UploadData {
-        url?: string;
-      }
-
-      const uploadData =
-        'data' in uploadResult
-          ? (uploadResult as { data: UploadData }).data
-          : (uploadResult as UploadData);
-
-      setFormData((prev) => ({ ...prev, avatar: uploadData.url || '' }));
-
-      setPreviewUrl(uploadData.url || '/image/testimonial.webp');
+      await uploadAvatar(file);
     } catch (error) {
-      console.error('Avatar upload error:', error);
       showNotification(
         'error',
         'Upload Failed',
-        'Failed to upload avatar image'
+        (error instanceof Error && error.message) ||
+          'Failed to upload avatar image'
       );
-
-      const originalAvatar =
-        profileType === 'user' && profileData && 'avatar' in profileData
-          ? profileData.avatar
-          : '';
-      setPreviewUrl(originalAvatar || '/image/testimonial.webp');
-    } finally {
-      setIsUploading(false);
+      setPreviewUrl(profileData?.image || DEFAULT_AVATAR);
     }
   };
 
   const handleSave = async () => {
+    const name = fullname.trim();
     try {
-      const updates: Record<string, string> = {};
-
-      if (formData.fullname.trim() !== '') {
-        if (profileType === 'user') {
-          updates.fullname = formData.fullname;
-        } else if (profileType === 'mentor') {
-          updates.legal_name = formData.fullname;
-        }
-      }
-
-      if (
-        formData.avatar &&
-        formData.avatar !==
-          (profileData && 'avatar' in profileData ? profileData.avatar : '')
-      ) {
-        updates.avatar = formData.avatar;
-      }
-
-      if (Object.keys(updates).length > 0) {
-        await updateProfile(updates);
+      if (name !== '' && name !== profileData?.name) {
+        setIsSaving(true);
+        await updateProfile({ name });
         showNotification(
           'success',
           'Profile Updated',
           'Your profile has been successfully updated.'
         );
       }
-
       onClose();
     } catch (err: unknown) {
-      console.error('Profile update error:', err);
-      let apiMessage = '';
-      if (typeof err === 'object' && err !== null) {
-        const errObj = err as { response?: { data?: { message?: string } } };
-        let backendMsg = '';
-        if (errObj.response?.data?.message) {
-          backendMsg = errObj.response.data.message;
-        }
-        let msg = '';
-        if (
-          'message' in err &&
-          typeof (err as { message?: string }).message === 'string'
-        ) {
-          msg = (err as { message?: string }).message || '';
-
-          if (msg.trim().startsWith('{') && msg.trim().endsWith('}')) {
-            try {
-              const parsed = JSON.parse(msg);
-              if (parsed && typeof parsed.message === 'string') {
-                msg = parsed.message;
-              }
-            } catch {
-              // JSON parse failed, use original message
-            }
-          }
-        }
-        if (backendMsg && msg && backendMsg !== msg) {
-          apiMessage = backendMsg + '\n' + msg;
-        } else if (backendMsg) {
-          apiMessage = backendMsg;
-        } else if (msg) {
-          apiMessage = msg;
-        }
-      }
       showNotification(
         'error',
         'Failed to save changes',
-        apiMessage || 'Please try again.'
+        (err instanceof Error && err.message) || 'Please try again.'
       );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -209,7 +103,7 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({
             <input
               id="avatar-upload"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) handleImageUpload(file);
@@ -254,7 +148,7 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({
             <InputField
               label="Full Name"
               name="fullname"
-              value={formData.fullname}
+              value={fullname}
               onChange={handleNameChange}
               placeholder="Enter your full name"
               className="w-full"

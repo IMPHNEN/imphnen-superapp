@@ -1,91 +1,40 @@
-import { type FC, useState, useEffect } from 'react';
+import { type FC, useState } from 'react';
 import { ModalButton } from '../buttons/modal-button';
-import { useUploadCV } from '@imphnen-frontend-service/service';
 import { FileUploader } from '../shared/file-uploader';
 
-interface CVData {
-  fileName: string;
-  fileUrl?: string;
-}
+const MAX_CV_SIZE = 5 * 1024 * 1024;
 
 interface CVModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialValue: CVData;
-  onSave: (value: CVData) => Promise<void>;
+  /** Uploads the CV to the mentor application (`mentor.documentUpload`). */
+  onUpload: (file: File) => Promise<void>;
   isLoading?: boolean;
 }
 
 export const CVModal: FC<CVModalProps> = ({
   isOpen,
   onClose,
-  initialValue,
-  onSave,
+  onUpload,
   isLoading = false,
 }) => {
-  const [cvData, setCvData] = useState(initialValue);
-  const [isUploading, setIsUploading] = useState(false);
-  const uploadCVMutation = useUploadCV();
-
-  useEffect(() => {
-    setCvData(initialValue);
-  }, [initialValue]);
+  const [file, setFile] = useState<File | null>(null);
+  const cvData = { fileName: file?.name ?? '' };
 
   const handleSave = async () => {
+    if (!file) return;
     try {
-      await onSave(cvData);
-
+      await onUpload(file);
+      setFile(null);
       onClose();
     } catch (error) {
-      console.error('Save failed:', error);
+      console.error('CV upload failed:', error);
     }
   };
 
   const handleCancel = () => {
-    setCvData(initialValue);
+    setFile(null);
     onClose();
-  };
-
-  const handleFileSelect = async (file: File) => {
-    try {
-      setIsUploading(true);
-
-      if (!file.type.includes('pdf')) {
-        throw new Error('Please select a PDF file');
-      }
-
-      const uploadResult = await uploadCVMutation.mutateAsync(file);
-
-      console.log('CV upload response:', uploadResult);
-
-      interface UploadData {
-        original_filename?: string;
-        filename?: string;
-        url?: string;
-      }
-
-      const uploadData =
-        'data' in uploadResult
-          ? (uploadResult as { data: UploadData }).data
-          : (uploadResult as UploadData);
-
-      setCvData({
-        fileName:
-          uploadData.original_filename || uploadData.filename || file.name,
-        fileUrl: uploadData.url || '',
-      });
-
-      console.log('CV uploaded successfully, URL:', uploadData.url);
-    } catch (error) {
-      console.error('CV upload error:', error);
-
-      const fileInput = document.getElementById(
-        'cv-upload'
-      ) as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   if (!isOpen) return null;
@@ -114,15 +63,15 @@ export const CVModal: FC<CVModalProps> = ({
               </h3>
               <FileUploader
                 accept=".pdf"
-                maxSize={10 * 1024 * 1024}
-                onFileSelect={handleFileSelect}
-                isLoading={isUploading}
+                maxSize={MAX_CV_SIZE}
+                onFileSelect={setFile}
+                isLoading={isLoading}
                 dragAndDrop={true}
                 description="Klik atau tarik file PDF yang ingin di upload"
                 className="w-full"
               />
               <p className="mt-2 text-sm leading-5 text-[#8B8B8B]">
-                Format yang didukung: PDF • Maksimal ukuran: 10MB
+                Format yang didukung: PDF • Maksimal ukuran: 5MB
               </p>
             </div>
 
@@ -143,16 +92,6 @@ export const CVModal: FC<CVModalProps> = ({
                       Siap untuk disimpan
                     </p>
                   </div>
-                  {cvData.fileUrl && (
-                    <a
-                      href={cvData.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-medium leading-5 text-[#1F6FA3] underline"
-                    >
-                      Preview
-                    </a>
-                  )}
                 </div>
               </div>
             )}
@@ -164,7 +103,7 @@ export const CVModal: FC<CVModalProps> = ({
             variant="secondary"
             onClick={handleCancel}
             className="w-[110px]"
-            disabled={isLoading || isUploading}
+            disabled={isLoading}
           >
             Batal
           </ModalButton>
@@ -172,7 +111,7 @@ export const CVModal: FC<CVModalProps> = ({
             variant="primary"
             onClick={handleSave}
             className="w-[110px]"
-            disabled={isLoading || isUploading || !cvData.fileName}
+            disabled={isLoading || !cvData.fileName}
             loading={isLoading}
           >
             {isLoading ? 'Menyimpan...' : 'Simpan CV'}

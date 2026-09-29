@@ -51,7 +51,7 @@ export const SkillsSection: FC<SkillsSectionProps> = ({
             onClick={() => setIsSkillsModalOpen(true)}
             disabled={isLoading}
           />
-        ) : null
+        ) : undefined
       }
       delay={0.3}
     >

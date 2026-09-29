@@ -66,7 +66,7 @@ export const PersonalInfoSection: FC<PersonalInfoSectionProps> = ({
             onClick={() => setIsPersonalInfoModalOpen(true)}
             disabled={isLoading}
           />
-        ) : null
+        ) : undefined
       }
       delay={0.1}
     >

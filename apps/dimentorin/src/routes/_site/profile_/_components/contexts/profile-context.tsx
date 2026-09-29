@@ -1,57 +1,119 @@
 import type React from 'react';
-import { createContext, useContext, useMemo, useCallback } from 'react';
-import { useParams } from '@tanstack/react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { createContext, useCallback, useContext, useMemo } from 'react';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import {
-  useAuthStore,
-  useUserMe,
-  useUserById,
-  useUpdateUserMe,
-  useUpdateUserById,
-  type UserDetailResponseDto,
-  type UserUpdateRequestDto,
-  useMentorMe,
-  useMentorById,
-  useUpdateMentorMe,
-  useUpdateMentorById,
-  type MentorDetailResponseDto,
-  type MentorUpdateRequestDto,
-} from '@imphnen-frontend-service/service';
+  type TEducationItem,
+  type TExperienceItem,
+  type TMentorPublicProfile,
+  type TProfile,
+  type TProfileUpdate,
+  useMentorProfileByUser,
+  useOwnMentorApplication,
+  useOwnProfile,
+  useUpdateOwnProfile,
+  useUploadMentorCv,
+  useUploadOwnAvatar,
+} from '../../_hooks/use-profile-data';
 
-type ProfileData = UserDetailResponseDto | MentorDetailResponseDto;
-type ProfileUpdateData = UserUpdateRequestDto | MentorUpdateRequestDto;
-
-const canAccessMentorFeatures = (
-  user: {
-    role?: { name?: string; permissions?: Array<{ name?: string }> };
-  } | null
-) => {
-  if (!user?.role) return false;
-
-  const roleName = user.role.name?.toLowerCase() || '';
-  const isMentorRole =
-    roleName.includes('mentor') || roleName.includes('admin');
-
-  if (isMentorRole) return true;
-
-  const permissions = user.role.permissions || [];
-  const hasMentorPermission = permissions.some(
-    (permission: { name?: string }) =>
-      permission.name?.toLowerCase().includes('mentor')
-  );
-
-  return hasMentorPermission;
+/**
+ * What the profile page renders, whichever source it comes from: the own
+ * profile (`profile.get`) or another member's public mentor profile
+ * (`mentor.getByUser`).
+ */
+export type TProfileView = {
+  name: string;
+  email: string;
+  image: string | null;
+  role: string;
+  createdAt: string;
+  bio: string;
+  currentRole: string;
+  birthdate: string;
+  gender: string;
+  phone: string;
+  location: string;
+  careerStatus: string;
+  skills: string[];
+  linkedinUrl: string;
+  githubUrl: string;
+  portfolioUrl: string;
+  twitterUrl: string;
+  cvUrl: string;
+  experience: TExperienceItem[];
+  education: TEducationItem[];
+  completedSessionCount: number | null;
+  ratingAverage: number | null;
 };
 
+const fromOwnProfile = (profile: TProfile): TProfileView => {
+  const ext = profile.extension;
+  return {
+    name: profile.name,
+    email: profile.email,
+    image: profile.image,
+    role: profile.role,
+    createdAt: profile.createdAt,
+    bio: ext.bio ?? '',
+    currentRole: '',
+    birthdate: ext.birthdate ?? '',
+    gender: ext.gender ?? '',
+    phone: ext.phoneForVerification ?? ext.phoneNumber ?? '',
+    location: ext.domicile ?? ext.location ?? '',
+    careerStatus: ext.careerStatus ?? '',
+    skills: ext.skills,
+    linkedinUrl: ext.linkedinUrl ?? '',
+    githubUrl: ext.githubUrl ?? '',
+    portfolioUrl: ext.portfolioUrl ?? ext.websiteUrl ?? '',
+    twitterUrl: ext.twitterUrl ?? '',
+    cvUrl: ext.cvUrl ?? '',
+    experience: ext.experience,
+    education: ext.education,
+    completedSessionCount: null,
+    ratingAverage: null,
+  };
+};
+
+const fromMentorProfile = (mentor: TMentorPublicProfile): TProfileView => ({
+  name: mentor.name,
+  email: '',
+  image: mentor.image,
+  role: mentor.currentRole ?? 'Mentor',
+  createdAt: mentor.createdAt,
+  bio: mentor.bio ?? '',
+  currentRole: mentor.currentRole ?? '',
+  birthdate: '',
+  gender: '',
+  phone: '',
+  location: mentor.location ?? '',
+  careerStatus: mentor.availabilityCommitment ?? '',
+  skills: mentor.expertise,
+  linkedinUrl: mentor.linkedinUrl ?? '',
+  githubUrl: mentor.githubUrl ?? '',
+  portfolioUrl: mentor.portfolioUrl ?? '',
+  twitterUrl: mentor.twitterUrl ?? '',
+  cvUrl: '',
+  experience: [],
+  education: [],
+  completedSessionCount: mentor.completedSessionCount,
+  ratingAverage: mentor.ratingAverage,
+});
+
 interface ProfileContextType {
-  profileData: ProfileData | undefined;
+  profileData: TProfileView | undefined;
   isLoading: boolean;
   error: unknown;
   isOwnProfile: boolean;
   profileId: string | null;
   profileType: 'user' | 'mentor';
-  updateProfile: (data: ProfileUpdateData) => Promise<void>;
+  updateProfile: (data: TProfileUpdate) => Promise<void>;
   isUpdating: boolean;
+  uploadAvatar: (file: File) => Promise<void>;
+  isUploadingAvatar: boolean;
+  /** CV upload goes to the mentor application; `false` without one. */
+  canUploadCv: boolean;
+  hasUploadedCv: boolean;
+  uploadCv: (file: File) => Promise<void>;
+  isUploadingCv: boolean;
   canAccessMentor: boolean;
 }
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -65,201 +127,71 @@ interface ProfileProviderProps {
 export const ProfileProvider: React.FC<ProfileProviderProps> = ({
   children,
   profileId,
-  profileType: forcedProfileType,
 }) => {
-  const params = useParams({
-    strict: false,
-    select: (params) => params as { mentor?: string; id?: string },
-  });
-  const { session } = useAuthStore();
-  const queryClient = useQueryClient();
+  const { can } = useCurrentUser();
+  const isOwnProfile = !profileId;
 
-  const canAccessMentor = useMemo(() => {
-    return canAccessMentorFeatures(session?.user || null);
-  }, [session?.user]);
+  const ownQuery = useOwnProfile(isOwnProfile);
+  const mentorQuery = useMentorProfileByUser(profileId);
+  const applicationQuery = useOwnMentorApplication(isOwnProfile);
+  const updateMutation = useUpdateOwnProfile();
+  const avatarMutation = useUploadOwnAvatar();
+  const cvMutation = useUploadMentorCv();
 
-  const isMentorRole = useMemo(() => {
-    const roleName = session?.user?.role?.name?.toLowerCase() || '';
-    return roleName === 'mentor';
-  }, [session?.user?.role?.name]);
+  const selectedQuery = isOwnProfile ? ownQuery : mentorQuery;
 
-  const profileType: 'user' | 'mentor' = useMemo(() => {
-    if (forcedProfileType) {
-      if (forcedProfileType === 'mentor' && !isMentorRole) {
-        return 'user';
-      }
-      return forcedProfileType;
+  const profileData = useMemo<TProfileView | undefined>(() => {
+    if (isOwnProfile) {
+      return ownQuery.data ? fromOwnProfile(ownQuery.data) : undefined;
     }
+    return mentorQuery.data ? fromMentorProfile(mentorQuery.data) : undefined;
+  }, [isOwnProfile, ownQuery.data, mentorQuery.data]);
 
-    if (
-      (params?.mentor ||
-        (typeof window !== 'undefined' &&
-          window.location.pathname.includes('/mentor'))) &&
-      isMentorRole
-    ) {
-      return 'mentor';
-    }
-
-    return 'user';
-  }, [forcedProfileType, params, isMentorRole]);
-
-  const id = profileId || (params?.id as string) || undefined;
-  const isOwnProfile = !id;
-
-  const userMeQuery = useUserMe();
-  const userByIdQuery = useUserById(id || '');
-  const updateUserMeMutation = useUpdateUserMe();
-  const updateUserByIdMutation = useUpdateUserById();
-
-  const mentorMeQuery = useMentorMe();
-  const mentorByIdQuery = useMentorById(id || '');
-  const updateMentorMeMutation = useUpdateMentorMe();
-  const updateMentorByIdMutation = useUpdateMentorById();
-
-  const selectedQuery = useMemo(() => {
-    if (canAccessMentor && profileType === 'mentor') {
-      return isOwnProfile ? mentorMeQuery : mentorByIdQuery;
-    }
-
-    return isOwnProfile ? userMeQuery : userByIdQuery;
-  }, [
-    canAccessMentor,
-    profileType,
-    isOwnProfile,
-    userMeQuery,
-    userByIdQuery,
-    mentorMeQuery,
-    mentorByIdQuery,
-  ]);
-
-  const selectedQueryData = selectedQuery.data;
-
-  const profileData = useMemo<ProfileData | undefined>(() => {
-    if (canAccessMentor && profileType === 'mentor') {
-      return selectedQueryData as MentorDetailResponseDto | undefined;
-    }
-
-    return (selectedQueryData as { data?: UserDetailResponseDto } | undefined)
-      ?.data;
-  }, [selectedQueryData, canAccessMentor, profileType]);
-
-  const isLoading = selectedQuery.isLoading;
-  const error = selectedQuery.error;
-
-  const selectedUserMutation = isOwnProfile
-    ? updateUserMeMutation
-    : updateUserByIdMutation;
-  const selectedMentorMutation = isOwnProfile
-    ? updateMentorMeMutation
-    : updateMentorByIdMutation;
-
-  const updateMutation = useMemo(() => {
-    if (canAccessMentor && profileType === 'mentor') {
-      return selectedMentorMutation;
-    }
-
-    return selectedUserMutation;
-  }, [
-    profileType,
-    canAccessMentor,
-    selectedUserMutation,
-    selectedMentorMutation,
-  ]);
+  const { mutateAsync: updateAsync } = updateMutation;
+  const { mutateAsync: avatarAsync } = avatarMutation;
+  const { mutateAsync: cvAsync } = cvMutation;
 
   const updateProfile = useCallback(
-    async (data: ProfileUpdateData) => {
-      try {
-        if (canAccessMentor && profileType === 'mentor') {
-          if (isOwnProfile) {
-            await updateMentorMeMutation.mutateAsync(
-              data as MentorUpdateRequestDto
-            );
-
-            await queryClient.invalidateQueries({ queryKey: ['mentor-me'] });
-          } else if (id) {
-            await updateMentorByIdMutation.mutateAsync({
-              id,
-              data: data as MentorUpdateRequestDto,
-            });
-
-            await queryClient.invalidateQueries({
-              queryKey: ['mentor-by-id', id],
-            });
-          }
-        } else if (isOwnProfile) {
-          await updateUserMeMutation.mutateAsync(data as UserUpdateRequestDto);
-
-          await queryClient.invalidateQueries({ queryKey: ['user-me'] });
-        } else if (id) {
-          await updateUserByIdMutation.mutateAsync({
-            id,
-            data: data as UserUpdateRequestDto,
-          });
-
-          await queryClient.invalidateQueries({ queryKey: ['user-by-id', id] });
-        }
-      } catch (error: unknown) {
-        console.error('Failed to update profile:', error);
-
-        let apiMessage = '';
-        if (typeof error === 'object' && error !== null) {
-          const errObj = error as { response?: { data?: unknown } };
-          const data = errObj.response?.data;
-          if (data) {
-            try {
-              const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-              if (parsed && typeof parsed.message === 'string') {
-                apiMessage = parsed.message;
-              }
-            } catch {
-              apiMessage = typeof data === 'string' ? data : '';
-            }
-          }
-        }
-        if (apiMessage) {
-          throw new Error(apiMessage);
-        }
-        throw error;
-      }
+    async (data: TProfileUpdate): Promise<void> => {
+      if (!isOwnProfile) throw new Error('Profil ini hanya bisa dilihat.');
+      await updateAsync(data);
     },
-    [
-      profileType,
-      isOwnProfile,
-      canAccessMentor,
-      id,
-      queryClient,
-      updateUserMeMutation,
-      updateUserByIdMutation,
-      updateMentorMeMutation,
-      updateMentorByIdMutation,
-    ]
+    [isOwnProfile, updateAsync]
   );
-  const isUpdating = updateMutation.isPending;
 
-  const value: ProfileContextType = useMemo(
-    () => ({
-      profileData,
-      isLoading,
-      error,
-      isOwnProfile,
-      profileId: isOwnProfile ? null : id || null,
-      profileType,
-      updateProfile,
-      isUpdating,
-      canAccessMentor,
-    }),
-    [
-      profileData,
-      isLoading,
-      error,
-      isOwnProfile,
-      id,
-      profileType,
-      updateProfile,
-      isUpdating,
-      canAccessMentor,
-    ]
+  const uploadAvatar = useCallback(
+    async (file: File): Promise<void> => {
+      await avatarAsync({ file });
+    },
+    [avatarAsync]
   );
+
+  const uploadCv = useCallback(
+    async (file: File): Promise<void> => {
+      await cvAsync({ kind: 'cv', file });
+    },
+    [cvAsync]
+  );
+
+  const application = applicationQuery.data ?? null;
+
+  const value: ProfileContextType = {
+    profileData,
+    isLoading: selectedQuery.isLoading,
+    error: selectedQuery.error,
+    isOwnProfile,
+    profileId: profileId ?? null,
+    profileType: isOwnProfile ? 'user' : 'mentor',
+    updateProfile,
+    isUpdating: updateMutation.isPending,
+    uploadAvatar,
+    isUploadingAvatar: avatarMutation.isPending,
+    canUploadCv: isOwnProfile && application !== null,
+    hasUploadedCv: application?.hasCv ?? false,
+    uploadCv,
+    isUploadingCv: cvMutation.isPending,
+    canAccessMentor: can('mentor-profile:read'),
+  };
 
   return (
     <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
@@ -274,5 +206,4 @@ export const useProfile = (): ProfileContextType => {
   return context;
 };
 
-export type { ProfileContextType };
-export type { ProfileData, ProfileUpdateData };
+export type { ProfileContextType, TProfileUpdate };

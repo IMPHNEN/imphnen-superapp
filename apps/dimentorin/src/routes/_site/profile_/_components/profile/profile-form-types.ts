@@ -1,8 +1,3 @@
-import type {
-  MentorUpdateRequestDto,
-  UserUpdateRequestDto,
-} from '@imphnen-frontend-service/service';
-
 export interface SocialLink {
   platform: string;
   placeholder: string;
@@ -63,7 +58,3 @@ export interface ProfileFormProps {
     message?: string
   ) => void;
 }
-
-export type ProfileUpdateData = Partial<
-  MentorUpdateRequestDto | UserUpdateRequestDto
->;

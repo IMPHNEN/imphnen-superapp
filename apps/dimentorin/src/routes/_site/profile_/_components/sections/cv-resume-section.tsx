@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect } from 'react';
+import { type FC, useState } from 'react';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { CVModal } from '../modals';
@@ -7,9 +7,12 @@ import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface CvResumeSectionProps {
-  initialFileName: string;
+  /** Legacy public CV link stored on the profile, if any. */
+  cvUrl: string;
+  /** A CV is uploaded to the mentor application (private, not downloadable). */
+  hasUploadedCv: boolean;
   fullname: string;
-  onSave: (cvData: { fileName: string; fileUrl?: string }) => Promise<void>;
+  onUpload: (file: File) => Promise<void>;
   showNotification: (
     type: NotificationType['type'],
     title: string,
@@ -20,45 +23,29 @@ interface CvResumeSectionProps {
 }
 
 export const CvResumeSection: FC<CvResumeSectionProps> = ({
-  initialFileName,
+  cvUrl,
+  hasUploadedCv,
   fullname,
-  onSave,
-  showNotification,
+  onUpload,
   isLoading = false,
   isViewOnly = false,
 }) => {
   const [isCVModalOpen, setIsCVModalOpen] = useState(false);
-  const [fileName, setFileName] = useState(initialFileName);
 
-  useEffect(() => {
-    setFileName(initialFileName);
-  }, [initialFileName]);
-
-  const handleSave = async (cvData: { fileName: string; fileUrl?: string }) => {
-    if (isViewOnly) return;
-    await onSave(cvData);
-  };
-
-  let displayFileName = 'Belum ada CV';
-  let fileUrl = '';
-  if (fileName) {
-    if (fileName.startsWith('http') && fullname) {
-      displayFileName = `${fullname}.pdf`;
-      fileUrl = fileName;
-    } else {
-      displayFileName = fileName;
-    }
-  }
+  const displayFileName = cvUrl
+    ? `${fullname || 'CV'}.pdf`
+    : hasUploadedCv
+      ? 'CV terunggah (hanya terlihat oleh tim verifikasi)'
+      : 'Belum ada CV';
 
   const handleDownload = () => {
-    if (fileUrl) {
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = displayFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    if (!cvUrl) return;
+    const link = document.createElement('a');
+    link.href = cvUrl;
+    link.download = displayFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -70,7 +57,7 @@ export const CvResumeSection: FC<CvResumeSectionProps> = ({
             onClick={() => setIsCVModalOpen(true)}
             disabled={isLoading}
           />
-        ) : null
+        ) : undefined
       }
       delay={0.3}
     >
@@ -85,7 +72,7 @@ export const CvResumeSection: FC<CvResumeSectionProps> = ({
           variant="primary"
           size="sm"
           className="flex items-center gap-2"
-          disabled={!fileUrl}
+          disabled={!cvUrl}
           onClick={handleDownload}
         >
           <DownloadOutlined />
@@ -96,8 +83,7 @@ export const CvResumeSection: FC<CvResumeSectionProps> = ({
       <CVModal
         isOpen={isCVModalOpen && !isViewOnly}
         onClose={() => setIsCVModalOpen(false)}
-        initialValue={{ fileName, fileUrl: fileName }}
-        onSave={handleSave}
+        onUpload={onUpload}
         isLoading={isLoading}
       />
     </SectionWrapper>

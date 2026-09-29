@@ -54,7 +54,7 @@ export const EducationSection: FC<EducationSectionProps> = ({
               disabled={isLoading}
             />
           </div>
-        ) : null
+        ) : undefined
       }
       delay={0.5}
     >

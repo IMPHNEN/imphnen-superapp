@@ -55,7 +55,7 @@ export const ExperiencesSection: FC<ExperiencesSectionProps> = ({
               disabled={isLoading}
             />
           </div>
-        ) : null
+        ) : undefined
       }
       delay={0.4}
     >
