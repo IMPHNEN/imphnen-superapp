@@ -3,13 +3,19 @@ import { cn, For, Show } from '@imphnen-frontend-service/utils';
 import type { FC } from 'react';
 import { motion } from 'framer-motion';
 import { TOPICS } from '../../../sections/topics';
+import type { TMentorPublic } from '../../../../../_hooks/use-mentors';
 
 type Props = {
+  mentor: TMentorPublic;
   selectedTopics: number[];
   setSelectedTopics: (topics: number[]) => void;
 };
 
-export const TopicStep: FC<Props> = ({ selectedTopics, setSelectedTopics }) => {
+export const TopicStep: FC<Props> = ({
+  mentor,
+  selectedTopics,
+  setSelectedTopics,
+}) => {
   const handleSelectTopic = (topicId: number) => {
     if (selectedTopics.includes(topicId)) {
       setSelectedTopics(selectedTopics.filter((id) => id !== topicId));
@@ -28,17 +34,17 @@ export const TopicStep: FC<Props> = ({ selectedTopics, setSelectedTopics }) => {
       >
         <div className="w-16 aspect-4/5 overflow-hidden md:w-[134px] xl:w-[140px]">
           <img
-            src="/image/testimonial.webp"
-            alt="Mentor"
+            src={mentor.image || '/image/testimonial.webp'}
+            alt={mentor.name}
             className="w-full object-cover"
           />
         </div>
         <div className="flex-1 pe-4">
           <h3 className="text-xs font-semibold mb-1 line-clamp-2 md:text-[19px] md:mb-2 xl:text-[23px]">
-            Muhammad Firdaus Oi Oi Oi, S.H., M.H.
+            {mentor.name}
           </h3>
           <p className="text-[10px] line-clamp-2 text-neutral-600 md:text-[15px] xl:text-[19px]">
-            UI Designer at Oray orayan Studios
+            {mentor.currentRole} at {mentor.currentCompany}
           </p>
         </div>
       </motion.div>

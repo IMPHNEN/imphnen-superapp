@@ -1,17 +1,17 @@
 import { StarFilled } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { cn, For } from '@imphnen-frontend-service/utils';
-import type { MentorDetailResponseDto } from '@imphnen-frontend-service/service';
+import type { TMentorPublic } from '../../../_hooks/use-mentors';
 
 type Props = {
   onBook: () => void;
-  mentor?: MentorDetailResponseDto;
+  mentor?: TMentorPublic;
 };
 
 export const ProfileSection: React.FC<Props> = ({ onBook, mentor }) => {
   const expertise = mentor?.expertise ?? [];
-  const softSkills = mentor?.topics_of_interest ?? [];
-  const rating = mentor?.rating ?? 0;
+  const softSkills = mentor?.topicsOfInterest ?? [];
+  const rating = mentor?.ratingAverage ?? 0;
   const ratingLabel =
     rating >= 4.5
       ? 'Excelent Sensei'
@@ -36,8 +36,8 @@ export const ProfileSection: React.FC<Props> = ({ onBook, mentor }) => {
           )}
         >
           <img
-            src="/image/testimonial.webp"
-            alt="Mentor"
+            src={mentor?.image || '/image/testimonial.webp'}
+            alt={mentor?.name ?? 'Mentor'}
             className="w-full object-cover"
           />
         </div>
@@ -49,11 +49,11 @@ export const ProfileSection: React.FC<Props> = ({ onBook, mentor }) => {
               'md:text-[19px] md:mb-2 md:text-start xl:text-[23px]'
             )}
           >
-            {mentor?.fullname || 'Loading...'}
+            {mentor?.name || 'Loading...'}
           </h1>
           <p className="text-xs mb-4 text-neutral-600 md:mb-5 md:text-[15px] xl:text-[19px] xl:mb-5">
             {mentor
-              ? `${mentor.current_role} at ${mentor.current_company}`
+              ? `${mentor.currentRole ?? ''} at ${mentor.currentCompany ?? ''}`
               : ''}
           </p>
           {rating > 0 && (
@@ -118,7 +118,7 @@ export const ProfileSection: React.FC<Props> = ({ onBook, mentor }) => {
       <div className="hidden md:flex xl:hidden justify-between">
         <div>
           <p className="text-primary-500 text-[15px] font-semibold">
-            {mentor?.availability_commitment || ''}
+            {mentor?.availabilityCommitment || ''}
           </p>
         </div>
         <Button type="button" size="sm" onClick={onBook}>

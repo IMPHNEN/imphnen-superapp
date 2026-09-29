@@ -2,12 +2,14 @@ import { For, Show } from '@imphnen-frontend-service/utils';
 import type { FC } from 'react';
 import { motion } from 'framer-motion';
 import { TOPICS } from '../../../sections/topics';
+import type { TMentorPublic } from '../../../../../_hooks/use-mentors';
 
 type Props = {
+  mentor: TMentorPublic;
   selectedTopics: number[];
 };
 
-export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
+export const PaymentStep: FC<Props> = ({ mentor, selectedTopics }) => {
   return (
     <motion.div
       className="bg-white px-6 py-5 rounded-md grid gap-6 md:grid-cols-2 md:gap-8 xl:grid-cols-9"
@@ -23,17 +25,17 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
           <div>
             <div className="aspect-square mb-2 size-10 mx-auto rounded-full overflow-hidden md:size-20 md:ms-0">
               <img
-                src="/image/testimonial.webp"
-                alt="Mentor"
+                src={mentor.image || '/image/testimonial.webp'}
+                alt={mentor.name}
                 className="w-full object-cover"
               />
             </div>
             <div className="w-44 mx-auto text-center md:ms-0 md:text-left md:mb-2 md:text-[15px] md:w-auto">
               <h3 className="text-xs font-semibold mb-1 xl:text-[15px]">
-                Muhammad Firdaus Oi Oi Oi, S.H., M.H.
+                {mentor.name}
               </h3>
               <p className="text-[10px] text-neutral-600 md:text-xs">
-                UI Designer at Oray orayan Studios
+                {mentor.currentRole} at {mentor.currentCompany}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { For } from '@imphnen-frontend-service/utils';
 import type { FC } from 'react';
-import type { MentorDetailResponseDto } from '@imphnen-frontend-service/service';
+import type { TMentorPublic } from '../../../_hooks/use-mentors';
 
 export const TOPICS = [
   { id: 1, icon: '💼', name: 'Career & Self Development' },
@@ -17,11 +17,11 @@ export const TOPICS = [
 ];
 
 type Props = {
-  mentor?: MentorDetailResponseDto;
+  mentor?: TMentorPublic;
 };
 
 export const TopicsSection: FC<Props> = ({ mentor }) => {
-  const mentorTopics = mentor?.topics_of_interest ?? [];
+  const mentorTopics = mentor?.topicsOfInterest ?? [];
 
   return (
     <div>

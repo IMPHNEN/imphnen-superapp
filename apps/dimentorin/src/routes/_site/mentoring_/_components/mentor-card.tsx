@@ -1,26 +1,26 @@
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import type { FC } from 'react';
 import { Link } from '@tanstack/react-router';
-import type { MentorDetailResponseDto } from '@imphnen-frontend-service/service';
+import type { TMentorPublic } from '../_hooks/use-mentors';
 
 interface MentorCardProps {
-  mentor: MentorDetailResponseDto;
+  mentor: TMentorPublic;
 }
 
 export const MentorCard: FC<MentorCardProps> = ({ mentor }) => {
-  const expertise = mentor.expertise ?? [];
+  const expertise = mentor.expertise;
   const firstSkill = expertise[0];
   const secondSkill = expertise[1];
   const extraCount = expertise.length - 2;
-  const yearsExp = mentor.years_of_experience ?? 0;
+  const yearsExp = mentor.yearsOfExperience ?? 0;
   const expLabel = `${yearsExp}+ Years Experience`;
 
   return (
     <div className="p-2.5 rounded-md bg-white shadow flex gap-x-4 items-start md:p-4 md:flex-col md:rounded-lg md:gap-y-4">
       <div className="size-[60px] rounded-md overflow-hidden md:w-full md:h-auto md:aspect-square">
         <img
-          src="/image/testimonial.webp"
-          alt="Mentor"
+          src={mentor.image || '/image/testimonial.webp'}
+          alt={mentor.name}
           className="w-full object-cover"
         />
       </div>
@@ -34,14 +34,15 @@ export const MentorCard: FC<MentorCardProps> = ({ mentor }) => {
         </Button>
         <h2 className="mb-1">
           <Link
-            to={`/mentoring/${mentor.id}`}
+            to="/mentoring/$id"
+            params={{ id: mentor.id }}
             className="text-xs font-semibold text-primary-500 md:text-[15px] md:font-semibold lg:text-[19px]"
           >
-            {mentor.fullname || 'Unknown Mentor'}
+            {mentor.name || 'Unknown Mentor'}
           </Link>
         </h2>
         <p className="text-[8px] text-neutral-500 mb-3 md:text-[10px] md:font-medium md:mb-4 lg:text-xs">
-          {mentor.current_role} at {mentor.current_company}
+          {mentor.currentRole} at {mentor.currentCompany}
         </p>
 
         <div>

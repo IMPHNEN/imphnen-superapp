@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { FC, type ReactElement, useRef, useState } from 'react';
+import { type ReactElement, useMemo, useRef, useState } from 'react';
 import { BannerSection } from './mentoring_/_components/banner-section';
 import { Topics } from './mentoring_/_components/topics';
 import { Input } from '@imphnen-frontend-service/ui/atoms';
@@ -14,7 +14,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { motion, useInView, type Variants } from 'framer-motion';
-import { useMentorList } from '@imphnen-frontend-service/service';
+import { useMentorList } from './mentoring_/_hooks/use-mentors';
 
 export const Route = createFileRoute('/_site/mentoring')({
   component: MentoringPage,
@@ -29,12 +29,12 @@ function MentoringPage(): ReactElement {
 
   const { data: mentorData, isLoading } = useMentorList({
     page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-    search: search || undefined,
+    pageSize: pagination.pageSize,
+    search,
   });
 
-  const mentors = mentorData?.data ?? [];
-  const totalItems = mentorData?.meta?.total ?? 0;
+  const mentors = useMemo(() => [...(mentorData?.items ?? [])], [mentorData]);
+  const totalItems = mentorData?.total ?? 0;
 
   const table = useReactTable({
     data: mentors,

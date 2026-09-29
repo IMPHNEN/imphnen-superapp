@@ -1,14 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { ProfileSection } from './$id/_components/sections/profile';
 import { StatisticsSection } from './$id/_components/sections/senpai-statistics';
 import { TopicsSection } from './$id/_components/sections/topics';
-import { ExperienceSection } from './$id/_components/sections/experience';
-import { EducationSection } from './$id/_components/sections/education';
 import { SenpaiScheduleSection } from './$id/_components/sections/senpai-schedule';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { AppointmentModal } from './$id/_components/modals/appointment';
-import { useMentorById } from '@imphnen-frontend-service/service';
+import { useMentor, useMentorAvailability } from './_hooks/use-mentors';
 
 export const Route = createFileRoute('/_site/mentoring_/$id')({
   component: MentorDetailPage,
@@ -17,14 +15,24 @@ export const Route = createFileRoute('/_site/mentoring_/$id')({
 function MentorDetailPage() {
   const [open, setOpen] = useState(false);
   const { id } = Route.useParams();
-  const mentorId = id ?? '';
-  const { data: mentor, isLoading } = useMentorById(mentorId);
+  const { data: mentor, isLoading, isError } = useMentor(id ?? '');
+  const { data: availability } = useMentorAvailability(mentor?.userId);
 
   if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-neutral-400">
           Loading mentor profile...
+        </div>
+      </main>
+    );
+  }
+
+  if (isError || !mentor) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-neutral-400">
+          Mentor tidak ditemukan.
         </div>
       </main>
     );
@@ -50,7 +58,7 @@ function MentorDetailPage() {
               <StatisticsSection mentor={mentor} />
               <TopicsSection mentor={mentor} />
 
-              {mentor?.bio && (
+              {mentor.bio && (
                 <div className="px-6 py-8 rounded-md shadow-md">
                   <h2 className="text-xs text-neutral-800 font-semibold mb-5 md:text-[15px] xl:text-[19px]">
                     Senpai Resume
@@ -60,19 +68,19 @@ function MentorDetailPage() {
                   </p>
                 </div>
               )}
-
-              <ExperienceSection mentor={mentor} />
-              <EducationSection mentor={mentor} />
             </div>
 
             <div className="hidden xl:block xl:w-[400px]">
-              <SenpaiScheduleSection onBook={() => setOpen(true)} />
+              <SenpaiScheduleSection
+                availability={availability}
+                onBook={() => setOpen(true)}
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <AppointmentModal open={open} setOpen={setOpen} mentorId={mentorId} />
+      <AppointmentModal open={open} setOpen={setOpen} mentor={mentor} />
     </main>
   );
 }

@@ -1,24 +1,27 @@
 import { StarFilled } from '@ant-design/icons';
 import { For } from '@imphnen-frontend-service/utils';
 import type { FC } from 'react';
-import type { MentorDetailResponseDto } from '@imphnen-frontend-service/service';
+import type { TMentorPublic } from '../../../_hooks/use-mentors';
 
 type Props = {
-  mentor?: MentorDetailResponseDto;
+  mentor?: TMentorPublic;
 };
 
 export const StatisticsSection: FC<Props> = ({ mentor }) => {
   const stats = [
-    { name: 'Total Sessions', count: mentor?.mentoring_sessions ?? 0 },
+    { name: 'Total Sessions', count: mentor?.completedSessionCount ?? 0 },
     {
       name: 'Rating',
-      count: mentor?.rating != null ? `${mentor.rating.toFixed(1)}/5.0` : 'N/A',
+      count:
+        mentor?.ratingAverage != null
+          ? `${mentor.ratingAverage.toFixed(1)}/5.0`
+          : 'N/A',
     },
     {
       name: 'Experience',
       count:
-        mentor?.years_of_experience != null
-          ? `${mentor.years_of_experience} Yrs`
+        mentor?.yearsOfExperience != null
+          ? `${mentor.yearsOfExperience} Yrs`
           : 'N/A',
     },
   ];

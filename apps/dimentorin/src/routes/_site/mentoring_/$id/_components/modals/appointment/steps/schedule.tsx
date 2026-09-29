@@ -23,11 +23,11 @@ type Props = {
   scheduledDate: string;
   scheduledTime: string;
   description: string;
-  sessionType: string;
+  sessionType: 'online' | 'offline';
   onDateChange: (v: string) => void;
   onTimeChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
-  onSessionTypeChange: (v: string) => void;
+  onSessionTypeChange: (v: 'online' | 'offline') => void;
 };
 
 export const ScheduleStep = ({
@@ -60,6 +60,7 @@ export const ScheduleStep = ({
           <Input
             type="date"
             className="min-w-full w-full"
+            min={new Date().toISOString().slice(0, 10)}
             value={scheduledDate}
             onChange={(e) => onDateChange(e.target.value)}
           />
@@ -78,7 +79,11 @@ export const ScheduleStep = ({
           <Select
             className="min-w-full w-full"
             value={sessionType}
-            onChange={(e) => onSessionTypeChange(e.target.value)}
+            onChange={(e) =>
+              onSessionTypeChange(
+                e.target.value === 'offline' ? 'offline' : 'online'
+              )
+            }
           >
             <option value="online">Online</option>
             <option value="offline">Offline</option>

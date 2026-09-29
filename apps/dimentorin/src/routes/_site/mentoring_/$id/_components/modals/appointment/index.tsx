@@ -10,9 +10,14 @@ import { QrisPaymentStep } from './steps/qris-payement';
 import { VAPaymentStep } from './steps/va-payment';
 import { SuccessStep } from './steps/success';
 import { PaymentStep } from './steps/payment';
-import { useBookSession } from '@imphnen-frontend-service/service';
+import { useNavigate } from '@tanstack/react-router';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { TOPICS } from '../../sections/topics';
 import { toast } from 'sonner';
+import {
+  type TMentorPublic,
+  useBookSession,
+} from '../../../../_hooks/use-mentors';
 
 const STEPS = [
   'topic',
@@ -28,47 +33,70 @@ type Step = (typeof STEPS)[number];
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  mentorId?: string;
+  mentor: TMentorPublic;
 };
 
-export const AppointmentModal: FC<Props> = ({ open, setOpen, mentorId }) => {
+const TOPIC_MIN_LENGTH = 3;
+const DEFAULT_TOPIC = 'General Mentoring';
+
+/** Local date (`yyyy-mm-dd`) and time (`hh:mm`) inputs to an ISO instant. */
+const scheduledAtOf = (date: string, time: string): Date | null => {
+  if (!date || !time) return null;
+  const value = new Date(`${date}T${time}`);
+  return Number.isNaN(value.getTime()) ? null : value;
+};
+
+export const AppointmentModal: FC<Props> = ({ open, setOpen, mentor }) => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useCurrentUser();
   const [step, setStep] = useState<Step>('topic');
   const [selectedTopics, setSelectedTopics] = useState<number[]>([]);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
   const [description, setDescription] = useState('');
-  const [sessionType, setSessionType] = useState('online');
-  const [isBooking, setIsBooking] = useState(false);
+  const [sessionType, setSessionType] = useState<'online' | 'offline'>(
+    'online'
+  );
 
-  const bookSession = useBookSession(mentorId ?? '');
+  const bookSession = useBookSession();
+  const isBooking = bookSession.isPending;
+  const scheduledAt = scheduledAtOf(scheduledDate, scheduledTime);
+  const isScheduleValid = scheduledAt !== null && scheduledAt > new Date();
 
   const handleStep = async (action: 'next' | 'prev') => {
     if (action === 'next' && step === 'success') {
       setOpen(false);
-    } else if (action === 'next' && step === 'payment' && mentorId) {
+    } else if (action === 'next' && step === 'payment') {
+      if (!isAuthenticated) {
+        toast.info('Silakan login dulu untuk booking sesi mentoring.');
+        setOpen(false);
+        await navigate({ to: '/auth/login' });
+        return;
+      }
+      if (!scheduledAt) return;
+
       const topicNames = selectedTopics
         .map((id) => TOPICS.find((t) => t.id === id)?.name)
         .filter(Boolean)
         .join(', ');
+      const topic =
+        topicNames.length >= TOPIC_MIN_LENGTH ? topicNames : DEFAULT_TOPIC;
 
-      const scheduledAt =
-        scheduledDate && scheduledTime
-          ? new Date(`${scheduledDate}T${scheduledTime}`).toISOString()
-          : new Date().toISOString();
-
-      setIsBooking(true);
       try {
         await bookSession.mutateAsync({
-          topic: topicNames || 'General Mentoring',
-          description: description || undefined,
-          scheduled_at: scheduledAt,
-          session_type: sessionType,
+          mentorUserId: mentor.userId,
+          topic,
+          description: description.trim() || undefined,
+          scheduledAt: scheduledAt.toISOString(),
+          sessionType,
         });
         setStep('qr-payment');
-      } catch {
-        toast.error('Gagal membuat sesi. Silakan coba lagi.');
-      } finally {
-        setIsBooking(false);
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? error.message
+            : 'Gagal membuat sesi. Silakan coba lagi.'
+        );
       }
     } else if (action === 'next') {
       setStep(STEPS[STEPS.indexOf(step) + 1]);
@@ -171,6 +199,7 @@ export const AppointmentModal: FC<Props> = ({ open, setOpen, mentorId }) => {
                 <AnimatePresence>
                   {step === 'topic' && (
                     <TopicStep
+                      mentor={mentor}
                       selectedTopics={selectedTopics}
                       setSelectedTopics={setSelectedTopics}
                     />
@@ -189,7 +218,10 @@ export const AppointmentModal: FC<Props> = ({ open, setOpen, mentorId }) => {
                   )}
                   {step === 'profile' && <ProfileStep />}
                   {step === 'payment' && (
-                    <PaymentStep selectedTopics={selectedTopics} />
+                    <PaymentStep
+                      mentor={mentor}
+                      selectedTopics={selectedTopics}
+                    />
                   )}
                   {step === 'qr-payment' && <QrisPaymentStep />}
                   {step === 'va-payment' && <VAPaymentStep />}
@@ -222,6 +254,7 @@ export const AppointmentModal: FC<Props> = ({ open, setOpen, mentorId }) => {
                   )}
                   disabled={
                     (selectedTopics.length === 0 && step === 'topic') ||
+                    (step === 'schedule' && !isScheduleValid) ||
                     isBooking
                   }
                   onClick={() => handleStep('next')}
