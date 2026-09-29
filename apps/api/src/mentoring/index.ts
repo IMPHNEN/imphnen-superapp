@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { mentoringSessionRepoLayer } from '#/mentoring/infrastructure/mentoring-repository.ts';
 import { mentoringRouterBuild } from '#/mentoring/presentation/mentoring-router.ts';
 
-const mentoringLayer = Layer.empty;
-
 export const mentoringModule: {
-  layer: typeof mentoringLayer;
+  layer: typeof mentoringSessionRepoLayer;
   routerBuild: typeof mentoringRouterBuild;
 } = {
-  layer: mentoringLayer,
+  layer: mentoringSessionRepoLayer,
   routerBuild: mentoringRouterBuild,
 };

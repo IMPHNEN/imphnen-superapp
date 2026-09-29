@@ -48,7 +48,7 @@ export const MODULE_MAY_IMPORT: Readonly<Record<TModule, readonly TModule[]>> =
     [MODULE.ROADMAP]: [],
     [MODULE.QR]: [],
     [MODULE.MENTOR]: [],
-    [MODULE.MENTORING]: [],
+    [MODULE.MENTORING]: [MODULE.MENTOR],
     [MODULE.HACKATHON]: [],
     [MODULE.PROFILE]: [],
   };
