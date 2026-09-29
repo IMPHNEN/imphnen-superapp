@@ -2,6 +2,10 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 
+// Browser calls go to the page origin in dev (see apiBaseUrl() in
+// @imphnen-frontend-service/service/rpc), so the dev server proxies the API.
+const DEV_API_URL = process.env.DEV_API_URL ?? 'http://localhost:8787';
+
 export default defineConfig({
   integrations: [react()],
   vite: {
@@ -11,10 +15,13 @@ export default defineConfig({
         allow: ['..', '../..'],
       },
       proxy: {
-        '/v1': {
-          target: 'https://api.imphnen.dev',
+        '/rpc': {
+          target: DEV_API_URL,
           changeOrigin: true,
-          secure: false,
+        },
+        '/api/auth': {
+          target: DEV_API_URL,
+          changeOrigin: true,
         },
       },
     },

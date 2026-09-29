@@ -1,43 +1,27 @@
 ---
 import Public from '../layouts/Public.astro';
-import { getApiUrl } from '../utils/api';
+import type { THackathonTeamSummary, THackathonWinner } from '@app/schemas';
+import { client } from '@imphnen-frontend-service/service/rpc';
 
-interface TeamItem {
-  id: string;
-  name: string;
-  description: string;
-  city: string;
-  logo: string | null;
-  banner: string | null;
-}
+const TEAM_PAGE_SIZE = 20;
 
-interface WinnerItem {
-  id: string;
-  team_id: string;
-  team_name: string;
-  rank: number;
-  prize: string | null;
-}
-
-let teams: TeamItem[] = [];
-let winners: WinnerItem[] = [];
+let teams: readonly THackathonTeamSummary[] = [];
+let winners: readonly THackathonWinner[] = [];
 
 try {
-  const [teamsRes, winnersRes] = await Promise.all([
-    fetch(getApiUrl('/v1/hackathon/teams/browse?per_page=20')),
-    fetch(getApiUrl('/v1/hackathon/winners')),
+  const [teamPage, winnerList] = await Promise.all([
+    client.hackathon.team.browse({ pageSize: TEAM_PAGE_SIZE }),
+    client.hackathon.winner.list(),
   ]);
-  const teamsJson = await teamsRes.json();
-  const winnersJson = await winnersRes.json();
-  teams = teamsJson.data?.data || [];
-  winners = winnersJson.data || [];
+  teams = teamPage.items;
+  winners = winnerList.items;
 } catch {
   teams = [];
   winners = [];
 }
 
 function getWinnerRank(teamId: string): number | null {
-  const w = winners.find((x) => x.team_id === teamId);
+  const w = winners.find((x) => x.team.id === teamId);
   return w ? w.rank : null;
 }
 
@@ -79,7 +63,7 @@ const sortedWinners = [...winners].sort((a, b) => a.rank - b.rank);
                   <div class="text-4xl mb-2">
                     {w.rank === 1 ? '\uD83E\uDD47' : w.rank === 2 ? '\uD83E\uDD48' : '\uD83E\uDD49'}
                   </div>
-                  <h3 class="text-lg font-bold text-gray-900">{w.team_name}</h3>
+                  <h3 class="text-lg font-bold text-gray-900">{w.team.name}</h3>
                   <p class="text-sm text-amber-700 mt-1">Juara {w.rank}</p>
                   {w.prize && <p class="text-xs text-amber-600 mt-1">{w.prize}</p>}
                 </div>
@@ -99,10 +83,10 @@ const sortedWinners = [...winners].sort((a, b) => a.rank - b.rank);
                   rank ? 'ring-2 ring-amber-300' : '',
                 ]}
               >
-                {team.banner ? (
+                {team.bannerUrl ? (
                   <div class="h-40 bg-muted relative overflow-hidden">
                     <img
-                      src={team.banner}
+                      src={team.bannerUrl}
                       alt={team.name}
                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
