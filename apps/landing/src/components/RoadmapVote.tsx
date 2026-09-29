@@ -1,77 +1,27 @@
-import { useEffect, useState } from 'react';
+import { ROADMAP_STATUS, type TRoadmapItem } from '@app/schemas';
+import type { ReactElement } from 'react';
 import { BiUpvote } from 'react-icons/bi';
 import { FiCheckCircle } from 'react-icons/fi';
-import { getApiUrl } from '../utils/api';
+import { useRoadmap } from '@/hooks/use-roadmap';
+import { withQueryClient } from './providers/QueryIsland';
 
-interface RoadmapItem {
-  id: string;
-  title: string;
-  description: string;
-  status: 'upcoming' | 'in_progress' | 'completed';
-  votes: number;
-  created_at: string;
-}
+const byStatus = (
+  items: readonly TRoadmapItem[],
+  status: TRoadmapItem['status']
+): TRoadmapItem[] => items.filter((item) => item.status === status);
 
-export default function RoadmapVote() {
-  const [items, setItems] = useState<RoadmapItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+function RoadmapVote(): ReactElement {
+  const {
+    items,
+    isLoading: loading,
+    pendingVoteId,
+    voteError,
+    toggleVote,
+  } = useRoadmap();
 
-  useEffect(() => {
-    fetch(getApiUrl('/v1/landing/cms/roadmap'))
-      .then(async (r) => {
-        if (!r.ok) {
-          throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-        }
-        return r.json();
-      })
-      .then((json) => {
-        const rawData = Array.isArray(json.data)
-          ? json.data
-          : Array.isArray(json.data?.data)
-            ? json.data.data
-            : Array.isArray(json)
-              ? json
-              : [];
-        setItems(rawData);
-      })
-      .catch((e) => {
-        console.error('ERROR GET Roadmap:', e);
-        setItems([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const upcomingItems = items.filter((i) => i.status === 'upcoming');
-  const inProgressItems = items.filter((i) => i.status === 'in_progress');
-  const completedItems = items.filter((i) => i.status === 'completed');
-
-  const handleVote = (id: string) => {
-    const alreadyVoted = votedIds.has(id);
-
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, votes: item.votes + (alreadyVoted ? -1 : 1) }
-          : item
-      )
-    );
-
-    if (alreadyVoted) {
-      setVotedIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    } else {
-      setVotedIds((prev) => new Set(prev).add(id));
-      fetch(getApiUrl(`/v1/landing/cms/roadmap/vote/${id}`), {
-        method: 'POST',
-      }).catch((err) => {
-        console.error('ERROR POST Vote:', err);
-      });
-    }
-  };
+  const upcomingItems = byStatus(items, ROADMAP_STATUS.UPCOMING);
+  const inProgressItems = byStatus(items, ROADMAP_STATUS.IN_PROGRESS);
+  const completedItems = byStatus(items, ROADMAP_STATUS.COMPLETED);
 
   if (loading) {
     return (
@@ -92,6 +42,12 @@ export default function RoadmapVote() {
           <h2 className="text-xl font-semibold text-gray-900">Vote Now</h2>
         </div>
 
+        {voteError && (
+          <p className="text-sm text-red-600 px-2" role="alert">
+            {voteError}
+          </p>
+        )}
+
         <div className="space-y-5">
           {upcomingItems.map((item) => (
             <div
@@ -107,19 +63,21 @@ export default function RoadmapVote() {
                 <p className="text-gray-600 text-sm mb-4">{item.description}</p>
                 <div className="flex items-center justify-between border-t border-gray-100 pt-3">
                   <button
-                    onClick={() => handleVote(item.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      votedIds.has(item.id)
+                    type="button"
+                    onClick={() => toggleVote(item)}
+                    disabled={pendingVoteId === item.id}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60 ${
+                      item.votedByMe
                         ? 'bg-primary-500 text-white hover:bg-primary-600'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     <BiUpvote
                       className={`w-4 h-4 ${
-                        votedIds.has(item.id) ? 'text-white' : 'text-gray-600'
+                        item.votedByMe ? 'text-white' : 'text-gray-600'
                       }`}
                     />
-                    <span>{votedIds.has(item.id) ? 'Voted' : 'Vote'}</span>
+                    <span>{item.votedByMe ? 'Voted' : 'Vote'}</span>
                   </button>
                   <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
                     <BiUpvote className="w-4 h-4 text-gray-500" />
@@ -224,3 +182,5 @@ export default function RoadmapVote() {
     </div>
   );
 }
+
+export default withQueryClient(RoadmapVote);
