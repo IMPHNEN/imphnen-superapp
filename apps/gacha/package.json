@@ -11,16 +11,20 @@
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
+    "@app/schemas": "workspace:*",
     "@hookform/resolvers": "catalog:",
     "@iconify/react": "catalog:",
     "@imphnen-frontend-service/service": "workspace:*",
     "@imphnen-frontend-service/ui": "workspace:*",
     "@imphnen-frontend-service/utils": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "catalog:",
-    "sonner": "catalog:"
+    "sonner": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",

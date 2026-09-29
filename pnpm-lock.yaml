@@ -425,6 +425,9 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@app/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)
@@ -440,6 +443,12 @@ importers:
       '@imphnen-frontend-service/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@orpc/client':
+        specifier: 'catalog:'
+        version: 1.15.4
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.104.0(react@19.3.0)
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.40(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -455,6 +464,9 @@ importers:
       sonner:
         specifier: 'catalog:'
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 'catalog:'
@@ -663,9 +675,21 @@ importers:
 
   apps/landing:
     dependencies:
+      '@app/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@astrojs/react':
         specifier: ^5.0.3
         version: 5.0.7(@types/node@22.20.4)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(jiti@2.7.0)(lightningcss@1.33.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tsx@4.23.15)(yaml@2.9.1)
+      '@imphnen-frontend-service/service':
+        specifier: workspace:*
+        version: link:../../packages/service
+      '@orpc/client':
+        specifier: 'catalog:'
+        version: 1.15.4
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.104.0(react@19.3.0)
       astro:
         specifier: ^6.1.5
         version: 6.4.8(@types/node@22.20.4)(jiti@2.7.0)(lightningcss@1.33.0)(rollup@4.63.5)(tsx@4.23.15)(yaml@2.9.1)

@@ -10,7 +10,11 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@app/schemas": "workspace:*",
     "@astrojs/react": "^5.0.3",
+    "@imphnen-frontend-service/service": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@tanstack/react-query": "catalog:",
     "astro": "^6.1.5",
     "react": "catalog:",
     "react-dom": "catalog:",
