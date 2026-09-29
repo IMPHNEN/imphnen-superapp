@@ -339,7 +339,7 @@ importers:
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@hookform/resolvers':
         specifier: 'catalog:'
-        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)
       '@iconify/react':
         specifier: 'catalog:'
         version: 6.0.2(react@19.3.0)
@@ -377,8 +377,8 @@ importers:
         specifier: 'catalog:'
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
       '@playwright/test':
         specifier: ^1.58.2
@@ -527,7 +527,7 @@ importers:
         version: link:../../packages/schemas
       '@hookform/resolvers':
         specifier: 'catalog:'
-        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)
       '@iconify/react':
         specifier: 'catalog:'
         version: 6.0.2(react@19.3.0)
@@ -565,8 +565,8 @@ importers:
         specifier: 'catalog:'
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 'catalog:'
@@ -774,7 +774,7 @@ importers:
         version: link:../../packages/permissions
       '@hookform/resolvers':
         specifier: 'catalog:'
-        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)
       '@iconify/react':
         specifier: 'catalog:'
         version: 6.0.2(react@19.3.0)
@@ -812,8 +812,8 @@ importers:
         specifier: 'catalog:'
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 'catalog:'
@@ -6721,9 +6721,6 @@ packages:
   youch@4.1.0-beta.10:
     resolution: {integrity: sha512-rLfVLB4FgQneDr0dv1oddCVZmKjcJ6yX6mS4pU82Mq/Dt9a3cLZQ62pDBL4AUO+uVrCvtWz3ZFUL2HFAFJ/BXQ==}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.6.5:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
@@ -7572,15 +7569,6 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
 
   '@floating-ui/utils@0.2.12': {}
-
-  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)':
-    dependencies:
-      '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.89.0(@types/react@19.3.0)(react@19.3.0)
-    optionalDependencies:
-      '@standard-schema/spec': 1.1.0
-      ajv: 8.20.0
-      zod: 3.25.76
 
   '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)':
     dependencies:
@@ -12034,8 +12022,6 @@ snapshots:
       '@speed-highlight/core': 1.2.24
       cookie: 1.1.1
       youch-core: 0.3.3
-
-  zod@3.25.76: {}
 
   zod@4.6.5: {}
 

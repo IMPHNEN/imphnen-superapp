@@ -27,7 +27,7 @@
     "react-dom": "catalog:",
     "react-hook-form": "catalog:",
     "sonner": "catalog:",
-    "zod": "^3.25.76"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",

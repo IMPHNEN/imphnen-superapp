@@ -37,7 +37,7 @@ export const teamFormSchema = z.object({
     .max(500, 'Deskripsi maksimal 500 karakter'),
   city: z.string().min(1, 'Kota harus diisi'),
   visibility: z.enum([TEAM_VISIBILITY.PUBLIC, TEAM_VISIBILITY.PRIVATE], {
-    errorMap: () => ({ message: 'Visibilitas tidak valid' }),
+    message: 'Visibilitas tidak valid',
   }),
 });
 export type TTeamForm = z.infer<typeof teamFormSchema>;
