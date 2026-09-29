@@ -34,10 +34,10 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx nx dev dimentorin',
+    command: 'moon run dimentorin:dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
-    cwd: '../../', // Run from root where Nx is available
+    cwd: '../../',
     timeout: 120000,
     env: {
       VITE_BYPASS_AUTH_MIDDLEWARE: 'true',

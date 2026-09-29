@@ -33,8 +33,6 @@ tasks:
       persistent: true
       runInCI: false
 
-  # Type errors predate the port (Nx never ran tsc). Re-enable in CI once clean.
-  # Type errors predate the port (Nx never ran tsc); flip runInCI back once clean.
   typecheck:
     command: 'pnpm typecheck'
     inputs:
@@ -43,18 +41,13 @@ tasks:
       - 'tsconfig*.json'
       - 'package.json'
       - '/tsconfig.base.json'
-    options:
-      runInCI: false
 
-  # Stale specs predate the port (the old CI never ran them); flip runInCI back once green.
   test:
     command: 'pnpm test'
     inputs:
       - 'src/**/*'
       - 'vite.config.*'
       - 'package.json'
-    options:
-      runInCI: false
 
   e2e:
     command: 'pnpm e2e'
