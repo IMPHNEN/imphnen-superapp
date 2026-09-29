@@ -16,6 +16,10 @@ export const RATE_LIMIT_POLICY = {
   MAX: 100,
   OTP_VERIFY_WINDOW_SECONDS: SECONDS_PER_MINUTE,
   OTP_VERIFY_MAX: 10,
+  SIGN_IN_WINDOW_SECONDS: SECONDS_PER_MINUTE,
+  SIGN_IN_MAX: 30,
+  SIGN_UP_WINDOW_SECONDS: SECONDS_PER_MINUTE,
+  SIGN_UP_MAX: 20,
   STORAGE: 'database',
   MODEL: 'rateLimit',
 } as const;
@@ -23,6 +27,8 @@ export const RATE_LIMIT_POLICY = {
 export const CLIENT_IP_HEADER = 'cf-connecting-ip';
 
 export const AUTH_PATH = {
+  SIGN_IN_EMAIL: '/sign-in/email',
+  SIGN_UP_EMAIL: '/sign-up/email',
   OTP_VERIFY_EMAIL: '/email-otp/verify-email',
   OTP_SIGN_IN: '/sign-in/email-otp',
   OTP_REQUEST_PASSWORD_RESET: '/email-otp/request-password-reset',
@@ -48,6 +54,14 @@ export const authRateLimitOf = (): BetterAuthOptions['rateLimit'] => ({
   window: RATE_LIMIT_POLICY.WINDOW_SECONDS,
   max: RATE_LIMIT_POLICY.MAX,
   customRules: {
+    [AUTH_PATH.SIGN_IN_EMAIL]: {
+      window: RATE_LIMIT_POLICY.SIGN_IN_WINDOW_SECONDS,
+      max: RATE_LIMIT_POLICY.SIGN_IN_MAX,
+    },
+    [AUTH_PATH.SIGN_UP_EMAIL]: {
+      window: RATE_LIMIT_POLICY.SIGN_UP_WINDOW_SECONDS,
+      max: RATE_LIMIT_POLICY.SIGN_UP_MAX,
+    },
     [AUTH_PATH.OTP_VERIFY_EMAIL]: {
       window: RATE_LIMIT_POLICY.OTP_VERIFY_WINDOW_SECONDS,
       max: RATE_LIMIT_POLICY.OTP_VERIFY_MAX,
