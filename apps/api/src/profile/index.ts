@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { profileRepoLayer } from '#/profile/infrastructure/profile-repository.ts';
 import { profileRouterBuild } from '#/profile/presentation/profile-router.ts';
 
-const profileLayer = Layer.empty;
-
 export const profileModule: {
-  layer: typeof profileLayer;
+  layer: typeof profileRepoLayer;
   routerBuild: typeof profileRouterBuild;
 } = {
-  layer: profileLayer,
+  layer: profileRepoLayer,
   routerBuild: profileRouterBuild,
 };

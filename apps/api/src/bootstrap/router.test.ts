@@ -47,7 +47,12 @@ A.forEach(
 const { routerBuild } = await import('#/bootstrap/router.ts');
 
 const PUBLIC_PROCEDURES: readonly string[] = ['health.check'];
-const SESSION_ONLY_PROCEDURES: readonly string[] = ['me.get'];
+const SESSION_ONLY_PROCEDURES: readonly string[] = [
+  'me.get',
+  'profile.get',
+  'profile.update',
+  'profile.avatarUpload',
+];
 
 const SESSION: TSession = {
   user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'viewer' },

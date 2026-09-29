@@ -1,1 +1,3 @@
-export const PROFILE_REPO_TAG = {} as const;
+export const PROFILE_REPO_TAG = {
+  PROFILE: 'app/ProfileRepo',
+} as const;
