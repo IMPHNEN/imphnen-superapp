@@ -14,7 +14,10 @@
       "migrations_dir": "drizzle"
     }
   ],
-  "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "imphnen-storage" }],
+  "r2_buckets": [
+    { "binding": "STORAGE", "bucket_name": "imphnen-storage" },
+    { "binding": "PRIVATE_STORAGE", "bucket_name": "imphnen-private" }
+  ],
   "send_email": [{ "name": "EMAIL" }],
   "vars": {
     "ENVIRONMENT": "production",

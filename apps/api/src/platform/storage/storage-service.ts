@@ -1,6 +1,7 @@
 import { Context, Effect, Layer } from 'effect';
-import { bindings, env } from '#/platform/config/env.ts';
+import { env } from '#/platform/config/env.ts';
 import { SERVICE_TAG } from '#/platform/service-tags.ts';
+import { bucketFor, isPrivateKey } from '#/platform/storage/storage-buckets.ts';
 import { EStorage } from '#/shared/errors.ts';
 import type { TServiceId } from '#/shared/service-id.ts';
 
@@ -24,8 +25,12 @@ export const StorageService = Context.Service<
   TStorageService
 >(SERVICE_TAG.STORAGE);
 
+const PRIVATE_URL = '';
+
 const publicUrlOf = (key: string): string =>
-  new URL(key, `${env.STORAGE_PUBLIC_URL.replace(/\/$/, '')}/`).toString();
+  isPrivateKey(key)
+    ? PRIVATE_URL
+    : new URL(key, `${env.STORAGE_PUBLIC_URL.replace(/\/$/, '')}/`).toString();
 
 export const storageServiceLayer = Layer.effect(
   StorageService,
@@ -34,7 +39,7 @@ export const storageServiceLayer = Layer.effect(
       put: (input) =>
         Effect.tryPromise({
           try: async (): Promise<string> => {
-            await bindings.STORAGE.put(input.key, input.body, {
+            await bucketFor(input.key).put(input.key, input.body, {
               httpMetadata: { contentType: input.contentType },
             });
             return publicUrlOf(input.key);
@@ -43,12 +48,12 @@ export const storageServiceLayer = Layer.effect(
         }),
       remove: (key) =>
         Effect.tryPromise({
-          try: (): Promise<void> => bindings.STORAGE.delete(key),
+          try: (): Promise<void> => bucketFor(key).delete(key),
           catch: (cause) => new EStorage({ cause }),
         }),
       get: (key) =>
         Effect.tryPromise({
-          try: (): Promise<R2ObjectBody | null> => bindings.STORAGE.get(key),
+          try: (): Promise<R2ObjectBody | null> => bucketFor(key).get(key),
           catch: (cause) => new EStorage({ cause }),
         }),
       publicUrlOf,
