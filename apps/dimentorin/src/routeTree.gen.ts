@@ -18,6 +18,7 @@ import { Route as SiteArticlesRouteImport } from './routes/_site/articles'
 import { Route as SiteMentoringRouteImport } from './routes/_site/mentoring'
 import { Route as SiteProfileRouteImport } from './routes/_site/profile'
 import { Route as SiteResourcesRouteImport } from './routes/_site/resources'
+import { Route as AuthenticatedAuthRegisterMentorRouteImport } from './routes/_authenticated/auth/register-mentor'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedDashboardArticleBuilderRouteImport } from './routes/_authenticated/dashboard/article-builder'
 import { Route as PublicAuthForgotRouteImport } from './routes/_public/auth/forgot'
@@ -25,10 +26,11 @@ import { Route as PublicAuthGoogleCallbackRouteImport } from './routes/_public/a
 import { Route as PublicAuthGoogleOauthPopupRouteImport } from './routes/_public/auth/google-oauth-popup'
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 import { Route as PublicAuthRegisterRouteImport } from './routes/_public/auth/register'
-import { Route as PublicAuthRegisterMentorRouteImport } from './routes/_public/auth/register-mentor'
 import { Route as SiteArticlesSlugRouteImport } from './routes/_site/articles_/$slug'
 import { Route as SiteMentoringIdRouteImport } from './routes/_site/mentoring_/$id'
 import { Route as SiteProfileIdRouteImport } from './routes/_site/profile_/$id'
+import { Route as AuthenticatedAuthRegisterMentorPendingRouteImport } from './routes/_authenticated/auth/register-mentor_/pending'
+import { Route as AuthenticatedAuthRegisterMentorSuccessRouteImport } from './routes/_authenticated/auth/register-mentor_/success'
 import { Route as AuthenticatedDashboardMentorIndexRouteImport } from './routes/_authenticated/dashboard/mentor/index'
 import { Route as AuthenticatedDashboardMentorFeedbackRouteImport } from './routes/_authenticated/dashboard/mentor/feedback'
 import { Route as AuthenticatedDashboardMentorListMenteeRouteImport } from './routes/_authenticated/dashboard/mentor/list-mentee'
@@ -41,8 +43,6 @@ import { Route as AuthenticatedDashboardUserRoadmapDiscoveryRouteImport } from '
 import { Route as AuthenticatedDashboardUserSettingsRouteImport } from './routes/_authenticated/dashboard/user/settings'
 import { Route as PublicAuthForgotOtpRouteImport } from './routes/_public/auth/forgot_/otp'
 import { Route as PublicAuthForgotSummonRouteImport } from './routes/_public/auth/forgot_/summon'
-import { Route as PublicAuthRegisterMentorPendingRouteImport } from './routes/_public/auth/register-mentor_/pending'
-import { Route as PublicAuthRegisterMentorSuccessRouteImport } from './routes/_public/auth/register-mentor_/success'
 import { Route as PublicAuthRegisterOtpRouteImport } from './routes/_public/auth/register_/otp'
 import { Route as PublicAuthRegisterSuccessRouteImport } from './routes/_public/auth/register_/success'
 import { Route as AuthenticatedDashboardMentorSettingsIndexRouteImport } from './routes/_authenticated/dashboard/mentor/settings.index'
@@ -101,6 +101,12 @@ const SiteResourcesRoute = SiteResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => SiteRoute,
 } as any)
+const AuthenticatedAuthRegisterMentorRoute =
+  AuthenticatedAuthRegisterMentorRouteImport.update({
+    id: '/auth/register-mentor',
+    path: '/auth/register-mentor',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
@@ -140,12 +146,6 @@ const PublicAuthRegisterRoute = PublicAuthRegisterRouteImport.update({
   path: '/auth/register',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicAuthRegisterMentorRoute =
-  PublicAuthRegisterMentorRouteImport.update({
-    id: '/auth/register-mentor',
-    path: '/auth/register-mentor',
-    getParentRoute: () => PublicRoute,
-  } as any)
 const SiteArticlesSlugRoute = SiteArticlesSlugRouteImport.update({
   id: '/articles_/$slug',
   path: '/articles/$slug',
@@ -161,6 +161,18 @@ const SiteProfileIdRoute = SiteProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => SiteRoute,
 } as any)
+const AuthenticatedAuthRegisterMentorPendingRoute =
+  AuthenticatedAuthRegisterMentorPendingRouteImport.update({
+    id: '/auth/register-mentor_/pending',
+    path: '/auth/register-mentor/pending',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAuthRegisterMentorSuccessRoute =
+  AuthenticatedAuthRegisterMentorSuccessRouteImport.update({
+    id: '/auth/register-mentor_/success',
+    path: '/auth/register-mentor/success',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardMentorIndexRoute =
   AuthenticatedDashboardMentorIndexRouteImport.update({
     id: '/mentor/',
@@ -231,18 +243,6 @@ const PublicAuthForgotSummonRoute = PublicAuthForgotSummonRouteImport.update({
   path: '/auth/forgot/summon',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicAuthRegisterMentorPendingRoute =
-  PublicAuthRegisterMentorPendingRouteImport.update({
-    id: '/auth/register-mentor_/pending',
-    path: '/auth/register-mentor/pending',
-    getParentRoute: () => PublicRoute,
-  } as any)
-const PublicAuthRegisterMentorSuccessRoute =
-  PublicAuthRegisterMentorSuccessRouteImport.update({
-    id: '/auth/register-mentor_/success',
-    path: '/auth/register-mentor/success',
-    getParentRoute: () => PublicRoute,
-  } as any)
 const PublicAuthRegisterOtpRoute = PublicAuthRegisterOtpRouteImport.update({
   id: '/auth/register_/otp',
   path: '/auth/register/otp',
@@ -340,17 +340,19 @@ export interface FileRoutesByFullPath {
   '/mentoring': typeof SiteMentoringRoute
   '/profile': typeof SiteProfileRoute
   '/resources': typeof SiteResourcesRoute
+  '/auth/register-mentor': typeof AuthenticatedAuthRegisterMentorRoute
   '/dashboard/article-builder': typeof AuthenticatedDashboardArticleBuilderRoute
   '/auth/forgot': typeof PublicAuthForgotRoute
   '/auth/google-callback': typeof PublicAuthGoogleCallbackRoute
   '/auth/google-oauth-popup': typeof PublicAuthGoogleOauthPopupRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
-  '/auth/register-mentor': typeof PublicAuthRegisterMentorRoute
   '/articles/$slug': typeof SiteArticlesSlugRoute
   '/mentoring/$id': typeof SiteMentoringIdRoute
   '/profile/$id': typeof SiteProfileIdRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/auth/register-mentor/pending': typeof AuthenticatedAuthRegisterMentorPendingRoute
+  '/auth/register-mentor/success': typeof AuthenticatedAuthRegisterMentorSuccessRoute
   '/dashboard/mentor/feedback': typeof AuthenticatedDashboardMentorFeedbackRoute
   '/dashboard/mentor/list-mentee': typeof AuthenticatedDashboardMentorListMenteeRoute
   '/dashboard/mentor/mentoring-setup': typeof AuthenticatedDashboardMentorMentoringSetupRoute
@@ -361,8 +363,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/user/settings': typeof AuthenticatedDashboardUserSettingsRouteWithChildren
   '/auth/forgot/otp': typeof PublicAuthForgotOtpRoute
   '/auth/forgot/summon': typeof PublicAuthForgotSummonRoute
-  '/auth/register-mentor/pending': typeof PublicAuthRegisterMentorPendingRoute
-  '/auth/register-mentor/success': typeof PublicAuthRegisterMentorSuccessRoute
   '/auth/register/otp': typeof PublicAuthRegisterOtpRoute
   '/auth/register/success': typeof PublicAuthRegisterSuccessRoute
   '/dashboard/mentor/': typeof AuthenticatedDashboardMentorIndexRoute
@@ -387,17 +387,19 @@ export interface FileRoutesByTo {
   '/mentoring': typeof SiteMentoringRoute
   '/profile': typeof SiteProfileRoute
   '/resources': typeof SiteResourcesRoute
+  '/auth/register-mentor': typeof AuthenticatedAuthRegisterMentorRoute
   '/dashboard/article-builder': typeof AuthenticatedDashboardArticleBuilderRoute
   '/auth/forgot': typeof PublicAuthForgotRoute
   '/auth/google-callback': typeof PublicAuthGoogleCallbackRoute
   '/auth/google-oauth-popup': typeof PublicAuthGoogleOauthPopupRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/register': typeof PublicAuthRegisterRoute
-  '/auth/register-mentor': typeof PublicAuthRegisterMentorRoute
   '/articles/$slug': typeof SiteArticlesSlugRoute
   '/mentoring/$id': typeof SiteMentoringIdRoute
   '/profile/$id': typeof SiteProfileIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/auth/register-mentor/pending': typeof AuthenticatedAuthRegisterMentorPendingRoute
+  '/auth/register-mentor/success': typeof AuthenticatedAuthRegisterMentorSuccessRoute
   '/dashboard/mentor/feedback': typeof AuthenticatedDashboardMentorFeedbackRoute
   '/dashboard/mentor/list-mentee': typeof AuthenticatedDashboardMentorListMenteeRoute
   '/dashboard/mentor/mentoring-setup': typeof AuthenticatedDashboardMentorMentoringSetupRoute
@@ -407,8 +409,6 @@ export interface FileRoutesByTo {
   '/dashboard/user/settings': typeof AuthenticatedDashboardUserSettingsRouteWithChildren
   '/auth/forgot/otp': typeof PublicAuthForgotOtpRoute
   '/auth/forgot/summon': typeof PublicAuthForgotSummonRoute
-  '/auth/register-mentor/pending': typeof PublicAuthRegisterMentorPendingRoute
-  '/auth/register-mentor/success': typeof PublicAuthRegisterMentorSuccessRoute
   '/auth/register/otp': typeof PublicAuthRegisterOtpRoute
   '/auth/register/success': typeof PublicAuthRegisterSuccessRoute
   '/dashboard/mentor': typeof AuthenticatedDashboardMentorIndexRoute
@@ -438,17 +438,19 @@ export interface FileRoutesById {
   '/_site/mentoring': typeof SiteMentoringRoute
   '/_site/profile': typeof SiteProfileRoute
   '/_site/resources': typeof SiteResourcesRoute
+  '/_authenticated/auth/register-mentor': typeof AuthenticatedAuthRegisterMentorRoute
   '/_authenticated/dashboard/article-builder': typeof AuthenticatedDashboardArticleBuilderRoute
   '/_public/auth/forgot': typeof PublicAuthForgotRoute
   '/_public/auth/google-callback': typeof PublicAuthGoogleCallbackRoute
   '/_public/auth/google-oauth-popup': typeof PublicAuthGoogleOauthPopupRoute
   '/_public/auth/login': typeof PublicAuthLoginRoute
   '/_public/auth/register': typeof PublicAuthRegisterRoute
-  '/_public/auth/register-mentor': typeof PublicAuthRegisterMentorRoute
   '/_site/articles_/$slug': typeof SiteArticlesSlugRoute
   '/_site/mentoring_/$id': typeof SiteMentoringIdRoute
   '/_site/profile_/$id': typeof SiteProfileIdRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/auth/register-mentor_/pending': typeof AuthenticatedAuthRegisterMentorPendingRoute
+  '/_authenticated/auth/register-mentor_/success': typeof AuthenticatedAuthRegisterMentorSuccessRoute
   '/_authenticated/dashboard/mentor/feedback': typeof AuthenticatedDashboardMentorFeedbackRoute
   '/_authenticated/dashboard/mentor/list-mentee': typeof AuthenticatedDashboardMentorListMenteeRoute
   '/_authenticated/dashboard/mentor/mentoring-setup': typeof AuthenticatedDashboardMentorMentoringSetupRoute
@@ -459,8 +461,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/user/settings': typeof AuthenticatedDashboardUserSettingsRouteWithChildren
   '/_public/auth/forgot_/otp': typeof PublicAuthForgotOtpRoute
   '/_public/auth/forgot_/summon': typeof PublicAuthForgotSummonRoute
-  '/_public/auth/register-mentor_/pending': typeof PublicAuthRegisterMentorPendingRoute
-  '/_public/auth/register-mentor_/success': typeof PublicAuthRegisterMentorSuccessRoute
   '/_public/auth/register_/otp': typeof PublicAuthRegisterOtpRoute
   '/_public/auth/register_/success': typeof PublicAuthRegisterSuccessRoute
   '/_authenticated/dashboard/mentor/': typeof AuthenticatedDashboardMentorIndexRoute
@@ -488,17 +488,19 @@ export interface FileRouteTypes {
     | '/mentoring'
     | '/profile'
     | '/resources'
+    | '/auth/register-mentor'
     | '/dashboard/article-builder'
     | '/auth/forgot'
     | '/auth/google-callback'
     | '/auth/google-oauth-popup'
     | '/auth/login'
     | '/auth/register'
-    | '/auth/register-mentor'
     | '/articles/$slug'
     | '/mentoring/$id'
     | '/profile/$id'
     | '/dashboard/'
+    | '/auth/register-mentor/pending'
+    | '/auth/register-mentor/success'
     | '/dashboard/mentor/feedback'
     | '/dashboard/mentor/list-mentee'
     | '/dashboard/mentor/mentoring-setup'
@@ -509,8 +511,6 @@ export interface FileRouteTypes {
     | '/dashboard/user/settings'
     | '/auth/forgot/otp'
     | '/auth/forgot/summon'
-    | '/auth/register-mentor/pending'
-    | '/auth/register-mentor/success'
     | '/auth/register/otp'
     | '/auth/register/success'
     | '/dashboard/mentor/'
@@ -535,17 +535,19 @@ export interface FileRouteTypes {
     | '/mentoring'
     | '/profile'
     | '/resources'
+    | '/auth/register-mentor'
     | '/dashboard/article-builder'
     | '/auth/forgot'
     | '/auth/google-callback'
     | '/auth/google-oauth-popup'
     | '/auth/login'
     | '/auth/register'
-    | '/auth/register-mentor'
     | '/articles/$slug'
     | '/mentoring/$id'
     | '/profile/$id'
     | '/dashboard'
+    | '/auth/register-mentor/pending'
+    | '/auth/register-mentor/success'
     | '/dashboard/mentor/feedback'
     | '/dashboard/mentor/list-mentee'
     | '/dashboard/mentor/mentoring-setup'
@@ -555,8 +557,6 @@ export interface FileRouteTypes {
     | '/dashboard/user/settings'
     | '/auth/forgot/otp'
     | '/auth/forgot/summon'
-    | '/auth/register-mentor/pending'
-    | '/auth/register-mentor/success'
     | '/auth/register/otp'
     | '/auth/register/success'
     | '/dashboard/mentor'
@@ -585,17 +585,19 @@ export interface FileRouteTypes {
     | '/_site/mentoring'
     | '/_site/profile'
     | '/_site/resources'
+    | '/_authenticated/auth/register-mentor'
     | '/_authenticated/dashboard/article-builder'
     | '/_public/auth/forgot'
     | '/_public/auth/google-callback'
     | '/_public/auth/google-oauth-popup'
     | '/_public/auth/login'
     | '/_public/auth/register'
-    | '/_public/auth/register-mentor'
     | '/_site/articles_/$slug'
     | '/_site/mentoring_/$id'
     | '/_site/profile_/$id'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/auth/register-mentor_/pending'
+    | '/_authenticated/auth/register-mentor_/success'
     | '/_authenticated/dashboard/mentor/feedback'
     | '/_authenticated/dashboard/mentor/list-mentee'
     | '/_authenticated/dashboard/mentor/mentoring-setup'
@@ -606,8 +608,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/user/settings'
     | '/_public/auth/forgot_/otp'
     | '/_public/auth/forgot_/summon'
-    | '/_public/auth/register-mentor_/pending'
-    | '/_public/auth/register-mentor_/success'
     | '/_public/auth/register_/otp'
     | '/_public/auth/register_/success'
     | '/_authenticated/dashboard/mentor/'
@@ -699,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteResourcesRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_authenticated/auth/register-mentor': {
+      id: '/_authenticated/auth/register-mentor'
+      path: '/auth/register-mentor'
+      fullPath: '/auth/register-mentor'
+      preLoaderRoute: typeof AuthenticatedAuthRegisterMentorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/'
@@ -748,13 +755,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAuthRegisterRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/auth/register-mentor': {
-      id: '/_public/auth/register-mentor'
-      path: '/auth/register-mentor'
-      fullPath: '/auth/register-mentor'
-      preLoaderRoute: typeof PublicAuthRegisterMentorRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_site/articles_/$slug': {
       id: '/_site/articles_/$slug'
       path: '/articles/$slug'
@@ -775,6 +775,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile/$id'
       preLoaderRoute: typeof SiteProfileIdRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/_authenticated/auth/register-mentor_/pending': {
+      id: '/_authenticated/auth/register-mentor_/pending'
+      path: '/auth/register-mentor/pending'
+      fullPath: '/auth/register-mentor/pending'
+      preLoaderRoute: typeof AuthenticatedAuthRegisterMentorPendingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/auth/register-mentor_/success': {
+      id: '/_authenticated/auth/register-mentor_/success'
+      path: '/auth/register-mentor/success'
+      fullPath: '/auth/register-mentor/success'
+      preLoaderRoute: typeof AuthenticatedAuthRegisterMentorSuccessRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/mentor/': {
       id: '/_authenticated/dashboard/mentor/'
@@ -858,20 +872,6 @@ declare module '@tanstack/react-router' {
       path: '/auth/forgot/summon'
       fullPath: '/auth/forgot/summon'
       preLoaderRoute: typeof PublicAuthForgotSummonRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register-mentor_/pending': {
-      id: '/_public/auth/register-mentor_/pending'
-      path: '/auth/register-mentor/pending'
-      fullPath: '/auth/register-mentor/pending'
-      preLoaderRoute: typeof PublicAuthRegisterMentorPendingRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/auth/register-mentor_/success': {
-      id: '/_public/auth/register-mentor_/success'
-      path: '/auth/register-mentor/success'
-      fullPath: '/auth/register-mentor/success'
-      preLoaderRoute: typeof PublicAuthRegisterMentorSuccessRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/auth/register_/otp': {
@@ -1093,10 +1093,18 @@ const AuthenticatedDashboardRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedAuthRegisterMentorRoute: typeof AuthenticatedAuthRegisterMentorRoute
+  AuthenticatedAuthRegisterMentorPendingRoute: typeof AuthenticatedAuthRegisterMentorPendingRoute
+  AuthenticatedAuthRegisterMentorSuccessRoute: typeof AuthenticatedAuthRegisterMentorSuccessRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedAuthRegisterMentorRoute: AuthenticatedAuthRegisterMentorRoute,
+  AuthenticatedAuthRegisterMentorPendingRoute:
+    AuthenticatedAuthRegisterMentorPendingRoute,
+  AuthenticatedAuthRegisterMentorSuccessRoute:
+    AuthenticatedAuthRegisterMentorSuccessRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -1109,11 +1117,8 @@ interface PublicRouteChildren {
   PublicAuthGoogleOauthPopupRoute: typeof PublicAuthGoogleOauthPopupRoute
   PublicAuthLoginRoute: typeof PublicAuthLoginRoute
   PublicAuthRegisterRoute: typeof PublicAuthRegisterRoute
-  PublicAuthRegisterMentorRoute: typeof PublicAuthRegisterMentorRoute
   PublicAuthForgotOtpRoute: typeof PublicAuthForgotOtpRoute
   PublicAuthForgotSummonRoute: typeof PublicAuthForgotSummonRoute
-  PublicAuthRegisterMentorPendingRoute: typeof PublicAuthRegisterMentorPendingRoute
-  PublicAuthRegisterMentorSuccessRoute: typeof PublicAuthRegisterMentorSuccessRoute
   PublicAuthRegisterOtpRoute: typeof PublicAuthRegisterOtpRoute
   PublicAuthRegisterSuccessRoute: typeof PublicAuthRegisterSuccessRoute
 }
@@ -1124,11 +1129,8 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicAuthGoogleOauthPopupRoute: PublicAuthGoogleOauthPopupRoute,
   PublicAuthLoginRoute: PublicAuthLoginRoute,
   PublicAuthRegisterRoute: PublicAuthRegisterRoute,
-  PublicAuthRegisterMentorRoute: PublicAuthRegisterMentorRoute,
   PublicAuthForgotOtpRoute: PublicAuthForgotOtpRoute,
   PublicAuthForgotSummonRoute: PublicAuthForgotSummonRoute,
-  PublicAuthRegisterMentorPendingRoute: PublicAuthRegisterMentorPendingRoute,
-  PublicAuthRegisterMentorSuccessRoute: PublicAuthRegisterMentorSuccessRoute,
   PublicAuthRegisterOtpRoute: PublicAuthRegisterOtpRoute,
   PublicAuthRegisterSuccessRoute: PublicAuthRegisterSuccessRoute,
 }
