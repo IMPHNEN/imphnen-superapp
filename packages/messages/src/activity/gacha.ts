@@ -1,7 +1,4 @@
-import {
-  ACTIVITY_ACTION,
-  ACTIVITY_RESOURCE_TYPE,
-} from '@app/activity';
+import { ACTIVITY_ACTION, ACTIVITY_RESOURCE_TYPE } from '@app/activity';
 
 export const GACHA_ACTIVITY_ACTION_LABEL = {
   [ACTIVITY_ACTION.GACHA_ITEM_CREATE]: 'Gacha item created',
