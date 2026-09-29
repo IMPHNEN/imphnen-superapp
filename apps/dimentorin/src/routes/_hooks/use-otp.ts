@@ -1,24 +1,32 @@
 import { useForm } from 'react-hook-form';
-import {
-  type TVerifyOtpRequest,
-  verifyEmailSchema,
-  usePostVerifyEmail,
-} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { useVerifyEmailOtp } from '@imphnen-frontend-service/service/session';
+import { errorMessage, otpFormSchema, type TOtpForm } from './auth-schemas';
 
-export const useOtpHook = () => {
-  const form = useForm<TVerifyOtpRequest>({
-    resolver: zodResolver(verifyEmailSchema),
+export const useOtpHook = (email: string) => {
+  const navigate = useNavigate();
+  const verify = useVerifyEmailOtp();
+
+  const form = useForm<TOtpForm>({
+    resolver: zodResolver(otpFormSchema),
     mode: 'all',
+    defaultValues: { otp: '' },
   });
 
-  const { mutate, isPending: isLoading } = usePostVerifyEmail();
-
-  const onSubmit = form.handleSubmit(() => mutate());
+  const onSubmit = form.handleSubmit(async ({ otp }) => {
+    try {
+      await verify.mutateAsync({ email, otp });
+      await navigate({ to: '/auth/register/success' });
+    } catch (err) {
+      toast.error(errorMessage(err, 'Kode OTP tidak valid'));
+    }
+  });
 
   return {
     form,
     onSubmit,
-    isLoading,
+    isLoading: verify.isPending,
   };
 };

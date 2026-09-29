@@ -1,14 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { FC, type ReactElement } from 'react';
-import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import type { ReactElement } from 'react';
+import {
+  ControlledInputField,
+  RegisterResetBanner,
+} from '@imphnen-frontend-service/ui/organisms';
 import { ForgotStep } from '@imphnen-frontend-service/ui/molecules';
-import { Button, Input } from '@imphnen-frontend-service/ui/atoms';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { useResetPasswordForm } from '../../../_hooks/use-password-reset';
 
 export const Route = createFileRoute('/_public/auth/forgot_/summon')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    token: typeof search.token === 'string' ? search.token : '',
+  }),
   component: ForgotSummonPage,
 });
 
 function ForgotSummonPage(): ReactElement {
+  const { token } = Route.useSearch();
+  const { form, onSubmit, isLoading } = useResetPasswordForm(token);
+
   return (
     <div className="flex flex-col justify-center items-center min-h-screen py-[60px] px-[80px]">
       <div className="bg-white min-w-[1120px] min-h-[712px] p-10 rounded-2xl shadow-md flex gap-6">
@@ -25,20 +35,36 @@ function ForgotSummonPage(): ReactElement {
               🔥⚡
             </span>
           </h5>
-          <div className="my-4">
-            <h6 className="text-gray-700">Password Baru</h6>
-            <Input
-              className="w-full"
+          {!token && (
+            <p className="mt-4 text-sm text-red-600">
+              Link reset password tidak valid.{' '}
+              <Link to="/auth/forgot" className="underline">
+                Minta link baru
+              </Link>
+            </p>
+          )}
+          <form id="reset-password-form" onSubmit={onSubmit} className="my-4">
+            <ControlledInputField
+              label="Password Baru"
+              name="password"
               type="password"
+              size="lg"
+              control={form.control}
               placeholder="Buat password sekokoh armor legendary!"
+              disabled={isLoading || !token}
             />
-            <h6 className="text-gray-700 mt-5">Ulang Password Baru</h6>
-            <Input
-              className="w-full"
-              type="password"
-              placeholder="Pastikan Cocok! Jangan sampai ada typo, Senpai~!"
-            />
-          </div>
+            <div className="mt-5">
+              <ControlledInputField
+                label="Ulang Password Baru"
+                name="confirm_password"
+                type="password"
+                size="lg"
+                control={form.control}
+                placeholder="Pastikan Cocok! Jangan sampai ada typo, Senpai~!"
+                disabled={isLoading || !token}
+              />
+            </div>
+          </form>
           <div className="mb-4 text-gray-700 flex flex-col gap-3 text-sm">
             <h6>
               <span role="img" aria-label="emoji">
@@ -63,7 +89,14 @@ function ForgotSummonPage(): ReactElement {
               Masukkan password baru dan bersiaplah untuk kembali bertualang!
             </h6>
           </div>
-          <Button className="mt-5">Summon Password Baru!</Button>
+          <Button
+            type="submit"
+            form="reset-password-form"
+            className="mt-5"
+            disabled={!token || !form.formState.isValid || isLoading}
+          >
+            {isLoading ? 'Memproses...' : 'Summon Password Baru!'}
+          </Button>
         </div>
       </div>
     </div>

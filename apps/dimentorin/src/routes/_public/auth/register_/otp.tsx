@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { FC, type ReactElement, useEffect, useState } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 import {
   ControlledInputField,
   RegisterResetBanner,
@@ -16,8 +16,8 @@ export const Route = createFileRoute('/_public/auth/register_/otp')({
 });
 
 function RegisterOtpPage(): ReactElement {
-  const { form, onSubmit, isLoading } = useOtpHook();
   const { email } = Route.useSearch();
+  const { form, onSubmit, isLoading } = useOtpHook(email);
   const [disabled, setDisabled] = useState(true);
   const [timeLeft, setTimeLeft] = useState(5 * 60);
   const { resendOTP } = useResendOtpHook();
@@ -71,7 +71,7 @@ function RegisterOtpPage(): ReactElement {
               className="mt-2"
               disabled={disabled}
               onClick={() => {
-                resendOTP({ email: email || '' });
+                resendOTP({ email });
                 setDisabled(true);
                 setTimeLeft(5 * 60);
               }}
@@ -79,8 +79,9 @@ function RegisterOtpPage(): ReactElement {
               Kirim ulang otp {disabled ? `(${formatTime(timeLeft)})` : ``}
             </Button>
             <Button
+              type="submit"
               className="xl:w-full mt-2"
-              disabled={!form.formState.isValid || isLoading}
+              disabled={!form.formState.isValid || isLoading || !email}
             >
               Linked Start !!!
             </Button>

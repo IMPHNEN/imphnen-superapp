@@ -1,8 +1,8 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { SessionToken } from '@imphnen-frontend-service/service';
+import { ensureMe } from '../libs/session/ensure-me';
 
 export const Route = createFileRoute('/_authenticated')({
-  beforeLoad: () => {
+  beforeLoad: async () => {
     // Development-only bypass explicitly requested via environment flags
     const bypassAuth =
       import.meta.env.MODE === 'development' &&
@@ -12,8 +12,8 @@ export const Route = createFileRoute('/_authenticated')({
       return;
     }
 
-    const session = SessionToken.get();
-    if (!session?.token?.access_token) {
+    const me = await ensureMe();
+    if (!me) {
       throw redirect({ to: '/auth/login' });
     }
   },

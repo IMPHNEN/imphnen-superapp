@@ -1,9 +1,6 @@
 import { Navigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import {
-  useAuthStore,
-  useSessionQuery,
-} from '@imphnen-frontend-service/service';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { cn } from '@imphnen-frontend-service/utils';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
@@ -21,15 +18,16 @@ interface MentorSettingsContentProps {
 }
 
 export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
-  const { session } = useAuthStore();
-  const { data: meData } = useSessionQuery();
+  const { me } = useCurrentUser();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [twoStepAuthStep, setTwoStepAuthStep] = useState<
     'off' | 'input-email' | 'input-otp' | 'done'
   >('off');
   const [isBankConnected, setIsBankConnected] = useState(false);
 
-  const user = session?.user;
+  const user = me?.user;
+  // Two-step authentication has no backend; the toggle stays a mock.
+  const isTwoFactorEnabled = false;
 
   const sections = [
     {
@@ -91,7 +89,7 @@ export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
             <div className="flex items-center gap-6 mb-12">
               <div className="w-[120px] h-[120px] rounded-full bg-bg-placeholder overflow-hidden border-2 border-neutral-50">
                 <img
-                  src={user?.avatar || '/image/mascot-character.webp'}
+                  src={user?.image || '/image/mascot-character.webp'}
                   alt="Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -121,7 +119,7 @@ export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
                   <input
                     type="text"
                     placeholder="Rizal"
-                    defaultValue={user?.fullname?.split(' ')[0] || ''}
+                    defaultValue={user?.name?.split(' ')[0] || ''}
                     className="w-full h-[43px] px-5 border border-neutral-200 rounded-sm text-[15px] text-[#6d6d6d] outline-none focus:border-primary-accent transition-all"
                   />
                 </div>
@@ -133,7 +131,7 @@ export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
                     type="text"
                     placeholder="Syaepulloh"
                     defaultValue={
-                      user?.fullname?.split(' ').slice(1).join(' ') || ''
+                      user?.name?.split(' ').slice(1).join(' ') || ''
                     }
                     className="w-full h-[43px] px-5 border border-neutral-200 rounded-sm text-[15px] text-[#6d6d6d] outline-none focus:border-primary-accent transition-all"
                   />
@@ -184,17 +182,17 @@ export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
                 <button
                   onClick={() =>
                     setTwoStepAuthStep(
-                      meData?.user?.is_active ? 'input-email' : 'input-email'
+                      isTwoFactorEnabled ? 'input-email' : 'input-email'
                     )
                   }
                   className={cn(
                     'h-[34px] px-6 rounded-sm text-xs font-semibold transition-all cursor-pointer',
-                    meData?.user?.is_active
+                    isTwoFactorEnabled
                       ? 'bg-red-50 text-red-600 border border-red-100 hover:bg-red-100'
                       : 'bg-primary-accent text-white hover:opacity-90'
                   )}
                 >
-                  {meData?.user?.is_active ? 'Nonaktifkan 2FA' : 'Aktifkan 2FA'}
+                  {isTwoFactorEnabled ? 'Nonaktifkan 2FA' : 'Aktifkan 2FA'}
                 </button>
               </div>
             </div>
@@ -869,12 +867,12 @@ export function MentorSettingsContent({ section }: MentorSettingsContentProps) {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-[23px] font-bold text-[#454545]">
-                    {meData?.user?.is_active
+                    {isTwoFactorEnabled
                       ? '2FA Berhasil Dinonaktifkan!'
                       : '2FA Berhasil Diaktifkan!'}
                   </h3>
                   <p className="text-[15px] text-[#888888] leading-relaxed px-4">
-                    {meData?.user?.is_active
+                    {isTwoFactorEnabled
                       ? 'Fitur autentikasi telah dinonaktifkan dari akun kamu.'
                       : 'Akun kamu sekarang lebih aman dengan verifikasi dua langkah.'}
                   </p>

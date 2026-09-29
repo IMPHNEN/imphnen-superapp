@@ -1,10 +1,15 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { SessionToken } from '@imphnen-frontend-service/service';
+import { ensureMe } from '../libs/session/ensure-me';
+
+const SESSION_ALLOWED_PATHS = ['/auth/register/success'];
 
 export const Route = createFileRoute('/_public')({
-  beforeLoad: () => {
-    const session = SessionToken.get();
-    if (session?.token?.access_token) {
+  beforeLoad: async ({ location }) => {
+    // Email verification signs the user in, so the success page must stay
+    // reachable with a session.
+    if (SESSION_ALLOWED_PATHS.includes(location.pathname)) return;
+    const me = await ensureMe();
+    if (me) {
       throw redirect({ to: '/dashboard' });
     }
   },

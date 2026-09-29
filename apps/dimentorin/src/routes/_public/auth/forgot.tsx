@@ -1,51 +1,21 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { type ReactElement, useState } from 'react';
 import {
   RegisterResetBanner,
   ControlledInputField,
 } from '@imphnen-frontend-service/ui/organisms';
 import { ForgotStep } from '@imphnen-frontend-service/ui/molecules';
-import { toast } from 'sonner';
-
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useForgotPasswordForm } from '../../_hooks/use-password-reset';
 
 export const Route = createFileRoute('/_public/auth/forgot')({
   component: ForgotPasswordPage,
 });
 
-const forgotSchema = z
-  .object({
-    email: z.string().email('Email harus valid'),
-    otp_code: z.string().min(6, 'Minimal 6 digit'),
-    password: z.string().min(8, 'Minimal 8 karakter'),
-    confirm_password: z.string(),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: 'Password tidak cocok',
-    path: ['confirm_password'],
-  });
-
-type TForgotFields = z.infer<typeof forgotSchema>;
-
 function ForgotPasswordPage(): ReactElement {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const { control } = useForm<TForgotFields>({
-    resolver: zodResolver(forgotSchema),
-    mode: 'onChange',
-    defaultValues: {
-      email: '',
-      otp_code: '',
-      password: '',
-      confirm_password: '',
-    },
-  });
-
-  const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-  };
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const { form, onSubmit, resend, isLoading } =
+    useForgotPasswordForm(setSentTo);
+  const step = sentTo ? 2 : 1;
 
   return (
     <div className="min-h-screen bg-primary-50 flex items-center justify-center p-5">
@@ -58,7 +28,7 @@ function ForgotPasswordPage(): ReactElement {
           </div>
 
           {step === 1 && (
-            <div className="w-full max-w-[493px]">
+            <form onSubmit={onSubmit} className="w-full max-w-[493px]">
               <div className="mb-8 text-left">
                 <h1 className="text-[37px] font-semibold leading-[1.2] text-text-dark mb-2">
                   Lupa Password?
@@ -73,112 +43,45 @@ function ForgotPasswordPage(): ReactElement {
                   label="Email"
                   name="email"
                   size="lg"
-                  control={control}
+                  control={form.control}
                   placeholder="Masukkan email-mu yang terdaftar"
+                  disabled={isLoading}
                 />
               </div>
 
               <div className="mt-10">
                 <button
-                  type="button"
-                  onClick={handleNext}
+                  type="submit"
+                  disabled={!form.formState.isValid || isLoading}
                   className="w-full h-[34px] bg-primary-accent text-white rounded-md text-[15px] font-semibold flex items-center justify-center hover:bg-[#1e8cd1] disabled:bg-neutral-400 transition-all duration-200 ease-in-out cursor-pointer"
                 >
-                  Kirim Kode OTP ^^
+                  {isLoading ? 'Mengirim...' : 'Kirim Link Reset ^^'}
                 </button>
               </div>
-            </div>
+            </form>
           )}
 
-          {step === 2 && (
+          {step === 2 && sentTo && (
             <div className="w-full max-w-[493px]">
               <div className="mb-8 text-left">
                 <h1 className="text-[37px] font-semibold leading-[1.2] text-text-dark mb-2">
-                  Verifikasi OTP
+                  Cek Email-mu!
                 </h1>
                 <p className="text-base font-medium text-text-secondary">
-                  Masukkan kode 6 digit yang dikirimkan ke email-mu! 📬
+                  Link untuk summon password baru sudah dikirim ke {sentTo}.
+                  Buka link tersebut untuk melanjutkan! 📬
                 </p>
               </div>
 
-              <div className="mt-6">
-                <ControlledInputField
-                  label="OTP Code"
-                  name="otp_code"
-                  size="lg"
-                  control={control}
-                  placeholder="Kode Otp"
-                  maxLength={6}
-                />
-                <div className="mt-4 text-right">
-                  <span className="text-sm text-gray-500">
-                    Gak dapet kode?{' '}
-                  </span>
-                  <button
-                    type="button"
-                    className="text-primary-accent hover:underline cursor-pointer font-medium"
-                  >
-                    Kirim Ulang
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-10">
+              <div className="mt-4 text-right">
+                <span className="text-sm text-gray-500">Gak dapet email? </span>
                 <button
                   type="button"
-                  onClick={handleNext}
-                  className="w-full h-[34px] bg-primary-accent text-white rounded-md text-[15px] font-semibold flex items-center justify-center hover:bg-[#1e8cd1] disabled:bg-neutral-400 transition-all duration-200 ease-in-out cursor-pointer"
+                  disabled={isLoading}
+                  onClick={() => resend(sentTo)}
+                  className="text-primary-accent hover:underline cursor-pointer font-medium disabled:text-neutral-400"
                 >
-                  Verifikasi Kode
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="w-full max-w-[493px]">
-              <div className="mb-8 text-left">
-                <h1 className="text-[37px] font-semibold leading-[1.2] text-text-dark mb-2">
-                  Summon Password Baru!
-                </h1>
-                <p className="text-base font-medium text-text-secondary">
-                  Senpai! Pastikan password barumu lebih OP dan tak terkalahkan!
-                  ⚔️
-                </p>
-              </div>
-
-              <div className="mt-6">
-                <ControlledInputField
-                  label="Password Baru"
-                  name="password"
-                  type="password"
-                  size="lg"
-                  control={control}
-                  placeholder="Masukkan password sekeren jurus ultimate-mu!"
-                />
-              </div>
-
-              <div className="mt-6">
-                <ControlledInputField
-                  label="Ulang Password"
-                  name="confirm_password"
-                  type="password"
-                  size="lg"
-                  control={control}
-                  placeholder="Ulangi password-mu, Senpai~!"
-                />
-              </div>
-
-              <div className="mt-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    toast.success('Password updated! Redirecting to login...');
-                    navigate({ to: '/auth/login' });
-                  }}
-                  className="w-full h-[34px] bg-primary-accent text-white rounded-md text-[15px] font-semibold flex items-center justify-center hover:bg-[#1e8cd1] disabled:bg-neutral-400 transition-all duration-200 ease-in-out cursor-pointer"
-                >
-                  Summon Password Baru!
+                  Kirim Ulang
                 </button>
               </div>
             </div>

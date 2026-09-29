@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { SessionToken } from '@imphnen-frontend-service/service';
+import { ensureMe } from '../libs/session/ensure-me';
 import { HeroSection } from './_site/_components/home/hero-section';
 import { WhatWeOfferSection } from './_site/_components/home/what-we-offer-section';
 import { TestimonialSection } from './_site/_components/home/testimonial-section';
@@ -9,9 +9,9 @@ import { Header } from './_site/_components/header';
 import { Footer } from './_site/_components/footer';
 
 export const Route = createFileRoute('/')({
-  beforeLoad: () => {
-    const session = SessionToken.get();
-    if (session?.token?.access_token) {
+  beforeLoad: async () => {
+    const me = await ensureMe();
+    if (me) {
       throw redirect({ to: '/dashboard' });
     }
   },

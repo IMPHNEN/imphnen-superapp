@@ -2,11 +2,15 @@ import {
   createFileRoute,
   Outlet,
   Link,
+  Navigate,
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useAuthStore } from '@imphnen-frontend-service/service';
+import {
+  useCurrentUser,
+  useSignOut,
+} from '@imphnen-frontend-service/service/session';
 import { Icon } from '@iconify/react';
 
 interface NavItem {
@@ -148,6 +152,8 @@ const mentorSettingsNavItems: NavItem[] = [
   },
 ];
 
+const MENTOR_AREA_PERMISSION = 'mentor-profile:read';
+
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardLayout,
 });
@@ -157,7 +163,8 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
  * Provides the sidebar navigation and main content area for authorized users.
  */
 function DashboardLayout() {
-  const { session, clearSession } = useAuthStore();
+  const { me, can } = useCurrentUser();
+  const signOut = useSignOut();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -178,9 +185,17 @@ function DashboardLayout() {
       : userNavItems;
 
   const handleLogout = () => {
-    clearSession();
-    navigate({ to: '/auth/login' });
+    signOut.mutate(undefined, {
+      onSettled: () => {
+        navigate({ to: '/auth/login' });
+      },
+    });
   };
+
+  // The mentor area needs the mentor profile permissions (mentor role).
+  if (isMentorSection && me && !can(MENTOR_AREA_PERMISSION)) {
+    return <Navigate to="/dashboard/user" />;
+  }
 
   const isNavItemActive = (path?: string) => {
     if (!path) return false;
@@ -248,6 +263,7 @@ function DashboardLayout() {
           <div className="h-px bg-border-light mb-4" />
           <button
             onClick={handleLogout}
+            disabled={signOut.isPending}
             className="h-8 px-3 rounded-sm flex items-center gap-3 cursor-pointer text-xs font-medium leading-[1.3] text-text-muted transition-all duration-200 hover:bg-bg-hover"
           >
             <Icon icon="mdi:logout" width="16" />
@@ -257,7 +273,7 @@ function DashboardLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <HeaderDashboard persona={persona} user={session?.user} />
+        <HeaderDashboard persona={persona} user={me?.user ?? null} />
 
         <main className="w-263 mx-auto px-10 pt-6 pb-10">
           <Outlet />
@@ -267,6 +283,8 @@ function DashboardLayout() {
   );
 }
 
+type TDashboardUser = { name: string; image: string | null };
+
 /**
  * Header component for the dashboard, containing the app brand and user profile.
  */
@@ -275,7 +293,7 @@ function HeaderDashboard({
   user,
 }: {
   persona: 'user' | 'mentor';
-  user: any;
+  user: TDashboardUser | null;
 }) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
@@ -381,7 +399,7 @@ function HeaderDashboard({
         >
           <div className="flex flex-col items-end text-right">
             <span className="text-xs font-medium text-neutral-600">
-              {user?.fullname || user?.name || 'User'}
+              {user?.name || 'User'}
             </span>
             <span className="text-[10px] font-medium text-neutral-600">
               {persona === 'mentor' ? 'Mentor' : 'Mentee'}
@@ -389,13 +407,7 @@ function HeaderDashboard({
           </div>
           <div
             className="w-7 h-7 rounded-full bg-bg-placeholder bg-cover bg-center"
-            style={
-              user?.avatar
-                ? { backgroundImage: `url(${user.avatar})` }
-                : user?.image
-                  ? { backgroundImage: `url(${user.image})` }
-                  : {}
-            }
+            style={user?.image ? { backgroundImage: `url(${user.image})` } : {}}
           />
         </Link>
       </div>

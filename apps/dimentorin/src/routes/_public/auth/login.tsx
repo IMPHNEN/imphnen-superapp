@@ -1,78 +1,28 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
-import {
-  useGitHubAuth,
-  useLogin,
-  authLoginSchema,
-  type TLoginRequest,
-} from '@imphnen-frontend-service/service';
-import { GithubOutlined } from '@ant-design/icons';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { GoogleOutlined } from '@ant-design/icons';
 import { LoginBanner } from '@imphnen-frontend-service/ui/organisms';
 import { Icon } from '@iconify/react';
+import { useLogin, useSocialLogin } from '../../_hooks/use-login';
 
 export const Route = createFileRoute('/_public/auth/login')({
   component: LoginPage,
 });
 
 function LoginPage() {
-  const navigate = useNavigate();
-  const { signInWithGitHub } = useGitHubAuth();
-  const loginMutation = useLogin();
-  const [isGithubLoading, setIsGithubLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { form, onSubmit, error, setError, isLoading } = useLogin();
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useSocialLogin();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
-    handleSubmit,
     formState: { errors, isValid },
-  } = useForm<TLoginRequest>({
-    resolver: zodResolver(authLoginSchema),
-    mode: 'onChange',
-    defaultValues: { email: '', password: '' },
-  });
+  } = form;
 
-  useEffect(() => {
-    const hashParams = new URLSearchParams(
-      globalThis.location.hash.substring(1)
-    );
-    const urlParams = new URLSearchParams(globalThis.location.search);
-    const accessToken =
-      hashParams.get('access_token') || urlParams.get('access_token');
-    const type = hashParams.get('type') || urlParams.get('type');
-    if (accessToken && (type === 'recovery' || type === 'magiclink' || !type)) {
-      toast.info('Redirecting to password reset...');
-      navigate({ to: '/auth/login', search: { access_token: accessToken } });
-    }
-  }, [navigate]);
-
-  const onSubmit = handleSubmit(async (data) => {
+  const handleGoogleLogin = async () => {
     setError(null);
-    try {
-      await loginMutation.mutateAsync(data);
-      toast.success('Login successful!');
-      navigate({ to: '/dashboard' });
-    } catch (err) {
-      setError((err as Error).message || 'Login failed');
-    }
-  });
-
-  const handleGithubLogin = async () => {
-    try {
-      setIsGithubLoading(true);
-      const result = await signInWithGitHub();
-      if (result?.url) globalThis.location.href = result.url;
-      else {
-        setIsGithubLoading(false);
-        setError('Failed to get GitHub OAuth URL');
-      }
-    } catch (err) {
-      setError((err as Error).message || 'GitHub login failed');
-      setIsGithubLoading(false);
-    }
+    const googleError = await signInWithGoogle();
+    if (googleError) setError(googleError);
   };
 
   return (
@@ -110,7 +60,7 @@ function LoginPage() {
                   type="text"
                   {...register('email')}
                   placeholder="Masukkan email-mu, Senpai~! ✨"
-                  disabled={loginMutation.isPending}
+                  disabled={isLoading}
                   className={`w-full h-[52px] px-5 border rounded-md bg-white text-text-dark text-[15px] focus:outline-none focus:border-primary-accent focus:shadow-[0_0_0_3px_rgba(35,161,235,0.12)] placeholder:text-placeholder disabled:bg-neutral-100 disabled:cursor-not-allowed transition-all duration-200 ease-in-out ${errors.email ? 'border-red-400' : 'border-[#d1d1d1]'}`}
                 />
                 {errors.email && (
@@ -141,7 +91,7 @@ function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     {...register('password')}
                     placeholder="Masukkan password rahasiamu! 🔒"
-                    disabled={loginMutation.isPending}
+                    disabled={isLoading}
                     className={`w-full h-[52px] px-5 border rounded-md bg-white text-text-dark text-[15px] focus:outline-none focus:border-primary-accent focus:shadow-[0_0_0_3px_rgba(35,161,235,0.12)] placeholder:text-placeholder pr-12 disabled:bg-neutral-100 disabled:cursor-not-allowed transition-all duration-200 ease-in-out ${errors.password ? 'border-red-400' : 'border-[#d1d1d1]'}`}
                   />
                   <button
@@ -164,10 +114,10 @@ function LoginPage() {
 
               <button
                 type="submit"
-                disabled={!isValid || loginMutation.isPending}
+                disabled={!isValid || isLoading}
                 className="w-full h-[34px] bg-primary-accent text-[#f6f6f6] rounded-md text-[15px] font-semibold flex items-center justify-center hover:bg-[#1e8cd1] focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 disabled:bg-neutral-400 disabled:cursor-not-allowed transition-all duration-200 ease-in-out cursor-pointer"
               >
-                {loginMutation.isPending ? 'Entering...' : 'Enter Isekai'}
+                {isLoading ? 'Entering...' : 'Enter Isekai'}
               </button>
             </form>
 
@@ -180,14 +130,14 @@ function LoginPage() {
             </div>
 
             <button
-              onClick={handleGithubLogin}
-              disabled={isGithubLoading}
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading}
               type="button"
               className="w-full h-[44px] flex items-center justify-center gap-3 bg-bg-secondary border border-border-subtle rounded-md font-semibold text-text-label hover:bg-[#f0f0f0] focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:ring-offset-2 disabled:bg-neutral-100 disabled:cursor-not-allowed transition-all duration-200 ease-in-out cursor-pointer"
             >
-              <GithubOutlined className="text-lg" />
+              <GoogleOutlined className="text-lg" />
               <span className="text-[19px] leading-[1.2] font-semibold">
-                {isGithubLoading ? 'Connecting...' : 'Log In With GitHub'}
+                {isGoogleLoading ? 'Connecting...' : 'Log In With Google'}
               </span>
             </button>
 

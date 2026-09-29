@@ -6,7 +6,7 @@ import {
   mockMentorDashboardData,
 } from './dashboard-mock';
 import { resolvePersona, parseSearchParams } from '../persona-resolver';
-import type { TUserItem } from '@imphnen-frontend-service/service';
+import type { TPersonaUser } from '../persona-resolver';
 
 describe('Dashboard Mock Data', () => {
   describe('getUserMockDashboardData', () => {
@@ -168,13 +168,7 @@ describe('Dashboard Mock Data', () => {
 describe('Persona Resolver', () => {
   describe('resolvePersona', () => {
     it('should respect query parameter override to mentor', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'user@example.com',
-        fullname: 'Test User',
-        is_active: true,
-        role: { id: 'role-1', name: 'user', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'user' };
       const searchParams = new URLSearchParams('persona=mentor');
 
       const persona = resolvePersona(user, searchParams);
@@ -182,13 +176,7 @@ describe('Persona Resolver', () => {
     });
 
     it('should respect query parameter override to user', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'mentor@example.com',
-        fullname: 'Test Mentor',
-        is_active: true,
-        role: { id: 'role-2', name: 'mentor', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'mentor' };
       const searchParams = new URLSearchParams('persona=user');
 
       const persona = resolvePersona(user, searchParams);
@@ -196,39 +184,21 @@ describe('Persona Resolver', () => {
     });
 
     it('should derive mentor from role name', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'mentor@example.com',
-        fullname: 'Test Mentor',
-        is_active: true,
-        role: { id: 'role-2', name: 'mentor', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'mentor' };
 
       const persona = resolvePersona(user);
       expect(persona).toBe('mentor');
     });
 
     it('should handle case-insensitive role name', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'mentor@example.com',
-        fullname: 'Test Mentor',
-        is_active: true,
-        role: { id: 'role-2', name: 'MENTOR', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'MENTOR' };
 
       const persona = resolvePersona(user);
       expect(persona).toBe('mentor');
     });
 
     it('should return user for non-mentor role', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'user@example.com',
-        fullname: 'Test User',
-        is_active: true,
-        role: { id: 'role-1', name: 'user', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'user' };
 
       const persona = resolvePersona(user);
       expect(persona).toBe('user');
@@ -240,13 +210,7 @@ describe('Persona Resolver', () => {
     });
 
     it('should ignore invalid query parameters', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'user@example.com',
-        fullname: 'Test User',
-        is_active: true,
-        role: { id: 'role-1', name: 'user', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'user' };
       const searchParams = new URLSearchParams('persona=invalid');
 
       const persona = resolvePersona(user, searchParams);
@@ -254,13 +218,7 @@ describe('Persona Resolver', () => {
     });
 
     it('should ignore missing query parameter', () => {
-      const user: TUserItem = {
-        id: '1',
-        email: 'user@example.com',
-        fullname: 'Test User',
-        is_active: true,
-        role: { id: 'role-1', name: 'user', permissions: [] },
-      };
+      const user: TPersonaUser = { role: 'user' };
       const searchParams = new URLSearchParams('other=value');
 
       const persona = resolvePersona(user, searchParams);

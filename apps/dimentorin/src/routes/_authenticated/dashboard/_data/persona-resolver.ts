@@ -1,4 +1,8 @@
-import type { TUserItem } from '@imphnen-frontend-service/service';
+/**
+ * The part of the session user the resolver reads (`me.user` from
+ * `useCurrentUser`).
+ */
+export type TPersonaUser = { role: string };
 
 /**
  * Persona type for dashboard rendering.
@@ -18,7 +22,7 @@ export type Persona = 'user' | 'mentor';
  * @returns The resolved persona
  */
 export function resolvePersona(
-  user: TUserItem | undefined,
+  user: TPersonaUser | null | undefined,
   searchParams?: URLSearchParams
 ): Persona {
   // Check for explicit persona query parameter
@@ -30,8 +34,8 @@ export function resolvePersona(
   }
 
   // Derive from user role name
-  if (user?.role?.name) {
-    const roleName = user.role.name.toLocaleLowerCase();
+  if (user?.role) {
+    const roleName = user.role.toLocaleLowerCase();
     if (roleName.includes('mentor')) {
       return 'mentor';
     }

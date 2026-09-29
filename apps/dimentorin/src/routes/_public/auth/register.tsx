@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_public/auth/register')({
 });
 
 function RegisterPage(): ReactElement {
-  const { form, onSubmit, isLoading } = useRegisterHook();
+  const { form, onSubmit, error, isLoading } = useRegisterHook();
 
   return (
     <div className="min-h-screen bg-primary-50 flex items-center justify-center p-5">
@@ -27,6 +27,12 @@ function RegisterPage(): ReactElement {
               Yosha~! Saatnya Bergabung dengan Dimentorin!
             </p>
           </div>
+
+          {error && (
+            <div className="mb-6 w-full max-w-[493px] p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm text-center">{error}</p>
+            </div>
+          )}
 
           <form onSubmit={onSubmit} className="w-full max-w-[493px]">
             <div className="grid grid-cols-2 gap-4">
@@ -52,46 +58,15 @@ function RegisterPage(): ReactElement {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-5">
-              <div>
-                <ControlledInputField
-                  label="Email"
-                  name="email"
-                  control={form.control}
-                  size="lg"
-                  placeholder="Contoh : yourname@mail.com"
-                  disabled={isLoading}
-                />
-              </div>
-              <div>
-                <ControlledInputField
-                  label="No Hp"
-                  name="phone_number"
-                  control={form.control}
-                  size="lg"
-                  placeholder="Contoh : 08123456789"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-end gap-3 mt-5">
-              <div className="flex-1">
-                <ControlledInputField
-                  label="OTP Code"
-                  name="otp_code"
-                  control={form.control}
-                  size="lg"
-                  placeholder="Kode Otp"
-                  disabled={isLoading}
-                />
-              </div>
-              <button
-                type="button"
-                className="w-[66px] h-[42px] bg-primary-accent text-white rounded-md text-[10px] font-medium flex items-center justify-center hover:bg-[#1e8cd1] disabled:bg-neutral-400 transition-all duration-200 ease-in-out"
-              >
-                Kirim OTP
-              </button>
+            <div className="mt-5">
+              <ControlledInputField
+                label="Email"
+                name="email"
+                control={form.control}
+                size="lg"
+                placeholder="Contoh : yourname@mail.com"
+                disabled={isLoading}
+              />
             </div>
 
             <div className="mt-5">

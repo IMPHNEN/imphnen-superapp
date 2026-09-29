@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { FC, type ReactElement, useEffect } from 'react';
+import { type ReactElement, useEffect } from 'react';
 import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ArrowRightOutlined } from '@ant-design/icons';
@@ -9,10 +9,12 @@ export const Route = createFileRoute('/_public/auth/register_/success')({
 });
 
 function RegisterSuccessPage(): ReactElement {
+  // Email verification already signed the user in.
   useEffect(() => {
-    setTimeout(() => {
-      document.location.href = '/auth/login';
+    const timer = setTimeout(() => {
+      document.location.href = '/dashboard';
     }, 10000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -52,7 +54,7 @@ function RegisterSuccessPage(): ReactElement {
             <h4 className="mt-10 text-primary-500 font-medium text-xl">
               Kamu akan memasuki isekai dalam 10 dtk
             </h4>
-            <a href="/auth/login">
+            <a href="/dashboard">
               <Button className="gap-3 mt-10" size="lg">
                 Masuk Isekai
                 <ArrowRightOutlined />
