@@ -1,16 +1,12 @@
 import type { FC, ReactElement } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useWinners } from '@imphnen-frontend-service/service';
-
-export const Route = createFileRoute('/_public/winners')({
-  component: WinnerPage,
-});
+import { useWinners } from '../../hooks/use-public';
 
 const WinnerPage: FC = (): ReactElement => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useWinners();
 
-  const winners = data?.data ?? [];
+  const winners = data?.items ?? [];
 
   if (isLoading) {
     return (
@@ -124,9 +120,9 @@ const WinnerPage: FC = (): ReactElement => {
                         </div>
                       </div>
 
-                      {winner.team.logo && (
+                      {winner.team.logoUrl && (
                         <img
-                          src={winner.team.logo}
+                          src={winner.team.logoUrl}
                           alt={`${winner.team.name} logo`}
                           className="w-20 h-20 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-lg"
                         />
@@ -157,9 +153,9 @@ const WinnerPage: FC = (): ReactElement => {
                   >
                     <div className="text-5xl">{getMedalEmoji(winner.rank)}</div>
 
-                    {winner.team.logo && (
+                    {winner.team.logoUrl && (
                       <img
-                        src={winner.team.logo}
+                        src={winner.team.logoUrl}
                         alt={`${winner.team.name} logo`}
                         className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
                       />
@@ -213,9 +209,9 @@ const WinnerPage: FC = (): ReactElement => {
                             </div>
                           </div>
 
-                          {winner.team.logo && (
+                          {winner.team.logoUrl && (
                             <img
-                              src={winner.team.logo}
+                              src={winner.team.logoUrl}
                               alt={`${winner.team.name} logo`}
                               className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
                             />
@@ -262,9 +258,9 @@ const WinnerPage: FC = (): ReactElement => {
                               </span>
                             </div>
 
-                            {participant.team.logo && (
+                            {participant.team.logoUrl && (
                               <img
-                                src={participant.team.logo}
+                                src={participant.team.logoUrl}
                                 alt={`${participant.team.name} logo`}
                                 className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
                               />
@@ -306,3 +302,7 @@ const WinnerPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_public/winners')({
+  component: WinnerPage,
+});

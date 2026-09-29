@@ -1,30 +1,15 @@
 import { type FC, type ReactElement, useState, useEffect, useRef } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
-import { decodeCertificateId } from '../../../utils/certificate';
-import {
-  useCertificatePublicData,
-  useAuthStore,
-} from '@imphnen-frontend-service/service';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { useCertificate } from '../../../hooks/use-public';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
-
-export const Route = createFileRoute('/_public/certificate/$certId')({
-  component: CertificatePage,
-});
-
-interface DecodedCert {
-  teamId: string;
-  submissionId: string;
-  userId: string;
-}
 
 const CertificatePage: FC = (): ReactElement => {
   const { certId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
-  const [decodedInfo, setDecodedInfo] = useState<DecodedCert | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { me } = useCurrentUser();
   const teamNameRef = useRef<HTMLHeadingElement>(null);
   const userNameRef = useRef<HTMLHeadingElement>(null);
   const [teamNameFontSize, setTeamNameFontSize] = useState('2.25rem');
@@ -35,18 +20,12 @@ const CertificatePage: FC = (): ReactElement => {
   const [certificateImage, setCertificateImage] = useState<string>('');
   const [showTemplate, setShowTemplate] = useState(true);
 
-  useEffect(() => {
-    if (certId) {
-      decodeCertificateId(certId)
-        .then(setDecodedInfo)
-        .catch(() => {
-          setError('Invalid certificate ID');
-        });
-    }
-  }, [certId]);
-
-  const { data: certificateData, isLoading: isLoadingCertificate } =
-    useCertificatePublicData(decodedInfo?.userId || '', !!decodedInfo?.userId);
+  const {
+    data: certificate,
+    isLoading,
+    error: certificateError,
+  } = useCertificate(certId);
+  const error = certificateError ? certificateError.message : null;
 
   useEffect(() => {
     if (certId) {
@@ -65,16 +44,13 @@ const CertificatePage: FC = (): ReactElement => {
     }
   }, [certId]);
 
-  const certificate = certificateData?.data;
   const team = certificate?.team;
-  const submission = certificate?.submission;
-  const certificateUser = certificate?.user;
+  const submission = certificate?.project;
+  const certificateUser = certificate?.recipient;
 
-  const isLoading = (!decodedInfo && !error) || isLoadingCertificate;
+  const certificateName = certificateUser?.name;
 
-  const certificateName = certificateUser?.fullname;
-
-  const isTeamMember = session?.user?.id === decodedInfo?.userId;
+  const isTeamMember = !!me && me.user.id === certificateUser?.id;
 
   useEffect(() => {
     const adjustFontSize = (
@@ -281,7 +257,12 @@ const CertificatePage: FC = (): ReactElement => {
             {team && isTeamMember && (
               <Button
                 variant="secondary"
-                onClick={() => navigate({ to: `/teams/${team.id}/submission` })}
+                onClick={() =>
+                  navigate({
+                    to: '/teams/$teamId/submission',
+                    params: { teamId: team.id },
+                  })
+                }
               >
                 Back to Submission
               </Button>
@@ -425,7 +406,10 @@ const CertificatePage: FC = (): ReactElement => {
               {team && (
                 <Button
                   onClick={() =>
-                    navigate({ to: `/teams/${team.id}/submission` })
+                    navigate({
+                      to: '/teams/$teamId/submission',
+                      params: { teamId: team.id },
+                    })
                   }
                   variant="secondary"
                   className="col-span-2 flex items-center gap-2 xl:col-span-1"
@@ -451,3 +435,7 @@ const CertificatePage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_public/certificate/$certId')({
+  component: CertificatePage,
+});

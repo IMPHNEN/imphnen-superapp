@@ -9,29 +9,11 @@ import {
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Icon } from '@iconify/react';
-import { decodeWinnerCertificateId } from '../../../../utils/certificate';
-import {
-  useAuthStore,
-  useMyTeams,
-  useTeamById,
-  useTeamSubmission,
-  useWinners,
-} from '@imphnen-frontend-service/service';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { useCertificate } from '../../../../hooks/use-public';
+import { useTeam } from '../../../../hooks/use-teams';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
-
-export const Route = createFileRoute('/_public/certificate/winner/$certId')({
-  component: CertificateWinnerPage,
-});
-
-type WinnerEntry = {
-  team_id: string;
-  rank: number;
-  team?: {
-    id: string;
-    name: string;
-  };
-};
 
 const formatOrdinalRank = (rank: number): string => {
   const mod100 = rank % 100;
@@ -61,16 +43,13 @@ const s = (px: number) => Math.round(px * LAYOUT_SCALE);
 const CertificateWinnerPage: FC = (): ReactElement => {
   const { certId } = Route.useParams();
   const navigate = useNavigate();
-  const { session } = useAuthStore();
-  const { data: myTeamsData } = useMyTeams();
+  const { me } = useCurrentUser();
   const {
-    data: winnersResponse,
-    isLoading: isLoadingWinners,
-    isError: isWinnersError,
-  } = useWinners();
-
-  const [decodedTeamId, setDecodedTeamId] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+    data: certificate,
+    isLoading: isLoadingCertificate,
+    error: certificateError,
+  } = useCertificate(certId);
+  const error = certificateError ? certificateError.message : null;
 
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const certificateRef = useRef<HTMLDivElement>(null);
@@ -78,54 +57,31 @@ const CertificateWinnerPage: FC = (): ReactElement => {
   const [certificateImage, setCertificateImage] = useState<string>('');
   const [showTemplate, setShowTemplate] = useState(true);
 
-  useEffect(() => {
-    if (!certId) return;
-
-    decodeWinnerCertificateId(certId)
-      .then((decoded) => setDecodedTeamId(decoded.teamId))
-      .catch(() => setError('Invalid certificate ID'));
-  }, [certId]);
-
-  const winners = useMemo(
-    () => (winnersResponse?.data || []) as WinnerEntry[],
-    [winnersResponse?.data]
-  );
-  const winnerEntry = useMemo(() => {
-    if (!decodedTeamId) return undefined;
-    return winners.find((w) => w.team_id === decodedTeamId);
-  }, [decodedTeamId, winners]);
+  const winnerEntry = certificate?.winner ?? undefined;
+  const teamId = certificate?.team.id ?? '';
 
   const rankLabel = useMemo(() => {
     if (!winnerEntry?.rank) return '';
     return formatOrdinalRank(winnerEntry.rank);
   }, [winnerEntry?.rank]);
 
-  const { data: teamData, isLoading: isLoadingTeam } = useTeamById(
-    decodedTeamId,
-    !!decodedTeamId
-  );
+  const { data: team, isLoading: isLoadingTeamQuery } = useTeam(teamId);
+  const isLoadingTeam =
+    isLoadingCertificate || (!!teamId && isLoadingTeamQuery);
 
-  const { data: submissionData, isLoading: isLoadingSubmission } =
-    useTeamSubmission(decodedTeamId, !!decodedTeamId);
-
-  const team = teamData?.data;
-  const submission = submissionData?.data;
-  const submissionName = submission?.project_name || '(Submission unavailable)';
+  const submissionName =
+    certificate?.project.name || '(Submission unavailable)';
 
   const memberNames = useMemo(() => {
     const members = team?.members || [];
     return members
-      .map((m) => m.user?.fullname)
+      .map((m) => m.user.name)
       .filter((name): name is string => !!name);
   }, [team?.members]);
 
   const isWinnerTeam = !!winnerEntry;
   const isTeamMember =
-    !!session?.user?.id &&
-    !!decodedTeamId &&
-    (myTeamsData?.data || []).some(
-      (t) => (t as { id?: string } | null | undefined)?.id === decodedTeamId
-    );
+    !!me && !!team && team.members.some((m) => m.user.id === me.user.id);
 
   useEffect(() => {
     if (!certId) return;
@@ -151,7 +107,6 @@ const CertificateWinnerPage: FC = (): ReactElement => {
       if (!team?.name) return;
       if (!qrCodeUrl) return;
       if (!winnerEntry?.rank) return;
-      if (isLoadingSubmission) return;
 
       setIsGenerating(true);
       try {
@@ -181,14 +136,7 @@ const CertificateWinnerPage: FC = (): ReactElement => {
     };
 
     generateCertificate();
-  }, [
-    team?.name,
-    memberNames,
-    qrCodeUrl,
-    winnerEntry?.rank,
-    isLoadingSubmission,
-    submissionName,
-  ]);
+  }, [team?.name, memberNames, qrCodeUrl, winnerEntry?.rank, submissionName]);
 
   const handleDownloadCertificate = () => {
     if (!certificateImage) return;
@@ -244,7 +192,7 @@ const CertificateWinnerPage: FC = (): ReactElement => {
     );
   }
 
-  if (!decodedTeamId || isLoadingTeam) {
+  if (isLoadingTeam) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
@@ -253,33 +201,6 @@ const CertificateWinnerPage: FC = (): ReactElement => {
             Loading certificate...
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (isLoadingWinners) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-gray-600 dark:text-gray-400">
-            Loading winners...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (isWinnersError) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Unable to Load Winners
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Please try again later.
-        </p>
-        <Button onClick={() => navigate({ to: '/' })}>Back to Home</Button>
       </div>
     );
   }
@@ -594,3 +515,7 @@ const CertificateWinnerPage: FC = (): ReactElement => {
     </div>
   );
 };
+
+export const Route = createFileRoute('/_public/certificate/winner/$certId')({
+  component: CertificateWinnerPage,
+});
