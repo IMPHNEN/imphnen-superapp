@@ -1,4 +1,4 @@
 pre-push:
   jobs:
-    - name: moon ci (what CI runs)
-      run: moon ci
+    - name: moon ci on the commits being pushed
+      run: moon ci --base origin/develop
