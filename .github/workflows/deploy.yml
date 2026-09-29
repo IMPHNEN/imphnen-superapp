@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Deploy apps to Cloudflare Workers
 
 on:
   push:
@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: read
-  deployments: write
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -23,7 +22,7 @@ env:
 
 jobs:
   detect:
-    if: ${{ vars.CLOUDFLARE_PAGES_ENABLED == 'true' }}
+    if: ${{ vars.CLOUDFLARE_WORKERS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.pick.outputs.apps }}
@@ -62,24 +61,10 @@ jobs:
 
       - uses: ./.github/actions/setup-workspace
 
-      - name: Build ${{ matrix.app }}
-        run: moon run ${{ matrix.app }}:build --color
+      - name: Build and deploy ${{ matrix.app }}
+        run: moon run ${{ matrix.app }}:deploy --color
         env:
-          # Empty on purpose: the SPAs call same-origin /v1, which the Pages
-          # Function in deploy/pages/functions forwards to the API.
-          VITE_API_URL: ''
-          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL || 'https://api.imphnen.dev' }}
-
-      - name: Add shared headers
-        run: cp deploy/pages/_headers apps/${{ matrix.app }}/dist/_headers
-
-      - name: Deploy ${{ matrix.app }}
-        working-directory: deploy/pages
-        run: >
-          ../../node_modules/.bin/wrangler pages deploy ../../apps/${{ matrix.app }}/dist
-          --project-name=imphnen-${{ matrix.app }}
-          --branch=${{ github.ref_name }}
-          --commit-hash=${{ github.sha }}
-        env:
+          PUBLIC_API_URL: https://api.imphnen.dev
+          VITE_API_URL: https://api.imphnen.dev
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

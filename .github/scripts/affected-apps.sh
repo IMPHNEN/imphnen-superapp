@@ -12,7 +12,7 @@ changed=$(git diff --name-only "$range")
 selected=()
 
 global=false
-if grep -qE '^(pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|tsconfig\.base\.json|deploy/pages/|\.github/)' <<<"$changed"; then
+if grep -qE '^(pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|tsconfig\.base\.json|\.github/)' <<<"$changed"; then
   global=true
 fi
 shared=false

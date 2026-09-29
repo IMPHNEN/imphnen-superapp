@@ -58,3 +58,10 @@ tasks:
     options:
       cache: false
       runInCI: false
+
+  deploy:
+    command: 'pnpm run deploy'
+    deps: ['~:build']
+    options:
+      cache: false
+      runInCI: false

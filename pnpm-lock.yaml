@@ -132,6 +132,9 @@ catalogs:
     vitest:
       specifier: 4.1.2
       version: 4.1.2
+    wrangler:
+      specifier: ^4.40.0
+      version: 4.142.0
     zod:
       specifier: ^4.6.4
       version: 4.6.5
@@ -153,7 +156,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
       wrangler:
-        specifier: ^4.40.0
+        specifier: 'catalog:'
         version: 4.142.0(@types/node@22.20.4)
 
   apps/api:
@@ -232,7 +235,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.2(@types/node@22.20.4)(jsdom@22.1.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
       wrangler:
-        specifier: ^4.40.0
+        specifier: 'catalog:'
         version: 4.142.0(@types/node@22.20.4)
 
   apps/backoffice:
@@ -325,6 +328,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/dimentorin:
     dependencies:
@@ -422,6 +428,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.2(@types/node@22.20.4)(jsdom@22.1.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/gacha:
     dependencies:
@@ -501,6 +510,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/hackathon:
     dependencies:
@@ -589,6 +601,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/imphnenos:
     dependencies:
@@ -641,6 +656,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/infra:
     dependencies:
@@ -684,6 +702,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/landing:
     dependencies:
@@ -736,6 +757,9 @@ importers:
       vite:
         specifier: ^7.3.2
         version: 7.3.6(@types/node@22.20.4)(jiti@2.7.0)(lightningcss@1.33.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   apps/qrcampaign:
     dependencies:
@@ -824,6 +848,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.142.0(@types/node@22.20.4)
 
   packages/activity:
     dependencies:

@@ -1,6 +1,6 @@
-APPS := landing backoffice dimentorin gacha hackathon imphnenos infra qrcampaign
+APPS := api landing backoffice dimentorin gacha hackathon imphnenos infra qrcampaign
 
-.PHONY: help install check lint format typecheck test build ci pages-create $(APPS)
+.PHONY: help install check lint format typecheck test build ci deploy-all $(APPS)
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
@@ -33,5 +33,5 @@ build: ## Build every app into apps/<app>/dist
 ci: ## What CI runs, on affected projects
 	moon ci
 
-pages-create: ## Create the Cloudflare Pages projects (one-off, needs wrangler login)
-	@for app in $(APPS); do pnpm exec wrangler pages project create imphnen-$$app --production-branch=develop || true; done
+deploy-all: ## Build and deploy every Worker with your wrangler login (API included)
+	moon run $(addsuffix :deploy,$(APPS))
