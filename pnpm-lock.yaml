@@ -182,6 +182,9 @@ importers:
       '@app/version':
         specifier: workspace:*
         version: link:../../packages/version
+      '@cf-wasm/photon':
+        specifier: 0.4.0
+        version: 0.4.0
       '@mobily/ts-belt':
         specifier: 'catalog:'
         version: 3.13.1(patch_hash=089c2961d9dcaf34a971874c8717d7a961ff3c49d4508968d9c4dd22fab7300a)
@@ -215,6 +218,9 @@ importers:
       ts-pattern:
         specifier: 'catalog:'
         version: 5.9.0
+      uqr:
+        specifier: 0.1.3
+        version: 0.1.3
       zod:
         specifier: 'catalog:'
         version: 4.6.5
@@ -1408,6 +1414,12 @@ packages:
   '@capsizecss/unpack@4.0.1':
     resolution: {integrity: sha512-CuNiSqg7+e1cO/GjffyMOm5Tt2jUF9CWHHnvQ/UkqvtkGfHdgwEC0wpmq7fkN3gxwpRnrAN0WzO3vREKmNolMQ==}
     engines: {node: '>=18'}
+
+  '@cf-wasm/internals@0.2.0':
+    resolution: {integrity: sha512-QwMNETkTCtrx0uCzjJPRCTyok0OZNvOry9alfG8a8TpHo7oPJ17htPMDG4ptudpwe9F0VtJHy9+nOzJmupteiQ==}
+
+  '@cf-wasm/photon@0.4.0':
+    resolution: {integrity: sha512-PQcN6sThZAR/V6SH2MQmeFndDDhGfOxvra6UStyaBbkDHrgTPKvB+WapAhh0/TA9LsRAUaX/rEEw6hvY9uphbQ==}
 
   '@clack/core@1.5.1':
     resolution: {integrity: sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ==}
@@ -6181,6 +6193,9 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+  uqr@0.1.3:
+    resolution: {integrity: sha512-0rjE8iEJe4YmT9TOhwsZtqCMRLc5DXZUI2UEYUUg63ikBkqqE5EYWaI0etFe/5KUcmcYwLih2RND1kq+hrUJXA==}
+
   url-parse@1.5.10:
     resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
@@ -6988,6 +7003,12 @@ snapshots:
   '@capsizecss/unpack@4.0.1':
     dependencies:
       fontkitten: 1.0.3
+
+  '@cf-wasm/internals@0.2.0': {}
+
+  '@cf-wasm/photon@0.4.0':
+    dependencies:
+      '@cf-wasm/internals': 0.2.0
 
   '@clack/core@1.5.1':
     dependencies:
@@ -11484,6 +11505,8 @@ snapshots:
       browserslist: 4.29.2
       escalade: 3.2.0
       picocolors: 1.1.1
+
+  uqr@0.1.3: {}
 
   url-parse@1.5.10:
     dependencies:

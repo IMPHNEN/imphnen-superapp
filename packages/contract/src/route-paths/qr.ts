@@ -1,1 +1,9 @@
-export const QR_ROUTE_PATH = {} as const;
+const QR_CAMPAIGN_RESOURCE = '/qr/campaigns';
+
+export const QR_ROUTE_PATH = {
+  QR_CAMPAIGNS: QR_CAMPAIGN_RESOURCE,
+  QR_CAMPAIGN: `${QR_CAMPAIGN_RESOURCE}/{id}`,
+  QR_CAMPAIGN_ACTIVATE: `${QR_CAMPAIGN_RESOURCE}/{id}/activate`,
+  QR_CAMPAIGN_ACTIVE: `${QR_CAMPAIGN_RESOURCE}/active`,
+  QR_WATERMARK: '/qr/watermark',
+} as const;

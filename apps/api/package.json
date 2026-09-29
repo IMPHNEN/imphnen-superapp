@@ -25,6 +25,7 @@
     "@app/permissions": "workspace:*",
     "@app/schemas": "workspace:*",
     "@app/version": "workspace:*",
+    "@cf-wasm/photon": "0.4.0",
     "@mobily/ts-belt": "catalog:",
     "@noble/hashes": "^2.4.0",
     "@orpc/json-schema": "catalog:",
@@ -36,6 +37,7 @@
     "effect": "catalog:",
     "hono": "catalog:",
     "ts-pattern": "catalog:",
+    "uqr": "0.1.3",
     "zod": "catalog:"
   },
   "devDependencies": {

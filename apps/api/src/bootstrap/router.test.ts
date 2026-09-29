@@ -54,6 +54,8 @@ const SESSION_ONLY_PROCEDURES: readonly string[] = [
   'profile.avatarUpload',
   'testimonial.update',
   'testimonial.remove',
+  'qr.activeCampaign',
+  'qr.watermark',
 ];
 const PUBLIC_DATA_PROCEDURES: readonly string[] = [
   'event.list',
