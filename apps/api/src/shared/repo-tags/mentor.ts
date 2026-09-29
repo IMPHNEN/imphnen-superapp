@@ -1,1 +1,3 @@
-export const MENTOR_REPO_TAG = {} as const;
+export const MENTOR_REPO_TAG = {
+  MENTOR: 'app/MentorRepo',
+} as const;
