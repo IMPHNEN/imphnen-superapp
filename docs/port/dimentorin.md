@@ -740,3 +740,145 @@ M1 (the form isn't wired), M5, M8, M10, S1, S3, S4 and S5.
 - The pagination query keys are `page`, `per_page`, `sort_by` and `sort_direction`. Consider also accepting `order` and `search`, since the frontend sends them.
 - Quote the `current_role` column. Store `preferred_mentee_level` compatibly (JSON text) unless you migrate it.
 - Emit timestamps with `+00:00` if you need byte-compatibility; otherwise ISO `Z` is fine for the current frontends.
+
+---
+
+## Migration mapping (TS port)
+
+Target: Cloudflare D1 (SQLite). Tables are defined in `apps/api/src/platform/db/tables/mentor.ts` and `apps/api/src/platform/db/tables/mentoring.ts`. Every timestamp column is an integer holding **epoch milliseconds** (UTC). JSON columns are `text` holding a JSON string array. `user` is the better-auth table; its `id` is the old `app_users.id` (migrated by IAM first, ids unchanged), so every user FK below keeps the old UUID.
+
+Run order: `user` (IAM) -> `mentor` -> `mentoring_session`.
+
+### `app_mentors` -> `mentor`
+
+One row per `app_mentors` row, **including** soft-deleted ones (they become `deleted_at` rows so the user can re-apply and history is kept). The profile fields that Rust kept in `app_users.metadata` (JSON) now live on the mentor row; read them from the metadata of `app_users` where `app_users.id = app_mentors.user_id`.
+
+| Old | New | Transform |
+|---|---|---|
+| `app_mentors.id` | `mentor.id` | Copy (keep the UUID). If a legacy row has NULL id (bug B3), generate a v4 UUID. |
+| `app_mentors.user_id` | `mentor.user_id` | Copy. Rows whose `user_id` is not in `app_users` (bug B2 orphans) are **dropped** and listed in the migration report. UNIQUE, FK -> `user.id` ON DELETE CASCADE. |
+| `app_mentors.status` | `mentor.status` | `pending` -> `pending`; `active`, `verified` -> `active`; `rejected` -> `rejected`; `inactive` -> `inactive`; NULL or `''` -> `pending`; any other string -> `inactive` (listed in the report). |
+| `app_mentors.industries` | `mentor.industries` | JSON array of strings. NULL or non-array -> `[]`; non-string elements -> `String(element)`. |
+| `app_mentors.expertise` | `mentor.expertise` | Same as industries. |
+| `app_mentors.languages` | `mentor.languages` | Same as industries. |
+| `app_mentors.topics_of_interest` | `mentor.topics_of_interest` | Same as industries. |
+| `app_mentors.preferred_mentoring_formats` | `mentor.preferred_mentoring_formats` | Same as industries. |
+| `app_mentors.preferred_mentee_level` (varchar holding JSON text) | `mentor.preferred_mentee_level` (JSON array) | Parse the text as JSON. A JSON string array -> as is. NULL or `''` -> `[]`. A non-JSON, non-empty string (the seeders' `beginner`, `Beginner`) -> `[trimmed value]` (Rust read these as `[]`; the port keeps the data). |
+| `app_mentors.current_company` | `mentor.current_company` | Copy; `''` -> NULL. |
+| `app_mentors.current_role` | `mentor.current_role` | Copy; `''` -> NULL. (Quote `"current_role"` in the Postgres SELECT.) |
+| `app_mentors.years_of_experience` | `mentor.years_of_experience` | Copy (integer, NULL kept). |
+| `app_mentors.availability_commitment` | `mentor.availability_commitment` | Copy; `''` -> NULL. |
+| `app_mentors.mentoring_rate` (double) | `mentor.mentoring_rate` (integer IDR) | `ROUND(mentoring_rate)`; NULL kept. No currency column: every amount is IDR. |
+| `app_mentors.is_deleted` | `mentor.deleted_at` | `true` -> `app_mentors.updated_at` in ms; `false` -> NULL. |
+| `app_mentors.created_at` | `mentor.created_at` | timestamptz -> epoch ms. |
+| `app_mentors.updated_at` | `mentor.updated_at` | timestamptz -> epoch ms. |
+| `app_users.metadata->>'gender'` | `mentor.gender` | Copy; `''`/JSON null -> NULL. |
+| `app_users.metadata->>'domicile'` | `mentor.domicile` | Same rule. |
+| `app_users.metadata->>'location'` | `mentor.location` | Same rule. |
+| `app_users.metadata->>'phone_number'` | `mentor.phone_number` | Same rule. |
+| `app_users.metadata->>'phone_for_verification'` | `mentor.phone_for_verification` | Same rule. |
+| `app_users.metadata->>'bio'` | `mentor.bio` | Same rule. |
+| `app_users.metadata->>'last_education'` | `mentor.last_education` | Same rule. |
+| `app_users.metadata->>'linkedin_url'` | `mentor.linkedin_url` | Same rule. |
+| `app_users.metadata->>'github_url'` | `mentor.github_url` | Same rule. |
+| `app_users.metadata->>'portfolio_url'` | `mentor.portfolio_url` | Same rule. |
+| `app_users.metadata->>'twitter_url'` | `mentor.twitter_url` | Same rule. |
+| `app_users.metadata->>'cv_url'` | `mentor.cv_legacy_url` | Copy the string as is (it may be an external URL or a bare filename). `mentor.cv_key` stays NULL. Optional follow-up: if the URL points at the old object store, copy the object into R2 at `mentor/cv/<uuid>.<ext>`, set `cv_key`, and clear `cv_legacy_url`. |
+| (never stored in Rust) `legal_name` | `mentor.legal_name` | NULL. |
+| (never stored in Rust) `identity_document_url` | `mentor.identity_document_key` | NULL. Pending applications must upload an identity document before they can be approved. |
+| (new) | `mentor.cv_key` | NULL. |
+| (new) | `mentor.review_note`, `mentor.reviewed_at`, `mentor.reviewed_by` | NULL. |
+
+The other `app_users.metadata` keys (`website_url`, `skills`, `experience`, `education`, `career_status`, `birthdate`) are user-level and belong to the IAM/profile migration, not to `mentor`.
+
+Role follow-up for IAM (not written by this migration): a user whose migrated mentor row is `active` and not deleted should get `user.role = 'mentor'` unless they already hold `admin`/`superadmin`; a user who held the Rust `Mentor` role without an active mentor row (for example the seeded `mentor2@example.com`) should get `user.role = 'user'`.
+
+### `sessions` -> `mentoring_session`
+
+| Old | New | Transform |
+|---|---|---|
+| `sessions.id` | `mentoring_session.id` | Copy. |
+| `sessions.mentor_id` | `mentoring_session.mentor_user_id` | **Id repair (bug B4).** If `mentor_id` is an `app_users.id`, copy it. Else, if it is an `app_mentors.id`, replace it with that row's `app_mentors.user_id`. Else drop the row and list it in the report. FK -> `user.id` ON DELETE CASCADE. |
+| `sessions.mentee_id` | `mentoring_session.mentee_id` | Copy. Rows whose mentee is not in `app_users` are dropped and reported. FK -> `user.id` ON DELETE CASCADE. |
+| `sessions.topic` | `mentoring_session.topic` | Copy. |
+| `sessions.description` | `mentoring_session.description` | Copy (NULL kept). |
+| `sessions.scheduled_at` | `mentoring_session.scheduled_at` | timestamptz -> epoch ms. |
+| `sessions.duration_minutes` | `mentoring_session.duration_minutes` | Copy. |
+| `sessions.meeting_link` | `mentoring_session.meeting_link` | Copy (NULL kept). |
+| `sessions.session_type` | `mentoring_session.session_type` | `offline` -> `offline`; everything else (`video_call`, `phone_call`, `chat`, `online`, other) -> `online`. |
+| `sessions.status` | `mentoring_session.status` | `pending`, `confirmed`, `completed`, `cancelled`, `no_show` -> same; `ongoing` -> `confirmed`; `canceled` -> `cancelled`; anything else -> `cancelled` (listed in the report). |
+| `sessions.feedback` | `mentoring_session.feedback` | Copy (NULL kept). |
+| `sessions.rating` | `mentoring_session.rating` | Copy when 1..5, otherwise NULL. |
+| `sessions.feedback_submitted_at` | `mentoring_session.feedback_submitted_at` | timestamptz -> epoch ms; NULL kept. |
+| `sessions.created_at` | `mentoring_session.created_at` | timestamptz -> epoch ms. |
+| `sessions.updated_at` | `mentoring_session.updated_at` | timestamptz -> epoch ms. |
+
+Repair query for the mentor id (run against Postgres while exporting):
+
+```sql
+SELECT s.id,
+       COALESCE(u.id, m.user_id) AS mentor_user_id,
+       CASE WHEN u.id IS NOT NULL THEN 'user_id'
+            WHEN m.user_id IS NOT NULL THEN 'repaired_from_mentor_id'
+            ELSE 'orphan' END AS mentor_id_kind
+FROM sessions s
+LEFT JOIN app_users u ON u.id = s.mentor_id
+LEFT JOIN app_mentors m ON m.id = s.mentor_id;
+```
+
+Rows with `mentor_id_kind = 'orphan'` are not migrated. New indexes: `(mentor_user_id, scheduled_at)`, `(mentee_id, scheduled_at)`, `(status)`.
+
+### `app_roles` rows for this domain
+
+Not migrated as rows. The Rust permission strings map to the fixed catalog in `packages/permissions/src/catalog/dimentorin.ts`; fixed roles are granted in code (`packages/permissions/src/roles.ts`).
+
+## TS port decisions
+
+### Procedures
+
+`mentor` (13): `list`, `get`, `getByUser`, `me`, `register`, `meUpdate`, `documentUpload`, `reviewList`, `reviewGet`, `documentDownload`, `verify`, `update`, `remove`.
+`mentoring` (11): `availability`, `book`, `listMine`, `get`, `update`, `cancel`, `feedbackSubmit`, `manageList`, `overview`, `mentorStats`, `menteeList`.
+
+Public (no session): `mentor.list`, `mentor.get`, `mentor.getByUser`, `mentoring.availability`. They only show `active`, non-deleted mentors, and the public DTO has no email, phone, legal name, gender, domicile, documents, status or review fields. `bootstrap/router.test.ts` must list these four in `PUBLIC_PROCEDURES`; its "answers the public procedures without any session" case calls them with no input, so it also needs to accept an input-validation 400 for procedures that take input.
+
+Guards: `me`, `register`, `documentUpload` -> `mentor:register` (every member can apply and see their own application); `meUpdate` -> `mentor-profile:update`; `reviewList`, `reviewGet`, `documentDownload`, `verify` -> `mentor:verify`; `update` -> `mentor:update`; `remove` -> `mentor:delete`; `book`, `cancel`, `feedbackSubmit` -> `mentoring-session:create`; `listMine`, `get` -> `mentoring-session:read`; `update` (session) -> `mentoring-session:update`; `manageList`, `overview` -> `mentoring-session:manage`; `mentorStats`, `menteeList` -> `mentor-profile:read`. `mentor:read` is not used: browsing is public.
+
+### Mentor rules
+
+- Registration (B1 fixed): `mentor.register` works only for the signed-in user and creates or resubmits a pending application linked to `context.session.user.id`. No email, password or name is accepted, no user row is written. An account without a login signs up through IAM first. A second application is refused (409) while one is `pending`, `active` or `inactive`; a `rejected` or soft-deleted one may re-apply (atomic upsert on `user_id`, fixes B8).
+- Mentor status state machine: `(none | rejected | deleted) -register-> pending`; `pending -approve-> active`; `inactive -approve-> active`; `pending -reject-> rejected`. The write is a conditional `UPDATE ... WHERE status IN (...)`, so a concurrent decision gets 409. `inactive` exists only for migrated data.
+- Approval requires an uploaded identity document (400 otherwise). On approval the same `db.batch` sets `user.role = 'mentor'`, but only when the user's role is `user` (an admin or a custom role is never overwritten). Activity is recorded for approve and reject with the new status.
+- Delete is a soft delete (`deleted_at`); in the same batch the user's role goes back from `mentor` to `user`. Sessions are kept.
+- Every profile field the update endpoints accept is persisted (B6 fixed). `null` clears an optional field and `[]` clears a list (B7 fixed). Added `location` and `twitterUrl` (sent by the profile form). `bio` min 50, `legalName` min 3, phone 10..15, `yearsOfExperience` 2..60, URLs must be http(s), lists at most 30 items of at most 100 chars.
+- `mentoringRate` is an integer amount in IDR with no currency field: no caller reads a currency.
+- Documents (CV, identity) are private R2 objects under `mentor/cv/<uuid>.<ext>` and `mentor/identity/<uuid>.<ext>` (PDF, JPEG, PNG, WebP, max 5 MB). Only the key is stored and no URL is ever returned: DTOs expose `hasCv` / `hasIdentityDocument`. Verifiers download through `mentor.documentDownload`, which reads the object and returns it as a file (the platform has no signed-URL support). Uploading replaces the previous object and deletes it best effort.
+- Public list filters: `search` (name, role, company), `expertise`, `industry` (case-insensitive tag match), sort by `rating`, `sessions`, `yearsOfExperience`, `createdAt`. `ratingAverage`, `ratingCount`, `completedSessionCount` are computed from `mentoring_session`.
+
+### Session rules
+
+- One mentor id: sessions store `mentor_user_id` (user id). The DTO has `mentor.userId` and `mentor.mentorId` (profile id, null when the profile is deleted), plus mentee name/email/image (the Rust nulls are fixed).
+- Booking: must be in the future, not with yourself, the mentor must be `active`, and no overlapping `pending`/`confirmed` session for that mentor (duration aware). Mentor status and overlap are checked inside one `INSERT ... SELECT ... WHERE EXISTS/NOT EXISTS`, so two concurrent bookings cannot both win. `sessionType` is `online | offline` (the UI vocabulary). Duration 15..240, default 60.
+- Status state machine (`mentoring/domain/session-status.ts`): `pending -> confirmed` (mentor, manager); `pending -> cancelled` (mentee, mentor, manager); `confirmed -> completed | no_show` (mentor, manager, only after `scheduledAt`); `confirmed -> cancelled` (mentee, mentor, manager); `completed`, `cancelled`, `no_show` are terminal. Transitions are conditional on the status that was read (lost updates get 409).
+- Only participants and `mentoring-session:manage` holders can read or change a session; anyone else gets 404. The meeting link can be set or cleared by the mentor or a manager while the session is `pending` or `confirmed`.
+- Feedback: only the mentee, only for `completed` sessions, once (Rust allowed overwriting). Rating 1..5, text 10..2000.
+- Availability (public) returns the mentor's `availabilityCommitment`, `preferredMentoringFormats` and the busy intervals of open sessions for the next 14 days (`AVAILABILITY_WINDOW_DAYS`). Who booked is not revealed. The Rust hard-coded 9-16 UTC slots are dropped.
+
+### Behaviour changes vs Rust
+
+No `{data, version}` envelope, camelCase fields, ISO `Z` timestamps, `{items,total,page,pageSize}` pagination. M5 (`me/status`) is folded into `mentor.me` (returns the full private profile or `null`). M8 (stub) is dropped. S3 (any mentor's sessions to any user) is replaced by `listMine` with `role=mentor`. S6 now supports both sides and paging. Admin session list, session detail by id and a platform overview were added for the backoffice pages that faked them from `/sessions/me`.
+
+### Mock dashboards
+
+Provided from real data: mentor rating, completed sessions, mentees impacted, total feedback, pending and upcoming counts (`mentoring.mentorStats`); mentee list (`mentoring.menteeList`); feedback list with rating filter (`listMine` with `role=mentor`, `hasFeedback`, `rating`); user mentoring history (`listMine`); backoffice totals, status breakdown, average rating and top topics (`mentoring.overview`).
+
+### Open questions for the product owner
+
+1. Payments (QRIS/VA, the mentor payments table): no backend exists; out of scope.
+2. Structured weekly availability (session days and time slots in `mentoring-setup.tsx`) and topic toggles: needs a schedule model; today only `availabilityCommitment` text exists.
+3. `experience[]` and `education[]` on the mentor profile: belong to the IAM/profile module or a new table?
+4. Setup completeness (`Incomplete/Complete`) and `experienceLevel` on the dashboard: which fields define them?
+5. Should a mentor soft delete also cancel their open sessions and notify mentees? Today sessions are kept untouched.
+6. Should approval/rejection send an email? No mail is sent yet.
+7. Should applicants be able to edit a pending application other than by resubmitting `register`?
+8. `ongoing` (frontend) is not a stored status; the UI should derive it from `confirmed` and the time window.
+9. Legacy pending applications have no identity document; they must upload one before approval.
