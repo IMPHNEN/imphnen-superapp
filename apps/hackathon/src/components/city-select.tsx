@@ -1,5 +1,5 @@
 import { type FC, useState, useRef, useEffect } from 'react';
-import INDONESIAN_CITIES from '../constants/cities';
+import { HACKATHON_CITIES } from '@app/schemas';
 
 interface CitySelectProps {
   value: string;
@@ -19,7 +19,7 @@ export const CitySelect: FC<CitySelectProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredCities = INDONESIAN_CITIES.filter((city) =>
+  const filteredCities = HACKATHON_CITIES.filter((city) =>
     city.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
