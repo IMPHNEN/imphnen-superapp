@@ -20,7 +20,7 @@ export type TCurrentUser = {
   can: (...required: TPermission[]) => boolean;
 };
 
-const meOrNull = async (): Promise<TMe | null> => {
+export const meOrNull = async (): Promise<TMe | null> => {
   try {
     return await client.me.get();
   } catch (error) {

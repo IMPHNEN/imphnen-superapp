@@ -19,3 +19,4 @@ export {
   type TSessionStatus,
 } from './session-keys';
 export { type TCurrentUser, useCurrentUser } from './use-current-user';
+export { sessionEnsure } from './session-ensure';
