@@ -1,6 +1,5 @@
 import { MenuOutlined } from '@ant-design/icons';
 import { type FC, type ReactElement, useState } from 'react';
-import { Link } from '@tanstack/react-router';
 import { Button } from '../../atoms/button';
 import { useModalLogin } from '@imphnen-frontend-service/utils';
 import {
@@ -43,7 +42,7 @@ export const Navbar: FC = (): ReactElement => {
                   variant="text"
                   className="lg:text-p2 lg:max-h-[44px] text-primary-500 hover:text-primary-600 transition-colors"
                 >
-                  <Link to="#">Home</Link>
+                  <a href="/">Home</a>
                 </Button>
               </li>
               <li>
@@ -52,7 +51,7 @@ export const Navbar: FC = (): ReactElement => {
                   variant="text"
                   className="lg:text-p2 lg:max-h-[44px] text-gray-600 hover:text-gray-700 transition-colors"
                 >
-                  <Link to="#">Merch Gacha</Link>
+                  <a href="/">Merch Gacha</a>
                 </Button>
               </li>
               {!isAuthenticated ? (
@@ -88,20 +87,20 @@ export const Navbar: FC = (): ReactElement => {
                 <div className="absolute right-0 top-0 mt-5">
                   <ul className="mt-2 w-48 bg-white shadow-md border rounded-[16px] border-gray-200 px-5 py-3">
                     <li>
-                      <Link
-                        to="#"
+                      <a
+                        href="/"
                         className="block text-primary-500 hover:text-primary-600 transition-colors px-4 py-2 text-center font-semibold"
                       >
                         Home
-                      </Link>
+                      </a>
                     </li>
                     <li>
-                      <Link
-                        to="#"
+                      <a
+                        href="/"
                         className="block text-gray-600 transition-colors px-4 py-2 text-center font-semibold"
                       >
                         Merch Gacha
-                      </Link>
+                      </a>
                     </li>
                     {!isAuthenticated ? (
                       <li>

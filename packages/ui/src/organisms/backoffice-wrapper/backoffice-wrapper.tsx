@@ -1,6 +1,5 @@
 import type * as React from 'react';
 import { LogOut, User, Settings } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
 import {
   useCurrentUser,
   useSignOut,
@@ -40,7 +39,6 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
 }) => {
   const { me } = useCurrentUser();
   const signOutMutation = useSignOut();
-  const navigate = useNavigate();
   const user = me?.user;
   const initials = (user?.name ?? 'U')
     .split(' ')
@@ -124,7 +122,7 @@ export const BackofficeWrapper: React.FC<TBackofficeWrapperProps> = ({
                 onSelect={() => {
                   signOutMutation.mutate(undefined, {
                     onSuccess: (): void => {
-                      navigate({ to: '/auth/login' });
+                      window.location.assign('/auth/login');
                     },
                   });
                 }}
