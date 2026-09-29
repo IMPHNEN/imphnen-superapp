@@ -13,10 +13,8 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin/campaigns'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as PublicAuthForgotPasswordRouteImport } from './routes/_public/auth/forgot-password'
 import { Route as PublicAuthLoginRouteImport } from './routes/_public/auth/login'
 import { Route as PublicAuthResetPasswordRouteImport } from './routes/_public/auth/reset-password'
@@ -40,11 +38,6 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -56,11 +49,6 @@ const AuthenticatedAdminCampaignsRoute =
     path: '/campaigns',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
 const PublicAuthForgotPasswordRoute =
   PublicAuthForgotPasswordRouteImport.update({
     id: '/auth/forgot-password',
@@ -86,9 +74,7 @@ const PublicAuthSignupRoute = PublicAuthSignupRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/auth/callback': typeof AuthCallbackRoute
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -97,9 +83,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/auth/login': typeof PublicAuthLoginRoute
   '/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -111,10 +95,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_public/auth/forgot-password': typeof PublicAuthForgotPasswordRoute
   '/_public/auth/login': typeof PublicAuthLoginRoute
   '/_public/auth/reset-password': typeof PublicAuthResetPasswordRoute
@@ -126,9 +108,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/auth/callback'
     | '/admin/campaigns'
-    | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -137,9 +117,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth/callback'
     | '/admin/campaigns'
-    | '/admin/users'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -150,10 +128,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_public'
     | '/_authenticated/admin'
-    | '/auth/callback'
     | '/_authenticated/'
     | '/_authenticated/admin/campaigns'
-    | '/_authenticated/admin/users'
     | '/_public/auth/forgot-password'
     | '/_public/auth/login'
     | '/_public/auth/reset-password'
@@ -164,7 +140,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
-  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,13 +172,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -216,13 +184,6 @@ declare module '@tanstack/react-router' {
       path: '/campaigns'
       fullPath: '/admin/campaigns'
       preLoaderRoute: typeof AuthenticatedAdminCampaignsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_public/auth/forgot-password': {
@@ -258,13 +219,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCampaignsRoute: typeof AuthenticatedAdminCampaignsRoute
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCampaignsRoute: AuthenticatedAdminCampaignsRoute,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -305,7 +264,6 @@ const PublicRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
-  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

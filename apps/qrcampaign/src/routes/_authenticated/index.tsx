@@ -1,56 +1,70 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { Dropzone } from '../../app/features/watermark/components/Dropzone';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { createFileRoute } from '@tanstack/react-router';
+import { type ReactElement, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { api } from '../../app/features/auth/api/auth.service';
+import { Dropzone } from '../../app/features/watermark/components/Dropzone';
+import { CampaignQrCode } from '../../components/CampaignQrCode';
+import { useActiveCampaign, useWatermark } from './_hooks/use-watermark';
 
 export const Route = createFileRoute('/_authenticated/')({
   component: HomePage,
 });
 
-function HomePage() {
+function HomePage(): ReactElement {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [generatedFile, setGeneratedFile] = useState<File | null>(null);
+  const activeCampaign = useActiveCampaign();
+  const watermark = useWatermark();
+  const isLoading = watermark.isPending;
+
+  const originalImage = useMemo(
+    () => (imageFile ? URL.createObjectURL(imageFile) : null),
+    [imageFile]
+  );
+  const generatedImage = useMemo(
+    () => (generatedFile ? URL.createObjectURL(generatedFile) : null),
+    [generatedFile]
+  );
+
+  useEffect(
+    () => () => {
+      if (originalImage) URL.revokeObjectURL(originalImage);
+    },
+    [originalImage]
+  );
+  useEffect(
+    () => () => {
+      if (generatedImage) URL.revokeObjectURL(generatedImage);
+    },
+    [generatedImage]
+  );
 
   const handleImageDropped = (file: File) => {
     setImageFile(file);
-    setGeneratedImage(null);
+    setGeneratedFile(null);
     toast.success('Image selected ready for generation!');
   };
 
   const handleReset = () => {
     setImageFile(null);
-    setGeneratedImage(null);
+    setGeneratedFile(null);
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = (): void => {
     if (!imageFile) return;
 
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append('image', imageFile);
-
-    try {
-      const response = await api.post('/campaigns/process-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+    watermark.mutate(
+      { image: imageFile },
+      {
+        onSuccess: (file) => {
+          setGeneratedFile(file);
+          toast.success('QR Code generated successfully!');
         },
-        responseType: 'blob',
-      });
-
-      const imageUrl = URL.createObjectURL(response.data);
-      setGeneratedImage(imageUrl);
-      toast.success('QR Code generated successfully!');
-    } catch (error: any) {
-      console.error(error);
-      const message =
-        error.response?.data?.message || 'Failed to generate QR code.';
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+        onError: (error) => {
+          toast.error(error.message || 'Failed to generate QR code.');
+        },
+      }
+    );
   };
 
   const handleDownload = () => {
@@ -72,6 +86,18 @@ function HomePage() {
         <p className="text-gray-600">
           Upload your image to add the campaign QR code watermark.
         </p>
+        {activeCampaign.data ? (
+          <div className="mt-4 inline-flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-2">
+            <CampaignQrCode url={activeCampaign.data.url} size={40} />
+            <span className="text-sm text-gray-700">
+              Active campaign: <strong>{activeCampaign.data.name}</strong>
+            </span>
+          </div>
+        ) : activeCampaign.isError ? (
+          <p className="mt-4 text-sm text-amber-700">
+            There is no active campaign right now.
+          </p>
+        ) : null}
       </header>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
@@ -82,7 +108,7 @@ function HomePage() {
             <div className="relative w-full max-w-2xl bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center p-20 gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
                   <p className="text-gray-500 font-medium">
                     Processing image...
                   </p>
@@ -96,7 +122,7 @@ function HomePage() {
               ) : (
                 <div className="relative">
                   <img
-                    src={URL.createObjectURL(imageFile)}
+                    src={originalImage ?? undefined}
                     alt="Original"
                     className="w-full h-auto object-contain max-h-[400px]"
                   />

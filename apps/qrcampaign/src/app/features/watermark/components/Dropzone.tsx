@@ -69,7 +69,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({ onImageDropped }) => {
         id="file-upload"
         type="file"
         className="hidden"
-        accept="image/png, image/jpeg, image/jpg"
+        accept="image/png, image/jpeg, image/webp"
         onChange={handleFileInput}
       />
       <div className="space-y-2">
@@ -92,7 +92,9 @@ export const Dropzone: React.FC<DropzoneProps> = ({ onImageDropped }) => {
         <p className="text-lg font-medium text-slate-700">
           Drop your image here, or click to upload
         </p>
-        <p className="text-sm text-slate-500">Supports JPG and PNG</p>
+        <p className="text-sm text-slate-500">
+          Supports JPG, PNG and WebP (max 5 MB)
+        </p>
       </div>
     </div>
   );
