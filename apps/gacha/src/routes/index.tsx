@@ -1,19 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { ArrowDownOutlined } from '@ant-design/icons';
+import type { TGachaClaim } from '@app/schemas';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
-import { FC, Fragment, type ReactElement, useState } from 'react';
+import { Fragment, type ReactElement, useState } from 'react';
 import ModalFormForgotPassword from './_components/form/modal-form-forgot-password';
 import ModalFormLogin from './_components/form/modal-form-login';
 import ModalFormRegister from './_components/form/modal-form-register';
 import { GachaItem } from './_components/item/gacha-item';
+import { MyPrizes } from './_components/item/my-prizes';
 import { useModalLogin } from '@imphnen-frontend-service/utils';
 import {
-  useGachaItemList,
-  useUserCredits,
-  useExecuteGachaRoll,
-} from '@imphnen-frontend-service/service';
+  ROLL_ERROR_MESSAGE,
+  rollErrorMessage,
+  useGachaBalance,
+  useGachaItems,
+  useGachaRoll,
+  useMyPrizes,
+} from './_hooks/use-gacha';
 import { toast } from 'sonner';
-import type { TGachaRollItemDto } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/')({
   component: GachaHomePage,
@@ -23,14 +28,14 @@ function GachaHomePage(): ReactElement {
   const { showModalLogin, setShowModalLogin } = useModalLogin();
   const [showModalForgotPassword, setShowModalForgotPassword] = useState(false);
   const [showModalRegister, setShowModalRegister] = useState(false);
-  const [spinResult, setSpinResult] = useState<TGachaRollItemDto | null>(null);
+  const [spinResult, setSpinResult] = useState<TGachaClaim | null>(null);
 
-  const { data: creditsData } = useUserCredits();
-  const { data: itemsData } = useGachaItemList({ per_page: 10 });
-  const executeRoll = useExecuteGachaRoll();
-
-  const gachaItems = itemsData?.data ?? [];
-  const availableRolls = creditsData?.available_rolls ?? 0;
+  const { isAuthenticated } = useCurrentUser();
+  const balance = useGachaBalance();
+  const gachaItems = useGachaItems();
+  const myPrizes = useMyPrizes();
+  const executeRoll = useGachaRoll();
+  const availableRolls = balance ?? 0;
 
   const scrollToRoulette = () => {
     const rouletteSection = document.getElementById('roulette');
@@ -44,19 +49,22 @@ function GachaHomePage(): ReactElement {
     setShowModalForgotPassword(true);
   };
 
-  const handleSpin = async () => {
-    if (availableRolls <= 0) {
-      toast.error('Kamu tidak punya gacha roll. Beli dulu ya!');
+  const handleSpin = (): void => {
+    if (!isAuthenticated) {
+      setShowModalLogin(true);
       return;
     }
-    try {
-      const result = await executeRoll.mutateAsync();
-      setSpinResult(result);
-      const wonItem = gachaItems.find((item) => item.id === result.item_id);
-      toast.success(`Selamat! Kamu mendapatkan: ${wonItem?.name ?? 'item'}`);
-    } catch {
-      toast.error('Gagal spin gacha. Coba lagi ya!');
+    if (availableRolls <= 0) {
+      toast.error(ROLL_ERROR_MESSAGE.NOT_ENOUGH_CREDITS);
+      return;
     }
+    executeRoll.mutate(undefined, {
+      onSuccess: (result) => {
+        setSpinResult(result.claim);
+        toast.success(`Selamat! Kamu mendapatkan: ${result.claim.item.name}`);
+      },
+      onError: (error) => toast.error(rollErrorMessage(error)),
+    });
   };
 
   return (
@@ -87,7 +95,7 @@ function GachaHomePage(): ReactElement {
             <p>Gacha Your Prize Here</p>
           </div>
 
-          {creditsData && (
+          {balance !== undefined && (
             <div className="text-center text-p3 md:text-p2 bg-primary-100 rounded-md px-4 py-2 border border-primary-300">
               <span className="font-semibold">Roll tersisa: </span>
               <span className="text-primary-600 font-bold">
@@ -198,7 +206,7 @@ function GachaHomePage(): ReactElement {
         <div className="col-span-4 md:col-span-8 lg:col-span-6 flex flex-col items-center gap-4 md:gap-8 overflow-x-hidden">
           <div className="bg-white text-primary-500 font-medium text-p3 md:text-h3 shadow py-2 px-4 md:py-4 md:px-8 max-w-fit rounded-md md:rounded-lg">
             {spinResult
-              ? `Hadiahmu: ${gachaItems.find((i) => i.id === spinResult.item_id)?.name ?? 'Item'}`
+              ? `Hadiahmu: ${spinResult.item.name}`
               : 'Here Take Your Prize'}
           </div>
           <section
@@ -243,6 +251,8 @@ function GachaHomePage(): ReactElement {
             {executeRoll.isPending ? 'Spinning...' : 'Spin Now'}
           </Button>
         </div>
+
+        {isAuthenticated && <MyPrizes prizes={myPrizes} />}
       </section>
       <div className="sticky bottom-0 h-[86px] md:h-[200px] bg-gradient-to-b from-primary-500/0 to-primary-500/50 to-80%"></div>
 
