@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "imphnen",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "8e93002f-20fd-442d-b4c4-baedfe44a68f",
       "migrations_dir": "drizzle"
     }
   ],

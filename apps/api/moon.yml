@@ -20,7 +20,7 @@ tasks:
       runInCI: false
 
   deploy:
-    command: 'pnpm deploy'
+    command: 'pnpm run deploy'
     deps: ['~:typecheck', '~:test']
     options:
       runInCI: false
