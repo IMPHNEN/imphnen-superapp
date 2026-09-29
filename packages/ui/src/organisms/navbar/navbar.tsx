@@ -13,7 +13,7 @@ export const Navbar: FC = (): ReactElement => {
   const signOut = (): void => {
     signOutMutation.mutate(undefined, {
       onSuccess: (): void => {
-        window.location.href = '/auth/login';
+        window.location.href = '/';
       },
     });
   };

@@ -21,7 +21,11 @@ const unwrap = async <TData>(
   return data as TData;
 };
 
-export type TSignInInput = { email: string; password: string };
+export type TSignInInput = {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+};
 export type TSignUpInput = { email: string; password: string; name: string };
 export type TEmailOtpInput = { email: string; otp: string };
 export type TEmailInput = { email: string };
