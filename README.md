@@ -70,7 +70,7 @@ The SPAs call a same-origin `/v1`. On Pages, `deploy/pages/functions/v1/[[path]]
 One-off setup:
 
 1. Create the Pages projects: `pnpm exec wrangler login && make pages-create`
-2. Add repository secrets `CLOUDFLARE_API_TOKEN` (Pages: Edit) and `CLOUDFLARE_ACCOUNT_ID`
+2. Add repository secrets `CLOUDFLARE_API_TOKEN` (Pages: Edit) and `CLOUDFLARE_ACCOUNT_ID`, then set the repository variable `CLOUDFLARE_PAGES_ENABLED` to `true` (the deploy workflow stays off until then)
 3. Attach each custom domain to its `imphnen-<app>` project in the Cloudflare dashboard
 
 ## Known debt

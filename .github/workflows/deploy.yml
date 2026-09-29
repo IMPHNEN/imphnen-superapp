@@ -23,6 +23,7 @@ env:
 
 jobs:
   detect:
+    if: ${{ vars.CLOUDFLARE_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.pick.outputs.apps }}
