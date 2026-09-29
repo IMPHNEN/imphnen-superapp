@@ -26,6 +26,8 @@ const target: TUserRow = {
   emailVerified: false,
   image: null,
   role: ROLE.USER,
+  isActive: true,
+  deletedAt: null,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
 };
@@ -44,6 +46,7 @@ const layerBuild = (
         findByEmail: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
+        setActive: vi.fn(),
         remove: vi.fn(),
         resetPassword,
       })

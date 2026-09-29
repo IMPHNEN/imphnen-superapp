@@ -1,4 +1,5 @@
 import { PERMISSION } from '@app/permissions';
+import { userActiveSet } from '#/user/application/user-active-set.ts';
 import { userCreate } from '#/user/application/user-create.ts';
 import { userDelete } from '#/user/application/user-delete.ts';
 import { userGet } from '#/user/application/user-get.ts';
@@ -25,6 +26,11 @@ const userRouter = implementer.user.router({
   update: permissionGuarded(PERMISSION.USER_UPDATE).user.update.handler(
     ({ input, context }) =>
       effectRun(context.runtime, userUpdate(input, context.session.user.id))
+  ),
+
+  setActive: permissionGuarded(PERMISSION.USER_ACTIVATE).user.setActive.handler(
+    ({ input, context }) =>
+      effectRun(context.runtime, userActiveSet(input, context.session.user.id))
   ),
 
   remove: permissionGuarded(PERMISSION.USER_DELETE).user.remove.handler(

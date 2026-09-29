@@ -9,6 +9,7 @@ export const toUserDto = (row: TUserRow): TUser =>
     emailVerified: row.emailVerified,
     image: row.image,
     role: row.role,
+    isActive: row.isActive,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   });

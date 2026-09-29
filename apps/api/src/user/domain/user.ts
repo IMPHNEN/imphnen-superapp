@@ -1,4 +1,5 @@
 import type {
+  TUserActiveInput,
   TUserCreateInput,
   TUserListInput,
   TUserPasswordResetInput,
@@ -17,7 +18,13 @@ export type TUserRow = TBaseRow & {
   emailVerified: boolean;
   image: string | null;
   role: string;
+  isActive: boolean;
+  deletedAt: Date | null;
 };
+
+export const USER_FIELD = {
+  IS_ACTIVE: 'isActive',
+} as const;
 
 export type TUserRepo = {
   list: (input: TUserListInput) => Effect.Effect<TRowPage<TUserRow>, EDatabase>;
@@ -28,6 +35,9 @@ export type TUserRepo = {
   ) => Effect.Effect<TUserRow, EAuth | EConflict>;
   update: (
     input: TUserUpdateInput
+  ) => Effect.Effect<TUserRow | null, EDatabase>;
+  setActive: (
+    input: TUserActiveInput
   ) => Effect.Effect<TUserRow | null, EDatabase>;
   remove: (id: string) => Effect.Effect<boolean, EDatabase>;
   resetPassword: (input: TUserPasswordResetInput) => Effect.Effect<void, EAuth>;

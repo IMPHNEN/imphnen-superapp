@@ -1,40 +1,27 @@
 import { USER_MESSAGE } from '@app/messages';
 import { D } from '@mobily/ts-belt';
-import { and, count, eq, or, type SQL } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { Effect, Layer } from 'effect';
-import { match, P } from 'ts-pattern';
 import { EAuth, EConflict, EDatabase } from '#/shared/errors.ts';
 import { offsetFor, orderFor } from '#/shared/pagination.ts';
-import { USER_SORT, type TUserSort } from '@app/schemas';
-import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { UserRepo, type TUserRepo, type TUserRow } from '#/user/domain/user.ts';
-import { AuthService } from '#/auth/index.ts';
+import { AUTH_PROVIDER, AuthService } from '#/auth/index.ts';
 import { DbService } from '#/platform/db/db-service.ts';
-import { containsWhere } from '#/platform/db/search.ts';
+import {
+  activeWhere,
+  roleWhere,
+  SORT_COLUMN,
+  searchWhere,
+} from '#/user/infrastructure/user-filters.ts';
+import {
+  liveWhere,
+  userActiveWrite,
+  userSoftDelete,
+} from '#/user/infrastructure/user-lifecycle.ts';
 import { isUniqueViolation } from '#/platform/db/unique-violation.ts';
 import { session, user } from '#/platform/db/tables/auth.ts';
 
-const CREDENTIAL_PROVIDER_ID = 'credential';
 const USER_PROVISIONING_METHOD = 'admin';
-
-const SORT_COLUMN: Record<TUserSort, AnySQLiteColumn> = {
-  [USER_SORT.NAME]: user.name,
-  [USER_SORT.EMAIL]: user.email,
-  [USER_SORT.ROLE]: user.role,
-  [USER_SORT.CREATED_AT]: user.createdAt,
-};
-
-const searchWhere = (search: string | undefined): SQL | undefined =>
-  match(search)
-    .with(P.nonNullable, (value) =>
-      or(containsWhere(user.name, value), containsWhere(user.email, value))
-    )
-    .otherwise(() => undefined);
-
-const roleWhere = (role: string | undefined): SQL | undefined =>
-  match(role)
-    .with(P.nonNullable, (value) => eq(user.role, value))
-    .otherwise(() => undefined);
 
 export const userRepoLayer = Layer.effect(
   UserRepo,
@@ -47,10 +34,16 @@ export const userRepoLayer = Layer.effect(
       pageSize,
       search,
       role,
+      isActive,
       sortBy,
       sortDir,
     }) => {
-      const where = and(searchWhere(search), roleWhere(role));
+      const where = and(
+        liveWhere,
+        searchWhere(search),
+        roleWhere(role),
+        activeWhere(isActive)
+      );
 
       return Effect.tryPromise({
         try: async () => {
@@ -76,7 +69,7 @@ export const userRepoLayer = Layer.effect(
           const [row] = await db
             .select()
             .from(user)
-            .where(eq(user.id, id))
+            .where(and(eq(user.id, id), liveWhere))
             .limit(1);
           return row ?? null;
         },
@@ -96,17 +89,29 @@ export const userRepoLayer = Layer.effect(
         catch: (cause) => new EDatabase({ cause }),
       });
 
-    const create: TUserRepo['create'] = ({ name, email, password, role }) =>
+    const create: TUserRepo['create'] = ({
+      name,
+      email,
+      password,
+      role,
+      isActive,
+    }) =>
       Effect.tryPromise({
         try: async () => {
           const ctx = await auth.$context;
           const created = await ctx.internalAdapter.createUser(
-            { name, email: email.toLowerCase(), emailVerified: false, role },
+            {
+              name,
+              email: email.toLowerCase(),
+              emailVerified: true,
+              role,
+              isActive,
+            },
             { method: USER_PROVISIONING_METHOD }
           );
           const hashed = await ctx.password.hash(password);
           await ctx.internalAdapter.linkAccount({
-            providerId: CREDENTIAL_PROVIDER_ID,
+            providerId: AUTH_PROVIDER.CREDENTIAL,
             accountId: created.id,
             userId: created.id,
             password: hashed,
@@ -130,22 +135,22 @@ export const userRepoLayer = Layer.effect(
           const [row] = await db
             .update(user)
             .set(D.merge(patch, { updatedAt: new Date() }))
-            .where(eq(user.id, id))
+            .where(and(eq(user.id, id), liveWhere))
             .returning();
           return row ?? null;
         },
         catch: (cause) => new EDatabase({ cause }),
       });
 
+    const setActive: TUserRepo['setActive'] = (input) =>
+      Effect.tryPromise({
+        try: () => userActiveWrite(db, input),
+        catch: (cause) => new EDatabase({ cause }),
+      });
+
     const remove: TUserRepo['remove'] = (id) =>
       Effect.tryPromise({
-        try: async () => {
-          const result = await db
-            .delete(user)
-            .where(eq(user.id, id))
-            .returning({ id: user.id });
-          return result.length > 0;
-        },
+        try: () => userSoftDelete(db, id),
         catch: (cause) => new EDatabase({ cause }),
       });
 
@@ -166,6 +171,7 @@ export const userRepoLayer = Layer.effect(
       findByEmail,
       create,
       update,
+      setActive,
       remove,
       resetPassword,
     });

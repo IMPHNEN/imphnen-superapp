@@ -1,6 +1,6 @@
 import { ROLE_MESSAGE } from '@app/messages';
 import { A, D } from '@mobily/ts-belt';
-import { count, eq } from 'drizzle-orm';
+import { count, eq, isNull } from 'drizzle-orm';
 import { Effect, Layer } from 'effect';
 import { EConflict, EDatabase } from '#/shared/errors.ts';
 import {
@@ -24,6 +24,7 @@ export const customRoleRepoLayer = Layer.effect(
           const rows = await db
             .select({ role: user.role, value: count() })
             .from(user)
+            .where(isNull(user.deletedAt))
             .groupBy(user.role);
           return D.fromPairs(
             A.map(rows, (row) => [row.role, row.value] as const)

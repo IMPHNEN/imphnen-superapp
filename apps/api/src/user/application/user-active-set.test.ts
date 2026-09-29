@@ -2,13 +2,14 @@ import { ACTIVITY_ACTION, ACTIVITY_DETAIL } from '@app/activity';
 import { ROLE } from '@app/permissions';
 import { Effect, Layer } from 'effect';
 import { describe, expect, it, type Mock, vi } from 'vitest';
-import { EForbidden, ENotFound } from '#/shared/errors.ts';
-import { userDelete } from '#/user/application/user-delete.ts';
 import {
   ActivityRecorder,
   type TActivityRecorderId,
 } from '#/shared/activity-recorder.ts';
+import { EForbidden, ENotFound } from '#/shared/errors.ts';
+import { userActiveSet } from '#/user/application/user-active-set.ts';
 import {
+  USER_FIELD,
   UserRepo,
   type TUserRepoId,
   type TUserRow,
@@ -21,20 +22,19 @@ const target: TUserRow = {
   id: TARGET_ID,
   name: 'Member',
   email: 'member@test.app',
-  emailVerified: false,
+  emailVerified: true,
   image: null,
   role: ROLE.USER,
-  isActive: true,
+  isActive: false,
   deletedAt: null,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
 };
 
-type TMocks = { findById: Mock; remove: Mock; insert: Mock };
+type TMocks = { setActive: Mock; insert: Mock };
 
-const mocksBuild = (found: TUserRow | null): TMocks => ({
-  findById: vi.fn().mockReturnValue(Effect.succeed(found)),
-  remove: vi.fn().mockReturnValue(Effect.succeed(true)),
+const mocksBuild = (updated: TUserRow | null): TMocks => ({
+  setActive: vi.fn().mockReturnValue(Effect.succeed(updated)),
   insert: vi.fn().mockReturnValue(Effect.succeed(undefined)),
 });
 
@@ -46,12 +46,12 @@ const layerBuild = (
       UserRepo,
       UserRepo.of({
         list: vi.fn(),
-        findById: mocks.findById,
+        findById: vi.fn(),
         findByEmail: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
-        setActive: vi.fn(),
-        remove: mocks.remove,
+        setActive: mocks.setActive,
+        remove: vi.fn(),
         resetPassword: vi.fn(),
       })
     ),
@@ -61,51 +61,55 @@ const layerBuild = (
     )
   );
 
-describe('userDelete', () => {
-  it('refuses to delete the acting user', async (): Promise<void> => {
+describe('userActiveSet', () => {
+  it('refuses to let the actor deactivate themselves', async (): Promise<void> => {
     const mocks = mocksBuild(target);
 
     const error = await Effect.runPromise(
-      userDelete({ id: ACTOR_ID }, ACTOR_ID).pipe(
+      userActiveSet({ id: ACTOR_ID, isActive: false }, ACTOR_ID).pipe(
         Effect.provide(layerBuild(mocks)),
         Effect.flip
       )
     );
 
     expect(error).toBeInstanceOf(EForbidden);
-    expect(mocks.remove).not.toHaveBeenCalled();
+    expect(mocks.setActive).not.toHaveBeenCalled();
   });
 
-  it('fails with ENotFound for an unknown user', async (): Promise<void> => {
+  it('fails with ENotFound for a missing or deleted user', async (): Promise<void> => {
     const mocks = mocksBuild(null);
 
     const error = await Effect.runPromise(
-      userDelete({ id: TARGET_ID }, ACTOR_ID).pipe(
+      userActiveSet({ id: TARGET_ID, isActive: true }, ACTOR_ID).pipe(
         Effect.provide(layerBuild(mocks)),
         Effect.flip
       )
     );
 
     expect(error).toBeInstanceOf(ENotFound);
-    expect(mocks.remove).not.toHaveBeenCalled();
+    expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it('deletes the user and records their email and role', async (): Promise<void> => {
+  it('deactivates the user and records the change', async (): Promise<void> => {
     const mocks = mocksBuild(target);
 
-    await Effect.runPromise(
-      userDelete({ id: TARGET_ID }, ACTOR_ID).pipe(
+    const result = await Effect.runPromise(
+      userActiveSet({ id: TARGET_ID, isActive: false }, ACTOR_ID).pipe(
         Effect.provide(layerBuild(mocks))
       )
     );
 
-    expect(mocks.remove).toHaveBeenCalledWith(TARGET_ID);
+    expect(result.isActive).toBe(false);
+    expect(mocks.setActive).toHaveBeenCalledWith({
+      id: TARGET_ID,
+      isActive: false,
+    });
     expect(mocks.insert).toHaveBeenCalledWith(
       expect.objectContaining({
-        action: ACTIVITY_ACTION.USER_DELETE,
+        action: ACTIVITY_ACTION.USER_UPDATE,
         metadata: {
           [ACTIVITY_DETAIL.EMAIL]: target.email,
-          [ACTIVITY_DETAIL.ROLE]: target.role,
+          [ACTIVITY_DETAIL.CHANGED_FIELDS]: USER_FIELD.IS_ACTIVE,
         },
       })
     );

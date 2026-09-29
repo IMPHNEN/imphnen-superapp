@@ -1,3 +1,4 @@
+import { userActiveSet } from '#/user/application/user-active-set.ts';
 import { userCreate } from '#/user/application/user-create.ts';
 import { userDelete } from '#/user/application/user-delete.ts';
 import { userGet } from '#/user/application/user-get.ts';
@@ -10,6 +11,7 @@ export const userApplication = {
   get: userGet,
   create: userCreate,
   update: userUpdate,
+  setActive: userActiveSet,
   remove: userDelete,
   resetPassword: userPasswordReset,
 };
