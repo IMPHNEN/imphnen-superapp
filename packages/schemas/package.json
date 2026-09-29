@@ -14,6 +14,7 @@
     "@app/activity": "workspace:*",
     "@app/messages": "workspace:*",
     "@app/permissions": "workspace:*",
+    "@mobily/ts-belt": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
