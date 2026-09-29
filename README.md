@@ -73,6 +73,20 @@ One-off setup:
 2. Add repository secrets `CLOUDFLARE_API_TOKEN` (Pages: Edit) and `CLOUDFLARE_ACCOUNT_ID`, then set the repository variable `CLOUDFLARE_PAGES_ENABLED` to `true` (the deploy workflow stays off until then)
 3. Attach each custom domain to its `imphnen-<app>` project in the Cloudflare dashboard
 
+### API (Cloudflare Workers)
+
+- **`.github/workflows/deploy-api.yml`**: on push to `develop` touching the API or its shared packages, typecheck and test it, apply pending D1 migrations to the remote database, then `wrangler deploy` the `imphnen-api` Worker on `api.imphnen.dev`
+
+One-off setup (from `apps/api`, after `pnpm exec wrangler login`):
+
+1. `pnpm exec wrangler d1 create imphnen`, and put the returned `database_id` into `apps/api/wrangler.jsonc`
+2. `pnpm exec wrangler r2 bucket create imphnen-storage`, and give the bucket the public custom domain named by `STORAGE_PUBLIC_URL` (`cdn.imphnen.dev`)
+3. `pnpm exec wrangler email sending enable imphnen.dev`, so the Worker can send from `MAIL_FROM`
+4. Secrets: `pnpm exec wrangler secret put BETTER_AUTH_SECRET` (32+ random characters), plus `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` if Google sign-in is wanted
+5. Make sure the `CLOUDFLARE_API_TOKEN` secret can also edit Workers, D1 and R2, then set the repository variable `CLOUDFLARE_WORKERS_ENABLED` to `true`
+
+The first production deploy is part of the data cutover in `tools/legacy-migration/README.md`: the Worker takes over `api.imphnen.dev` from the old server, so run it together with the data migration.
+
 ## Known debt
 
 The Nx setup never ran `tsc` or unit tests in CI, so these gates start partly off:
