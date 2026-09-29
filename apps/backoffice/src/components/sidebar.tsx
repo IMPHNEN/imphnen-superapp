@@ -39,10 +39,12 @@ import {
   SidebarMenuSubItem,
 } from '@imphnen-frontend-service/ui/atoms';
 import { cn } from '@imphnen-frontend-service/utils';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { PAGE_PERMISSION, type TPagePath } from '../libs/access';
 
 type MenuLink = {
   label: string;
-  href: string;
+  href: TPagePath;
   icon: React.ComponentType<{ className?: string }>;
 };
 
@@ -133,6 +135,14 @@ const isMenuGroup = (item: MenuItem): item is MenuGroup =>
 export const BackofficeSidebar: FC = (): ReactElement => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { can } = useCurrentUser();
+  const canOpen = (link: MenuLink): boolean => can(PAGE_PERMISSION[link.href]);
+  const menus = MENUS.flatMap((menu): MenuItem[] => {
+    if (!isMenuGroup(menu)) return canOpen(menu) ? [menu] : [];
+    const children = menu.children.filter(canOpen);
+    return children.length > 0 ? [{ ...menu, children }] : [];
+  });
+  const flatMenus = FLAT_MENUS.filter(canOpen);
 
   const isActive = (path: string) => {
     if (
@@ -176,7 +186,7 @@ export const BackofficeSidebar: FC = (): ReactElement => {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {MENUS.map((menu) => {
+              {menus.map((menu) => {
                 const GroupIcon = menu.icon;
                 const open = !!openGroups[menu.label];
                 const groupHasActive =
@@ -229,27 +239,29 @@ export const BackofficeSidebar: FC = (): ReactElement => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {FLAT_MENUS.map((menu) => {
-                const Icon = menu.icon;
-                return (
-                  <SidebarMenuItem key={menu.href}>
-                    <SidebarMenuButton
-                      isActive={isActive(menu.href)}
-                      onClick={() => navigate({ to: menu.href })}
-                    >
-                      <Icon className="size-4" />
-                      <span>{menu.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {flatMenus.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>System</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {flatMenus.map((menu) => {
+                  const Icon = menu.icon;
+                  return (
+                    <SidebarMenuItem key={menu.href}>
+                      <SidebarMenuButton
+                        isActive={isActive(menu.href)}
+                        onClick={() => navigate({ to: menu.href })}
+                      >
+                        <Icon className="size-4" />
+                        <span>{menu.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

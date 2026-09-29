@@ -246,6 +246,15 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@app/messages':
+        specifier: workspace:*
+        version: link:../../packages/messages
+      '@app/permissions':
+        specifier: workspace:*
+        version: link:../../packages/permissions
+      '@app/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@4.6.5)

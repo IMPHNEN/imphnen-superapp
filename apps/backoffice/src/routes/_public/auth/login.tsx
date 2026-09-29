@@ -1,46 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import {
-  useLogin,
-  authLoginSchema,
-  type TLoginRequest,
-} from '@imphnen-frontend-service/service';
-import { useNavigate } from '@tanstack/react-router';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
+import { useLogin } from './_hooks/use-login';
 
 export const Route = createFileRoute('/_public/auth/login')({
   component: LoginPage,
 });
 
 function LoginPage() {
-  const navigate = useNavigate();
-  const loginMutation = useLogin();
+  const { form, onSubmit, isLoading, error } = useLogin();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const {
     register,
-    handleSubmit,
     formState: { errors, isValid },
-  } = useForm<TLoginRequest>({
-    resolver: zodResolver(authLoginSchema),
-    mode: 'onChange',
-    defaultValues: { email: '', password: '' },
-  });
-
-  const onSubmit = handleSubmit(async (data) => {
-    setError(null);
-    try {
-      await loginMutation.mutateAsync(data);
-      toast.success('Login successful!');
-      navigate({ to: '/' });
-    } catch (err) {
-      setError((err as Error).message || 'Login failed');
-    }
-  });
+  } = form;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -70,10 +43,10 @@ function LoginPage() {
             </label>
             <input
               id="email"
-              type="text"
+              type="email"
               {...register('email')}
               placeholder="your@email.com"
-              disabled={loginMutation.isPending}
+              disabled={isLoading}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed ${errors.email ? 'border-red-400' : 'border-gray-300'}`}
             />
             {errors.email && (
@@ -96,7 +69,7 @@ function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 {...register('password')}
                 placeholder="••••••••"
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
                 className={`w-full px-4 py-2.5 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed ${errors.password ? 'border-red-400' : 'border-gray-300'}`}
               />
               <button
@@ -119,10 +92,10 @@ function LoginPage() {
 
           <button
             type="submit"
-            disabled={!isValid || loginMutation.isPending}
+            disabled={!isValid || isLoading}
             className="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
-            {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 

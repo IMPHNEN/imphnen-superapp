@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
+    "@app/messages": "workspace:*",
+    "@app/permissions": "workspace:*",
+    "@app/schemas": "workspace:*",
     "@hookform/resolvers": "catalog:",
     "@iconify/react": "catalog:",
     "@imphnen-frontend-service/service": "workspace:*",
