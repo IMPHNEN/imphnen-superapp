@@ -590,3 +590,214 @@ Frontend calls with **no matching backend route**:
 25. **401s are plain text.** The frontend reads `error.response.data.message`, which is undefined for them, but still refreshes on 401 status, so this is fine. In the port, JSON `{message,version}` would be harmless.
 26. **Unknown-route auth ordering.** Each sub-router uses `.layer(...)`, not `.route_layer(...)`, so unauthenticated requests to some unknown `/v1/hackathon/*` paths may return 401 rather than 404. This is a minor parity note.
 27. **Frontend target runtime.** The TS `apps/api` is Cloudflare Workers + D1 (SQLite) + R2 with a 1 MiB default body limit (`apps/api/src/platform/http/mount-body-limit.ts`). Postgres-specific features used here are `text[]` (skills, screenshots), `ILIKE`, `timestamptz`, `EXISTS`, and `ON CONFLICT`. SQLite needs JSON arrays for the `text[]` columns and `LIKE ... COLLATE NOCASE` for `ILIKE`. Uploads should move to multipart with R2 `publicUrlOf`.
+
+---
+
+## Migration mapping (TS port)
+
+Target: D1 tables in `apps/api/src/platform/db/tables/hackathon.ts`. General transforms that apply to every table below:
+
+- **UUIDs** stay as they are, written as lowercase hyphenated text. Every migrated row keeps its old `id`.
+- **timestamptz** becomes an integer of epoch milliseconds (UTC): `floor(extract(epoch from col) * 1000)`. Microseconds are truncated.
+- **text[]** becomes a JSON array stored as text (`'["a","b"]'`). `NULL` becomes `'[]'`.
+- **User id remap (`uid()` below).** Every column that pointed at `hackathon_users.id` is rewritten to a platform `user.id` using this order:
+  1. `user.id` of the platform user whose `user.email = lower(trim(hackathon_users.email))`;
+  2. otherwise the platform user whose `user.id = hackathon_users.id` (the old JWT user id was the IAM id, so this catches users who changed email in IAM);
+  3. otherwise a **new platform user is created** with `id = hackathon_users.id`, `name = fullname`, `email = lower(trim(email))`, `email_verified = false`, `image = avatar URL (see avatar below)`, `role = 'user'` (or the admin role below), and **no `account` row**. Such users sign in through password reset (or social sign-in once account linking by email is enabled in IAM). List these users in the migration report.
+  If two `hackathon_users` rows resolve to the same platform user (same email in different case), the participant profile takes the row with the latest `updated_at`, and their memberships are merged under the one-team rule below.
+- **Storage objects.** Old values in `logo`, `banner`, `avatar`, `screenshots[]` and `presentation_url` are either MinIO object keys (`<folder>/<uuid>.<ext>`, no scheme), or absolute URLs. A value is a legacy key when it has no `://`. Legacy keys are copied from the MinIO bucket (`MINIO_BUCKET_NAME`, default `imphnen-uploads`) to R2 bucket `imphnen-storage` under the new key shown per column, keeping the basename (`<uuid>.<ext>`). An absolute URL that points at the MinIO host (`https://<MINIO_ENDPOINT host>/<bucket>/<key>`) is treated as its key. Any other absolute URL is left as described per column.
+
+### `hackathon_users` → `hackathon_participant` (+ `user`)
+
+One row per resolved platform user, `user_id = uid(id)`.
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | `hackathon_participant.user_id` | `uid(id)` (see remap) |
+| email | none | Used only for the remap. Identity email is `user.email`. |
+| fullname | `user.name` only for users created by the remap | Dropped for matched users (identity comes from `user`). |
+| avatar | `user.image` only when `user.image IS NULL` | Legacy key: copy to R2 `hackathon/avatar/<basename>`, store the public URL `${STORAGE_PUBLIC_URL}/hackathon/avatar/<basename>`. Absolute non-MinIO URL: store as is. Otherwise dropped. |
+| phone_number | phone_number | as is |
+| location | location | as is |
+| bio | bio | as is |
+| skills | skills | `text[]` → JSON text, `NULL` → `'[]'` |
+| is_active | none | Dropped: never read by any code path. |
+| is_admin | `user.role` (see below) | Mapped to a role that holds `hackathon:manage`. |
+| created_at | created_at | ms; `NULL` → migration time |
+| updated_at | updated_at | ms; `NULL` → created_at |
+
+**`is_admin` → `hackathon:manage`.** Which users had it is data, not code: no seed, fixture or migration in either repository sets it (it was only written by `POST /admin/users/{id}/set-admin`). Produce the list at migration time with `SELECT id, email FROM hackathon_users WHERE is_admin IS TRUE` and put it in the migration report. For each of them, by current platform role:
+
+- `superadmin` or `admin`: no change (both already hold every permission).
+- `user`: set `user.role = 'hackathon_admin'` and create once the `custom_role` row `key = 'hackathon_admin'`, `label = 'Hackathon admin'`, `permissions` = every permission of the fixed `user` role (`ROLE_PERMISSIONS.user` in `packages/permissions/src/roles.ts`, which already includes `hackathon:participate`) plus `hackathon:manage`. Including the member permissions matters: a custom role replaces the fixed role, so leaving them out would take gacha, mentor, roadmap and testimonial access away.
+- `mentor`: set `user.role = 'hackathon_admin_mentor'` with a custom role holding `ROLE_PERMISSIONS.mentor` plus `hackathon:manage`.
+- any other custom role: flag for a manual decision.
+
+### `hackathon_teams` → `hackathon_team`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| name | name | as is |
+| description | description | as is (nullable) |
+| city | city | as is (the stored casing is kept) |
+| visibility | visibility | `lower(trim(visibility))`; `'public'` stays `'public'`, any other value becomes `'private'` (it was already hidden from browse) |
+| logo | logo_key | Legacy key: copy to R2 `hackathon/team/<basename>`, store that key. Absolute non-MinIO URL: download and re-upload to `hackathon/team/<new uuid>.<ext>`; if that fails, `NULL`. |
+| banner | banner_key | Same as `logo`. |
+| leader_id | leader_id | `uid(leader_id)` |
+| created_at | created_at | ms |
+| updated_at | updated_at | ms |
+
+### `hackathon_team_members` → `hackathon_team_member`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is. This id is also the new **certificate id**. |
+| team_id | team_id | as is |
+| user_id | user_id | `uid(user_id)` |
+| role | role | `'leader'` stays; anything else becomes `'member'` |
+| status | none | Only rows with `status = 'active'` are migrated; other rows were invisible to every query and are dropped. |
+| joined_at | joined_at | ms; `NULL` → the team's `created_at` |
+
+New constraint `UNIQUE (user_id)` (one team per user). If a user has more than one active membership (possible through the old races), keep the membership where they are `leader`, otherwise the earliest `joined_at`, drop the others, and list them in the migration report. The old `UNIQUE (team_id, user_id)` is implied. Every team's `leader_id` must have a `role = 'leader'` row; if it is missing, insert one with `joined_at = team.created_at` (report it if the leader already belongs to another team). Teams that already exceed 5 members are migrated as they are (the limit is enforced on join only).
+
+### `hackathon_team_invitations` → `hackathon_invitation`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| team_id | team_id | as is |
+| inviter_id | inviter_id | `uid(inviter_id)` |
+| invitee_email | invitee_email | `lower(trim(invitee_email))` (matching is now case-insensitive) |
+| status | status | as is (`pending`, `accepted`, `rejected`); unknown values → `rejected` |
+| created_at | created_at | ms; `NULL` → migration time |
+| (none) | updated_at | = created_at |
+
+New partial unique index on `(team_id, invitee_email) WHERE status = 'pending'`: when several pending rows collide after lowercasing, keep the newest pending one and set the others to `rejected`.
+
+### `hackathon_team_join_requests` → `hackathon_join_request`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| team_id | team_id | as is |
+| user_id | user_id | `uid(user_id)` |
+| message | message | as is (`NULL` → `''`) |
+| status | status | as is; unknown values → `rejected` |
+| created_at | created_at | ms; `NULL` → migration time |
+| (none) | updated_at | = created_at |
+
+New partial unique index on `(team_id, user_id) WHERE status = 'pending'`: keep the newest pending row per pair, set the others to `rejected`.
+
+### `hackathon_project_submissions` → `hackathon_submission`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| team_id | team_id | as is (now `UNIQUE`) |
+| project_name | project_name | as is |
+| description | description | as is |
+| repository_url | repository_url | as is |
+| demo_url | demo_url | as is |
+| presentation_url | presentation_url | Absolute URL: as is. Legacy key (an uploaded file): copy to R2 `hackathon/submission/<basename>` and store its public URL `${STORAGE_PUBLIC_URL}/hackathon/submission/<basename>`. |
+| (none) | video_url | `NULL` (new column; the frontend already sent `video_url`, which Rust dropped) |
+| screenshots | screenshot_keys | `text[]` → JSON array of keys. Each legacy key is copied to R2 `hackathon/submission/<basename>` and replaced by that key. Absolute non-MinIO URLs: download and re-upload to `hackathon/submission/<new uuid>.<ext>`, or drop the element if that fails. `NULL` → `'[]'`. |
+| status | status | `draft`, `pending`, `submitted` as is; `confirmed` → `submitted`; `cancelled` → `draft`; anything else → `draft` |
+| submitted_at | submitted_at | ms, nullable |
+| submitted_by | created_by | `uid(submitted_by)` (it always was the creator). `ON DELETE SET NULL`. |
+| created_at | created_at | ms; `NULL` → migration time |
+| updated_at | updated_at | ms; `NULL` → created_at |
+
+If a team has several submission rows, keep the most advanced one (`submitted` > `pending` > `draft`, ties by latest `updated_at`) and report the others.
+
+### `hackathon_winners` → `hackathon_winner`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| team_id | team_id | as is (still `UNIQUE`) |
+| rank | rank | as is |
+| prize | prize | as is |
+| announced_at | announced_at | ms; `NULL` → created_at, then migration time |
+| created_at | created_at | ms; `NULL` → migration time |
+| updated_at | updated_at | ms; `NULL` → created_at |
+
+### `hackathon_team_messages` → `hackathon_message`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | as is |
+| team_id | team_id | as is |
+| user_id | user_id | `uid(user_id)`. Rows whose author cannot be resolved at all were already hidden (inner join) and are dropped. |
+| message | body | as is |
+| created_at | created_at | ms; `NULL` → migration time |
+| updated_at | none | Dropped: always equal to `created_at`, there is no edit. |
+
+### Deletes and cascades in the new schema
+
+`hackathon_team.leader_id`, `hackathon_team_member.user_id`, `hackathon_invitation.inviter_id`, `hackathon_join_request.user_id` and `hackathon_message.user_id` cascade when the platform `user` is deleted (deleting a leader deletes their team). `hackathon_submission.created_by` is set to `NULL`. Every team child table cascades on team delete.
+
+---
+
+## TS port decisions
+
+### Shape of the port
+
+One module, `hackathon`, with one contract namespace and entity sub-routers: `participant`, `team`, `invitation`, `joinRequest`, `message`, `submission`, `upload`, `winner`, `certificate`, `admin` (37 procedures). Participant procedures require `hackathon:participate`, admin procedures `hackathon:manage`. Plain `{ data, version }` envelopes and Rust error prefixes are gone; errors are the standard tagged errors with copy in `HACKATHON_MESSAGE`.
+
+**Public procedures (no session):** `hackathon.team.browse`, `hackathon.team.get`, `hackathon.winner.list`, `hackathon.certificate.get`. `apps/api/src/bootstrap/router.test.ts` lists them in `PUBLIC_PROCEDURES`, and its last test now asserts that public procedures are never answered with 401/403 (a public procedure with a required input cannot return success when called with no input, as the old assertion expected).
+
+### Decisions
+
+- **Identity.** Participants are platform users. `hackathon_participant` keeps only hackathon fields (phone, location, bio, skills), keyed by `user.id`; name, email and avatar come from `user`. The profile row is created lazily (`INSERT ... ON CONFLICT DO NOTHING`) in the same batch as creating a team, accepting an invitation or having a join request accepted, and by `participant.updateMe`. `participant.me` answers from `user` even without a profile row. This fixes "nothing creates `hackathon_users`".
+- **Atomic limits on D1.** No read-then-write guards the invariants:
+  - one team per user: `UNIQUE (hackathon_team_member.user_id)`; a violation rolls back the whole batch (team create inserts team and leader membership in one `db.batch`);
+  - max 5 members, submission lock and "still pending": the member row is inserted with `INSERT ... SELECT ... WHERE (member count) < 5 AND NOT EXISTS (submission) AND EXISTS (pending invitation or request)`; the accept, the rejection of the joiner's other pending invitations and join requests, and the participant profile are in the same batch, each conditional on the membership existing, so a refused insert changes nothing else;
+  - leave and member removal: `DELETE ... WHERE role = 'member' AND NOT EXISTS (submission)`;
+  - team delete by leader: `DELETE ... WHERE (member count) <= 1`;
+  - submission create: `INSERT ... SELECT ... WHERE (member count) >= 2` plus `UNIQUE (team_id)`; status changes are `UPDATE ... WHERE status IN (...)` (submit also re-checks `>= 2`);
+  - pending duplicates: partial unique indexes on invitations `(team_id, invitee_email)` and join requests `(team_id, user_id)` where `status = 'pending'`.
+  These are tested against real SQLite (`node:sqlite` behind a D1-shaped adapter, `infrastructure/testing/memory-d1.ts`), including racing accepts.
+- **Deadlines** are `HACKATHON_DEADLINE` in `packages/schemas/src/hackathon/constants.ts` (shared with the web), with the Rust values. The backoffice has no screen for them, so they are constants, not admin settings. Limits are `HACKATHON_LIMIT` in the same file.
+- **Uploads**: `hackathon.upload.create` takes multipart `{ kind, file }` (`team_logo`, `team_banner`, `submission_screenshot`), max 5 MB, JPEG/PNG/WebP/GIF decided by magic bytes (the claimed content type is ignored), stored in R2 as `hackathon/team/<uuid>.<ext>` or `hackathon/submission/<uuid>.<ext>`. It returns `{ key, url }`. Teams and submissions store keys (`logoKey`, `bannerKey`, `screenshotKeys`, validated to our prefixes) and DTOs return public URLs. All hackathon uploads are public images, so no private download procedure was needed.
+- **Chat** stays polling. `message.list` takes `before` or `after` (a message id) and `limit` (default 50, max 100) and returns `{ items, hasMore }` in chronological order; poll with `after = last id`.
+- **Invitations and join requests** answer with `{ id, accept: boolean }`. State machines:
+  - invitation: `pending → accepted` (invitee accepts; joins the team) | `pending → rejected` (invitee declines, or auto when the invitee joins any team). Terminal otherwise.
+  - join request: `pending → accepted` (leader accepts; requester joins) | `pending → rejected` (leader declines, or auto when the requester joins any team). Terminal otherwise.
+  Accepting is gated by the team deadline for both (Rust gated only join-request accept); declining is always allowed.
+- **Privacy.** Public team views return members as `{ user: { id, name, image }, role, joinedAt, contact }` with `contact` (email, phone) only for team members and `hackathon:manage` holders. `participant.get` has no email or phone. Join requests shown to a leader carry no email. Certificates carry no email.
+- **Certificates** are rendered in the browser. The certificate id is the recipient's `hackathon_team_member.id`; `certificate.get` (public) returns recipient name, team, leader flag, project name and submission time, plus rank and prize when the team won. Only members of a team whose submission is `submitted` have one; `certificate.mine` returns the caller's or `null`.
+
+### Fixes and behaviour changes vs Rust
+
+- Invitation respond and join-request respond take `accept`; the broken `{action}` shape is gone.
+- Invitation email matching is case-insensitive (emails are stored lowercased). Inviting yourself, inviting someone already in this team, and a second pending invitation to the same email are refused.
+- Join requests to `private` teams are refused (private means invite only); browse still hides them. `team.get` by id stays readable (shareable link) but without contact details.
+- A submission can only be created with at least 2 members, so a one-person team can no longer lock itself with a draft it can never submit.
+- `submission.cancel` is gated by the submission deadline (a pending project cannot be pulled back to draft after the deadline, where it could never be resubmitted). `confirm` stays ungated.
+- Nullable fields can be cleared (`null`) in team, submission and participant updates.
+- Member ordering puts the leader first, then by join time (Rust sorted members before the leader).
+- Browse counts teams with no members as 0 instead of excluding them, escapes `%`/`_` in search, matches city case-insensitively, and never silently reports `total: 0`.
+- Member removal answers 404 for a user who is not in the team; admin winner removal answers 404 when the team is not a winner; admin team delete answers 404 for an unknown team.
+- `users/{id}/teams` no longer exists; `participant.get` returns the profile and the user's team (fixes the NULL description 500).
+- `team.mine` returns the caller's single team or `null` (a user can only be in one).
+- `submission.getByTeam` returns `null` when the team has no submission instead of 404, and managers can read any team's submission.
+- `video_url` is stored (`videoUrl`).
+- Activity log entries: team created, team deleted (leader or admin), submission confirmed, winner set, winner removed.
+
+### Deliberate omissions
+
+- `PUT /users/me` fields `fullname` and `avatar`: identity lives in IAM (`user`); the hackathon frontend already updates them through IAM. Avatar upload is not in this module.
+- `POST /admin/users/{id}/set-admin`: replaced by roles (`hackathon:manage`).
+- `DELETE /admin/users/{id}` and `GET /admin/users/{id}`: unused by the frontends; deleting a person is an IAM operation.
+- Separate admin winners list: `winner.list` (public) already returns everything, with team details.
+- No leadership transfer, invitation cancel, join-request withdraw, chat edit or submission delete (none exist in Rust or the frontend).
+
+### Open questions for the product owner
+
+1. The deadlines are the 2025 values, so every team and submission mutation is closed today. Is a new edition planned, and with which dates? Should deadlines become admin-editable settings then?
+2. Legacy certificate links: old certificates carry client-side AES ids (`teamId::submissionId::userId`, `winner::teamId`, key `imphnen-hackathon-2025`). The frontend can decrypt them and look up the new certificate, but that needs a lookup by (team, user) which would make certificates enumerable. Keep old links working or accept that they break?
+3. Should `winnerSet` require the team to have a `submitted` project and unique ranks? Rust allowed anything; the port keeps that.
+4. Deleting a platform user cascades their team when they lead it. Should IAM instead block deleting a leader, or hand leadership to the earliest member?
+5. Should private teams be hidden from `team.get` for outsiders entirely, instead of just hiding contacts?
+6. Uploaded images that are never referenced are not cleaned up. Is a periodic R2 sweep wanted?
