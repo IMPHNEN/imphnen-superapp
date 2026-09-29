@@ -35,7 +35,7 @@ export const participantGet = Effect.fn('participantGet')(function* ({
 
   const row = yield* participantRepo.find(userId);
 
-  if (row === null || !row.registered) {
+  if (row === null) {
     return yield* new ENotFound({
       message: HACKATHON_MESSAGE.PARTICIPANT_NOT_FOUND,
     });
