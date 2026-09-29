@@ -672,7 +672,7 @@ The IAM port must stop reading `qr_users (role, provider)` (spec 5.23).
 
 ## TS port decisions
 
-### Procedures (22)
+### Procedures (25)
 
 - event: `list`, `get` (public), `create`, `update`, `remove` (`event:create|update|delete`).
 - testimonial: `list`, `get` (public, approved only), `mine` (`testimonial:create`), `create` (`testimonial:create`), `moderationList`, `moderate` (`testimonial:moderate`), `update`, `remove` (signed-in; rule checked in the use case).
@@ -716,7 +716,7 @@ Public procedures: `event.list`, `event.get`, `testimonial.list`, `testimonial.g
 ### Open questions for the product owner
 
 1. Watermarking cost: decoding a 12 MP photo needs about 48 MiB of RGBA memory plus the PNG encode, inside the Worker's 128 MiB limit and CPU budget. Should the QR app instead composite client-side (canvas) using `activeCampaign`, and drop `qr.watermark` and the photon dependency?
-2. Should moderators need `testimonial:create` for nothing (current) or should `update`/`remove` become permission-guarded procedures? Today any signed-in user reaches them and the use case decides.
+2. `testimonial.update` and `testimonial.remove` are session-guarded and the use case applies the owner-or-moderator rule, so a moderator does not also need `testimonial:create`. Confirm, or split into author and moderator procedures?
 3. `qr-user:manage`: remove it, or use it for a future "grant QR admin" shortcut screen?
 4. Migrated testimonials are all set to `approved`. Confirm, or should they go through moderation again?
 5. Should the watermark output keep PNG (lossless, large) or re-encode as JPEG/WebP for photos?
