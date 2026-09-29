@@ -52,8 +52,15 @@ const SESSION_ONLY_PROCEDURES: readonly string[] = [
   'profile.get',
   'profile.update',
   'profile.avatarUpload',
+  'testimonial.update',
+  'testimonial.remove',
 ];
-const PUBLIC_DATA_PROCEDURES: readonly string[] = ['event.list', 'event.get'];
+const PUBLIC_DATA_PROCEDURES: readonly string[] = [
+  'event.list',
+  'event.get',
+  'testimonial.list',
+  'testimonial.get',
+];
 
 const SESSION: TSession = {
   user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'viewer' },

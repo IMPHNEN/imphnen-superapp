@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { testimonialRepoLayer } from '#/testimonial/infrastructure/testimonial-repository.ts';
 import { testimonialRouterBuild } from '#/testimonial/presentation/testimonial-router.ts';
 
-const testimonialLayer = Layer.empty;
-
 export const testimonialModule: {
-  layer: typeof testimonialLayer;
+  layer: typeof testimonialRepoLayer;
   routerBuild: typeof testimonialRouterBuild;
 } = {
-  layer: testimonialLayer,
+  layer: testimonialRepoLayer,
   routerBuild: testimonialRouterBuild,
 };
