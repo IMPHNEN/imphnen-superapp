@@ -504,6 +504,12 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@app/permissions':
+        specifier: workspace:*
+        version: link:../../packages/permissions
+      '@app/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)
@@ -519,6 +525,9 @@ importers:
       '@imphnen-frontend-service/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.104.0(react@19.3.0)
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.40(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
