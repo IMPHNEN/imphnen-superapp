@@ -12,6 +12,7 @@ import { healthModule, healthMount } from '#/health/index.ts';
 import { env } from '#/platform/config/env.ts';
 import { apiReferenceEnabledOf } from '#/platform/config/env-schema.ts';
 import { bodyLimitMount } from '#/platform/http/mount-body-limit.ts';
+import { devFilesMount } from '#/platform/http/mount-dev-files.ts';
 import { orpcMount } from '#/platform/http/mount-orpc.ts';
 import { originMatcherOf, originsOf } from '#/platform/http/origins.ts';
 import type { TORPCContext } from '#/platform/orpc/context.ts';
@@ -103,6 +104,8 @@ app.use('*', async (context, next) => {
 });
 
 bodyLimitMount(app);
+
+devFilesMount(app);
 
 healthMount(app, {
   readiness: () => runtime.runPromise(healthModule.readiness()),
