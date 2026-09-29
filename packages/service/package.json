@@ -4,13 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./rpc": "./src/rpc/index.ts",
+    "./session": "./src/session/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@app/contract": "workspace:*",
+    "@app/permissions": "workspace:*",
+    "@app/schemas": "workspace:*",
     "@imphnen-frontend-service/utils": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",

@@ -893,6 +893,12 @@ importers:
       '@app/contract':
         specifier: workspace:*
         version: link:../contract
+      '@app/permissions':
+        specifier: workspace:*
+        version: link:../permissions
+      '@app/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@imphnen-frontend-service/utils':
         specifier: workspace:*
         version: link:../utils
