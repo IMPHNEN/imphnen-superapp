@@ -20,7 +20,9 @@ describe('Dashboard Persona Rendering', () => {
 
     it('should render welcome card title', () => {
       render(<UserDashboard />);
-      expect(screen.getByText('Selamat Datang di Dimentorin.dev')).toBeDefined();
+      expect(
+        screen.getByText('Selamat Datang di Dimentorin.dev')
+      ).toBeDefined();
     });
 
     it('should display overview metrics', () => {
@@ -35,7 +37,9 @@ describe('Dashboard Persona Rendering', () => {
       await waitFor(() => {
         expect(screen.getByText('Roadmaps')).toBeDefined();
         expect(screen.getByText('Front End Basic')).toBeDefined();
-        expect(screen.getByText('1/30 days milestones completed')).toBeDefined();
+        expect(
+          screen.getByText('1/30 days milestones completed')
+        ).toBeDefined();
       });
     });
 
@@ -75,7 +79,9 @@ describe('Dashboard Persona Rendering', () => {
 
     it('should render search input and table headings', () => {
       render(<MentoringPage />);
-      expect(screen.getByPlaceholderText('Cari berdasarkan nama item')).toBeDefined();
+      expect(
+        screen.getByPlaceholderText('Cari berdasarkan nama item')
+      ).toBeDefined();
       expect(screen.getByText('Nama Mentor')).toBeDefined();
       expect(screen.getByText('Sesi Mentoring')).toBeDefined();
     });
@@ -98,7 +104,9 @@ describe('Dashboard Persona Rendering', () => {
       render(<RoadmapDiscoveryPage />);
       expect(screen.getByText('Start your Journey')).toBeDefined();
       expect(screen.getByRole('button', { name: /Generate/i })).toBeDefined();
-      expect(screen.getByPlaceholderText('Mau belajar roadmap apa?')).toBeDefined();
+      expect(
+        screen.getByPlaceholderText('Mau belajar roadmap apa?')
+      ).toBeDefined();
     });
   });
 
@@ -109,7 +117,9 @@ describe('Dashboard Persona Rendering', () => {
 
     it('should render welcome card title', () => {
       render(<MentorDashboard />);
-      expect(screen.getByText('Selamat Datang di Dimentorin.dev')).toBeDefined();
+      expect(
+        screen.getByText('Selamat Datang di Dimentorin.dev')
+      ).toBeDefined();
     });
 
     it('should display Overviews tab', () => {

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import {
   authLoginSchema,
-  TLoginRequest,
+  type TLoginRequest,
   usePostLogin,
 } from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';

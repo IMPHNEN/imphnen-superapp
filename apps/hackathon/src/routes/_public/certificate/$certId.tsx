@@ -1,15 +1,17 @@
-import { FC, ReactElement, useState, useEffect, useRef } from 'react';
+import { type FC, type ReactElement, useState, useEffect, useRef } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { decodeCertificateId } from '../../../utils/certificate';
 import {
   useCertificatePublicData,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 
 export const Route = createFileRoute('/_public/certificate/$certId')({
-  component: CertificatePage })
+  component: CertificatePage,
+});
 
 interface DecodedCert {
   teamId: string;
@@ -55,7 +57,9 @@ const CertificatePage: FC = (): ReactElement => {
         margin: 1,
         color: {
           dark: '#000000',
-          light: '#ffffff' } })
+          light: '#ffffff',
+        },
+      })
         .then(setQrCodeUrl)
         .catch((err) => console.error('QR Code generation failed:', err));
     }
@@ -117,7 +121,8 @@ const CertificatePage: FC = (): ReactElement => {
           height: (1000 * 2480) / 3508,
           allowTaint: true,
           imageTimeout: 0,
-          removeContainer: true });
+          removeContainer: true,
+        });
 
         const imageUrl = canvas.toDataURL('image/png', 1.0);
         setCertificateImage(imageUrl);
@@ -302,14 +307,16 @@ const CertificatePage: FC = (): ReactElement => {
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               width: '1000px',
-              height: `${(1000 * 2480) / 3508}px` }}
+              height: `${(1000 * 2480) / 3508}px`,
+            }}
           >
             <div
               style={{
                 position: 'absolute',
                 top: '41%',
                 left: '3.5%',
-                width: '55%' }}
+                width: '55%',
+              }}
             >
               <h3
                 ref={teamNameRef}
@@ -321,7 +328,8 @@ const CertificatePage: FC = (): ReactElement => {
                   fontSize: '32px',
                   lineHeight: '1.2',
                   wordBreak: 'break-word',
-                  margin: 0 }}
+                  margin: 0,
+                }}
               >
                 {team?.name}
               </h3>
@@ -332,7 +340,8 @@ const CertificatePage: FC = (): ReactElement => {
                 position: 'absolute',
                 top: '45%',
                 left: '3.5%',
-                width: '55%' }}
+                width: '55%',
+              }}
             >
               <h3
                 ref={userNameRef}
@@ -344,7 +353,8 @@ const CertificatePage: FC = (): ReactElement => {
                   fontSize: '40px',
                   lineHeight: '1.2',
                   wordBreak: 'break-word',
-                  margin: 0 }}
+                  margin: 0,
+                }}
               >
                 {certificateName || 'N/A'}
               </h3>
@@ -359,7 +369,8 @@ const CertificatePage: FC = (): ReactElement => {
                 height: '190px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center' }}
+                justifyContent: 'center',
+              }}
             >
               {qrCodeUrl && (
                 <img
@@ -413,7 +424,9 @@ const CertificatePage: FC = (): ReactElement => {
               </Button>
               {team && (
                 <Button
-                  onClick={() => navigate({ to: `/teams/${team.id}/submission` })}
+                  onClick={() =>
+                    navigate({ to: `/teams/${team.id}/submission` })
+                  }
                   variant="secondary"
                   className="col-span-2 flex items-center gap-2 xl:col-span-1"
                 >
@@ -438,4 +451,3 @@ const CertificatePage: FC = (): ReactElement => {
     </div>
   );
 };
-

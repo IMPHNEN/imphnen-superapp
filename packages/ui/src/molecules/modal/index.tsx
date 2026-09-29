@@ -1,6 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { cn } from '@imphnen-frontend-service/utils';
-import React, { useEffect, useMemo, useCallback } from 'react';
+import type React from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ModalProps {

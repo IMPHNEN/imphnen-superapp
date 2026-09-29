@@ -8,7 +8,7 @@ import type {
   PersonalInfo,
   ContactInfo,
   CvResume,
-  NotificationState
+  NotificationState,
 } from './profile-form-types';
 
 export const useProfileFormState = () => {
@@ -18,30 +18,30 @@ export const useProfileFormState = () => {
     isOpen: false,
     type: 'success',
     title: '',
-    message: ''
+    message: '',
   });
 
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
     {
       platform: 'LinkedIn',
       placeholder: 'linkedin.com/in/yourprofile',
-      value: ''
+      value: '',
     },
     {
       platform: 'Github',
       placeholder: 'github.com/yourusername',
-      value: ''
+      value: '',
     },
     {
       platform: 'Portfolio',
       placeholder: 'yourportfolio.com',
-      value: ''
+      value: '',
     },
     {
       platform: 'Twitter',
       placeholder: 'twitter.com/yourusername',
-      value: ''
-    }
+      value: '',
+    },
   ]);
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -54,18 +54,18 @@ export const useProfileFormState = () => {
     title: '',
     bio: '',
     birthdate: '',
-    gender: ''
+    gender: '',
   });
 
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
     email: '',
     phone: '',
-    location: ''
+    location: '',
   });
 
   const [cvResume, setCvResume] = useState<CvResume>({
     cvUrl: '',
-    resumeUrl: ''
+    resumeUrl: '',
   });
 
   return {
@@ -88,11 +88,13 @@ export const useProfileFormState = () => {
     contactInfo,
     setContactInfo,
     cvResume,
-    setCvResume
+    setCvResume,
   };
 };
 
-export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>) => {
+export const useProfileDataSync = (
+  state: ReturnType<typeof useProfileFormState>
+) => {
   const {
     profileData,
     profileType,
@@ -103,15 +105,15 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
     setLanguages,
     setPersonalInfo,
     setContactInfo,
-    setCvResume
+    setCvResume,
   } = state;
-
 
   useEffect(() => {
     if (profileData) {
-      const linkedinUrl = 'linkedin_url' in profileData ? profileData.linkedin_url || '' : '';
-      const githubUrl = 'github_url' in profileData ? profileData.github_url || '' : '';
-
+      const linkedinUrl =
+        'linkedin_url' in profileData ? profileData.linkedin_url || '' : '';
+      const githubUrl =
+        'github_url' in profileData ? profileData.github_url || '' : '';
 
       let portfolioUrl = '';
       if (profileType === 'mentor' && 'portfolio_url' in profileData) {
@@ -120,49 +122,49 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
         portfolioUrl = profileData.website_url || '';
       }
 
-      const twitterUrl = 'twitter_url' in profileData ? profileData.twitter_url || '' : '';
+      const twitterUrl =
+        'twitter_url' in profileData ? profileData.twitter_url || '' : '';
 
       setSocialLinks([
         {
           platform: 'LinkedIn',
           placeholder: 'linkedin.com/in/yourprofile',
-          value: linkedinUrl
+          value: linkedinUrl,
         },
         {
           platform: 'Github',
           placeholder: 'github.com/yourusername',
-          value: githubUrl
+          value: githubUrl,
         },
         {
           platform: 'Portfolio',
           placeholder: 'yourportfolio.com',
-          value: portfolioUrl
+          value: portfolioUrl,
         },
         {
           platform: 'Twitter',
           placeholder: 'twitter.com/yourusername',
-          value: twitterUrl
-        }
+          value: twitterUrl,
+        },
       ]);
     }
   }, [profileData, profileType, setSocialLinks]);
 
-
   useEffect(() => {
     if (profileData) {
-      const experiences = 'experience' in profileData ? profileData.experience || [] : [];
+      const experiences =
+        'experience' in profileData ? profileData.experience || [] : [];
       setExperiences(experiences);
     }
   }, [profileData, setExperiences]);
 
-
   useEffect(() => {
     if (profileData) {
-      const education = 'education' in profileData ? profileData.education || [] : [];
+      const education =
+        'education' in profileData ? profileData.education || [] : [];
       setEducation(education);
     }
   }, [profileData, setEducation]);
-
 
   useEffect(() => {
     if (profileData) {
@@ -176,16 +178,18 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
     }
   }, [profileData, setSkills]);
 
-
   useEffect(() => {
     if (profileData) {
-      const languages: Language[] = 'languages' in profileData
-        ? (profileData.languages || []).map(lang => ({ name: lang, level: 'Intermediate' }))
-        : [];
+      const languages: Language[] =
+        'languages' in profileData
+          ? (profileData.languages || []).map((lang) => ({
+              name: lang,
+              level: 'Intermediate',
+            }))
+          : [];
       setLanguages(languages);
     }
   }, [profileData, setLanguages]);
-
 
   useEffect(() => {
     if (profileData) {
@@ -198,8 +202,10 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
         fullname = profileData.legal_name || '';
       }
 
-      const title = 'current_role' in profileData ? profileData.current_role || '' : '';
-      const birthdate = 'birthdate' in profileData ? profileData.birthdate || '' : '';
+      const title =
+        'current_role' in profileData ? profileData.current_role || '' : '';
+      const birthdate =
+        'birthdate' in profileData ? profileData.birthdate || '' : '';
       const gender = 'gender' in profileData ? profileData.gender || '' : '';
 
       setPersonalInfo({
@@ -207,11 +213,10 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
         title,
         bio,
         birthdate,
-        gender
+        gender,
       });
     }
   }, [profileData, setPersonalInfo]);
-
 
   useEffect(() => {
     if (profileData) {
@@ -234,19 +239,21 @@ export const useProfileDataSync = (state: ReturnType<typeof useProfileFormState>
       setContactInfo({
         email,
         phone,
-        location
+        location,
       });
     }
   }, [profileData, setContactInfo]);
 
-
   useEffect(() => {
     if (profileData) {
-      const cvUrl = profileType === 'mentor' && 'cv_url' in profileData ? profileData.cv_url || '' : '';
+      const cvUrl =
+        profileType === 'mentor' && 'cv_url' in profileData
+          ? profileData.cv_url || ''
+          : '';
 
       setCvResume({
         cvUrl,
-        resumeUrl: ''
+        resumeUrl: '',
       });
     }
   }, [profileData, profileType, setCvResume]);

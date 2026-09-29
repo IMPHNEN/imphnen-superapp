@@ -37,7 +37,8 @@ export const useAddCredits = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TGachaCreditAddRequest) => addCredits(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
   });
 };
 
@@ -45,7 +46,8 @@ export const useConsumeCredit = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: consumeCredit,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
   });
 };
 
@@ -69,14 +71,16 @@ export const useCreateGachaItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TGachaItemCreateRequest) => createGachaItem(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gacha-items'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['gacha-items'] }),
   });
 };
 
 export const useUpdateGachaItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: TGachaItemUpdateRequest }) => updateGachaItem(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TGachaItemUpdateRequest }) =>
+      updateGachaItem(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['gacha-items'] });
       queryClient.invalidateQueries({ queryKey: gachaKeys.item(vars.id) });
@@ -88,7 +92,8 @@ export const useDeleteGachaItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteGachaItem(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gacha-items'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['gacha-items'] }),
   });
 };
 
@@ -97,7 +102,8 @@ export const useExecuteGachaRoll = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: executeGachaRoll,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: gachaKeys.credits }),
   });
 };
 

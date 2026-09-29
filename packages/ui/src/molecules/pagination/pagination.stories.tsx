@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import Pagination from './pagination';
 
-import { PaginationProps } from './index'; // Import PaginationProps
+import type { PaginationProps } from './index'; // Import PaginationProps
 
 const meta = {
   title: 'Molecules/Pagination',

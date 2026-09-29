@@ -1,34 +1,34 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateRole } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { useCreateRole } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/roles_/create')({
   component: RolesCreatePage,
-})
+});
 
 function RolesCreatePage() {
-  const navigate = useNavigate()
-  const createRole = useCreateRole()
+  const navigate = useNavigate();
+  const createRole = useCreateRole();
 
   const form = useForm<{ name: string }>({
     mode: 'all',
     defaultValues: { name: '' },
-  })
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createRole.mutateAsync(data)
-      toast.success('Data role berhasil ditambahkan')
-      navigate({ to: '/roles' })
+      await createRole.mutateAsync(data);
+      toast.success('Data role berhasil ditambahkan');
+      navigate({ to: '/roles' });
     } catch (error) {
-      console.log(error)
-      toast.error('Data role gagal ditambahkan')
+      console.log(error);
+      toast.error('Data role gagal ditambahkan');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -85,19 +85,19 @@ function RolesCreatePage() {
                     <hr className="border-blue-200" />
                     <div className="flex flex-col items-start gap-4 mb-4">
                       <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={"${title}-read"} />
+                        <input type="checkbox" id={'${title}-read'} />
                         <label htmlFor={`${title}-read`}>Read</label>
                       </div>
                       <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={"${title}-create"} />
+                        <input type="checkbox" id={'${title}-create'} />
                         <label htmlFor={`${title}-create`}>Create</label>
                       </div>
                       <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={"${title}-update"} />
+                        <input type="checkbox" id={'${title}-update'} />
                         <label htmlFor={`${title}-update`}>Update</label>
                       </div>
                       <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={"${title}-delete"} />
+                        <input type="checkbox" id={'${title}-delete'} />
                         <label htmlFor={`${title}-delete`}>Delete</label>
                       </div>
                     </div>
@@ -128,5 +128,5 @@ function RolesCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

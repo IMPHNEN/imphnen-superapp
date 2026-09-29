@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { authLoginSchema, authRegisterSchema } from '../../schemas';
-import { TResponseDetail, TResponseMessage } from '../common';
-import { TUserItem } from '../users';
+import type { z } from 'zod';
+import type { authLoginSchema, authRegisterSchema } from '../../schemas';
+import type { TResponseDetail, TResponseMessage } from '../common';
+import type { TUserItem } from '../users';
 
 export type TTokenItem = {
   access_token: string;
@@ -29,7 +29,7 @@ export type TVerifyEmailRequest = {
 };
 
 export type TSendOTPRequest = {
-  email: string
+  email: string;
 };
 
 export type TGoogleCallbackResponse = {

@@ -1,19 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ArrowDownOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { FC, Fragment, ReactElement, useState } from 'react'
-import ModalFormForgotPassword from './_components/form/modal-form-forgot-password'
-import ModalFormLogin from './_components/form/modal-form-login'
-import ModalFormRegister from './_components/form/modal-form-register'
-import { GachaItem } from './_components/item/gacha-item'
-import { useModalLogin } from '@imphnen-frontend-service/utils'
-import { useGachaItemList, useUserCredits, useExecuteGachaRoll } from '@imphnen-frontend-service/service'
-import { toast } from 'sonner'
-import type { TGachaRollItemDto } from '@imphnen-frontend-service/service'
+import { createFileRoute } from '@tanstack/react-router';
+import { ArrowDownOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { FC, Fragment, type ReactElement, useState } from 'react';
+import ModalFormForgotPassword from './_components/form/modal-form-forgot-password';
+import ModalFormLogin from './_components/form/modal-form-login';
+import ModalFormRegister from './_components/form/modal-form-register';
+import { GachaItem } from './_components/item/gacha-item';
+import { useModalLogin } from '@imphnen-frontend-service/utils';
+import {
+  useGachaItemList,
+  useUserCredits,
+  useExecuteGachaRoll,
+} from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
+import type { TGachaRollItemDto } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/')({
   component: GachaHomePage,
-})
+});
 
 function GachaHomePage(): ReactElement {
   const { showModalLogin, setShowModalLogin } = useModalLogin();
@@ -86,7 +90,9 @@ function GachaHomePage(): ReactElement {
           {creditsData && (
             <div className="text-center text-p3 md:text-p2 bg-primary-100 rounded-md px-4 py-2 border border-primary-300">
               <span className="font-semibold">Roll tersisa: </span>
-              <span className="text-primary-600 font-bold">{availableRolls}</span>
+              <span className="text-primary-600 font-bold">
+                {availableRolls}
+              </span>
             </div>
           )}
 
@@ -209,12 +215,22 @@ function GachaHomePage(): ReactElement {
               ))
             ) : (
               <>
-                <GachaItem src="/gacha/certificate.png" label="Sertifikat + Laminating" />
-                <GachaItem src="/gacha/lanyard-id-card.png" label="Lanyard + ID Card" />
+                <GachaItem
+                  src="/gacha/certificate.png"
+                  label="Sertifikat + Laminating"
+                />
+                <GachaItem
+                  src="/gacha/lanyard-id-card.png"
+                  label="Lanyard + ID Card"
+                />
                 <GachaItem src="/gacha/pin.png" label="Pin" />
                 <GachaItem src="/gacha/sticker.png" label="Sticker Isi 3" />
                 <GachaItem src="/gacha/sticker.png" label="Sticker Isi 5" />
-                <GachaItem src="/gacha/gelang-karet.png" label="Gelang Karet" className="h-[86px] md:h-[160px]" />
+                <GachaItem
+                  src="/gacha/gelang-karet.png"
+                  label="Gelang Karet"
+                  className="h-[86px] md:h-[160px]"
+                />
               </>
             )}
           </section>

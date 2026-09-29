@@ -1,38 +1,40 @@
-import { Button } from "@imphnen-frontend-service/ui/atoms"
-import { cn, For } from "@imphnen-frontend-service/utils"
-import { FC } from "react"
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { cn, For } from '@imphnen-frontend-service/utils';
+import type { FC } from 'react';
 
 const SCHEDULES = [
   {
-    date: "Kamis, 20 Maret 2025",
+    date: 'Kamis, 20 Maret 2025',
     availableCount: 10,
     schedule: [
-      { time: "19:00 WIB", available: true },
-      { time: "20:00 WIB", available: true },
-      { time: "21:00 WIB", available: true },
-      { time: "22:00 WIB", available: true },
-    ]
+      { time: '19:00 WIB', available: true },
+      { time: '20:00 WIB', available: true },
+      { time: '21:00 WIB', available: true },
+      { time: '22:00 WIB', available: true },
+    ],
   },
   {
-    date: "Jumat, 21 Maret 2025",
+    date: 'Jumat, 21 Maret 2025',
     availableCount: 1,
     schedule: [
-      { time: "19:00 WIB", available: true },
-      { time: "20:00 WIB", available: true },
-      { time: "21:00 WIB", available: false },
-      { time: "22:00 WIB", available: true },
-    ]
-  }
-]
+      { time: '19:00 WIB', available: true },
+      { time: '20:00 WIB', available: true },
+      { time: '21:00 WIB', available: false },
+      { time: '22:00 WIB', available: true },
+    ],
+  },
+];
 
 type Props = {
-  onBook: () => void
-}
+  onBook: () => void;
+};
 
 export const SenpaiScheduleSection: FC<Props> = ({ onBook }) => {
   return (
     <div>
-      <h2 className="text-xs font-semibold mb-3 md:text-[15px] xl:text-[19px]">Senpai Schedule</h2>
+      <h2 className="text-xs font-semibold mb-3 md:text-[15px] xl:text-[19px]">
+        Senpai Schedule
+      </h2>
       <div className="p-4 bg-primary-50 border border-primary-100 rounded-md space-y-5">
         <For data={SCHEDULES}>
           {(item) => (
@@ -41,8 +43,10 @@ export const SenpaiScheduleSection: FC<Props> = ({ onBook }) => {
                 <p className="text-[15px] font-medium">{item.date}</p>
                 <p
                   className={cn(
-                    "rounded-4xl py-1 px-2.5 text-xs font-medium",
-                    item.availableCount > 5 ? "bg-primary-200 text-primary-500" : "bg-danger-100 text-danger-600"
+                    'rounded-4xl py-1 px-2.5 text-xs font-medium',
+                    item.availableCount > 5
+                      ? 'bg-primary-200 text-primary-500'
+                      : 'bg-danger-100 text-danger-600'
                   )}
                 >
                   {item.availableCount} slot tersisa
@@ -71,5 +75,5 @@ export const SenpaiScheduleSection: FC<Props> = ({ onBook }) => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};

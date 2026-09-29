@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface FeatureCardProps {
   icon: ReactNode;
@@ -8,12 +8,20 @@ interface FeatureCardProps {
   className?: string;
 }
 
-export default function FeatureCard({ icon, title, description, tag, className = '' }: FeatureCardProps) {
+export default function FeatureCard({
+  icon,
+  title,
+  description,
+  tag,
+  className = '',
+}: FeatureCardProps) {
   return (
-    <div className={`relative group bg-white border border-gray-100 rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(35,161,235,0.12)] hover:border-primary-200 hover:-translate-y-1 overflow-hidden ${className}`}>
+    <div
+      className={`relative group bg-white border border-gray-100 rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(35,161,235,0.12)] hover:border-primary-200 hover:-translate-y-1 overflow-hidden ${className}`}
+    >
       {/* Background glow effect on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
+
       {/* Optional Tag */}
       {tag && (
         <div className="absolute top-6 right-6">
@@ -30,9 +38,7 @@ export default function FeatureCard({ icon, title, description, tag, className =
         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
           {title}
         </h3>
-        <p className="text-gray-500 text-sm leading-relaxed">
-          {description}
-        </p>
+        <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
       </div>
     </div>
   );

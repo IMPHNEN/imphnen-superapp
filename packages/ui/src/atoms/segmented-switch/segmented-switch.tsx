@@ -30,7 +30,9 @@ export function SegmentedSwitch({
       role="switch"
       aria-checked={isRightActive}
       aria-label={`Toggle ${leftOption.label} or ${rightOption.label}`}
-      onClick={() => onChange(isRightActive ? leftOption.value : rightOption.value)}
+      onClick={() =>
+        onChange(isRightActive ? leftOption.value : rightOption.value)
+      }
       className={cn(
         'relative inline-grid h-9 w-50 grid-cols-2 items-center rounded-sm border border-primary-100 bg-primary-100 p-1 shadow-sm',
         className

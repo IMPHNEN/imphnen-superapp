@@ -13,17 +13,17 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   usePermissionList,
   useDeletePermission,
-  TPermissionItem,
+  type TPermissionItem,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import {
@@ -44,8 +44,7 @@ function PermissionsPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: permissionsData, isLoading } = usePermissionList({
     search,

@@ -36,10 +36,45 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "useExhaustiveDependencies": "off"
+        "useExhaustiveDependencies": "off",
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn",
+        "noUnusedFunctionParameters": "warn",
+        "noInvalidUseBeforeDeclaration": "warn",
+        "useParseIntRadix": "warn"
       },
       "suspicious": {
-        "noArrayIndexKey": "off"
+        "noArrayIndexKey": "off",
+        "noExplicitAny": "warn",
+        "noTemplateCurlyInString": "warn",
+        "noDocumentCookie": "warn",
+        "noImplicitAnyLet": "warn",
+        "noShadowRestrictedNames": "warn",
+        "noAssignInExpressions": "warn"
+      },
+      "style": {
+        "useNodejsImportProtocol": "warn",
+        "useTemplate": "warn",
+        "noNonNullAssertion": "warn"
+      },
+      "complexity": {
+        "useOptionalChain": "warn",
+        "useLiteralKeys": "warn"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "warn",
+        "useFocusableInteractive": "warn",
+        "useKeyWithMouseEvents": "warn",
+        "useKeyWithClickEvents": "warn",
+        "noLabelWithoutControl": "warn",
+        "useSemanticElements": "warn",
+        "noSvgWithoutTitle": "warn",
+        "useValidAriaRole": "warn",
+        "noRedundantRoles": "warn",
+        "useButtonType": "warn"
       }
     }
   },

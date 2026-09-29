@@ -11,7 +11,10 @@ interface TableOfContentsProps {
   className?: string;
 }
 
-export default function TableOfContents({ content, className = '' }: TableOfContentsProps) {
+export default function TableOfContents({
+  content,
+  className = '',
+}: TableOfContentsProps) {
   const [headings, setHeadings] = useState<TOCItem[]>([]);
   const [activeId, setActiveId] = useState<string>('');
 
@@ -25,8 +28,11 @@ export default function TableOfContents({ content, className = '' }: TableOfCont
       const level = match[1].length;
       const text = match[2].trim();
       // Simple slugify matching github-markdown-css behavior
-      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      
+      const id = text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
+
       extractedHeadings.push({ id, text, level });
     }
 
@@ -64,8 +70,8 @@ export default function TableOfContents({ content, className = '' }: TableOfCont
         <nav className="border-l-2 border-gray-100">
           <ul className="space-y-2.5">
             {headings.map((heading) => (
-              <li 
-                key={heading.id} 
+              <li
+                key={heading.id}
                 className={`${heading.level === 3 ? 'ml-4' : ''}`}
               >
                 <a
@@ -78,7 +84,7 @@ export default function TableOfContents({ content, className = '' }: TableOfCont
                   onClick={(e) => {
                     e.preventDefault();
                     document.getElementById(heading.id)?.scrollIntoView({
-                      behavior: 'smooth'
+                      behavior: 'smooth',
                     });
                     // Also update URL without scrolling
                     history.pushState(null, '', `#${heading.id}`);

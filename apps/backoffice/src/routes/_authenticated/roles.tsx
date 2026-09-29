@@ -13,17 +13,17 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   useRoleList,
   useDeleteRole,
-  TRolesListItem,
+  type TRolesListItem,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import {
@@ -44,8 +44,7 @@ function RolesPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: rolesData, isLoading } = useRoleList({
     search,
@@ -134,10 +133,7 @@ function RolesPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Button
-              onClick={() => navigate({ to: '/roles/create' })}
-              size="md"
-            >
+            <Button onClick={() => navigate({ to: '/roles/create' })} size="md">
               <Plus className="size-4" />
               Tambah Role
             </Button>

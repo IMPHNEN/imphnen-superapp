@@ -1,7 +1,7 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { ExperienceModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface Experience {
@@ -15,7 +15,11 @@ interface Experience {
 interface ExperiencesSectionProps {
   initialExperiences: Experience[];
   onSave: (newExperiences: Experience[]) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
   isViewOnly?: boolean;
 }
@@ -28,9 +32,9 @@ export const ExperiencesSection: FC<ExperiencesSectionProps> = ({
   isViewOnly = false,
 }) => {
   const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
-  const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
+  const [experiences, setExperiences] =
+    useState<Experience[]>(initialExperiences);
 
-  
   useEffect(() => {
     setExperiences(initialExperiences);
   }, [initialExperiences]);
@@ -57,7 +61,10 @@ export const ExperiencesSection: FC<ExperiencesSectionProps> = ({
     >
       <div className="space-y-4">
         {experiences.map((exp) => (
-          <div key={exp.id} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
+          <div
+            key={exp.id}
+            className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg"
+          >
             <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div>
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900">{exp.company}</h4>

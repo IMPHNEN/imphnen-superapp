@@ -1,11 +1,18 @@
-﻿import { FC, ReactElement, useEffect, useMemo, useState } from 'react';
+﻿import {
+  type FC,
+  type ReactElement,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
   useMyTeams,
   useMyInvitations,
   useRespondToInvitation,
   useAuthStore,
-  useWinners } from '@imphnen-frontend-service/service';
+  useWinners,
+} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Icon } from '@iconify/react';
@@ -14,7 +21,7 @@ import { encodeWinnerCertificateId } from '../../utils/certificate';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
-})
+});
 
 const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
 
@@ -162,7 +169,9 @@ const DashboardPage: FC = (): ReactElement => {
                   const team = myTeams[0] as { id?: string } | null | undefined;
                   if (!team?.id) return;
                   const certId = await encodeWinnerCertificateId(team.id);
-                  navigate({ to: `/certificate/winner/${encodeURIComponent(certId)}` });
+                  navigate({
+                    to: `/certificate/winner/${encodeURIComponent(certId)}`,
+                  });
                 }}
                 className="shrink-0 px-6 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium rounded-lg transition-colors cursor-pointer"
               >
@@ -332,9 +341,7 @@ const DashboardPage: FC = (): ReactElement => {
                           )}
                           <span className="flex items-center gap-1 shrink-0">
                             <Icon icon="mdi:account-group" />
-                            {team.member_count ||
-                              team.members?.length ||
-                              0}{' '}
+                            {team.member_count || team.members?.length || 0}{' '}
                             member
                             {(team.member_count ||
                               team.members?.length ||
@@ -477,4 +484,3 @@ const DashboardPage: FC = (): ReactElement => {
     </>
   );
 };
-

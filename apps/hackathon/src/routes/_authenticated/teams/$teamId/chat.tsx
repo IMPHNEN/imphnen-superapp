@@ -1,4 +1,11 @@
-import { FC, ReactElement, useState, useRef, useEffect, useMemo } from 'react';
+import {
+  type FC,
+  type ReactElement,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import {
@@ -6,12 +13,14 @@ import {
   useTeamMessages,
   useSendMessage,
   useDeleteMessage,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/teams/$teamId/chat')({
-  component: TeamChatPage })
+  component: TeamChatPage,
+});
 
 const TeamChatPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
@@ -305,4 +314,3 @@ const TeamChatPage: FC = (): ReactElement => {
     </div>
   );
 };
-

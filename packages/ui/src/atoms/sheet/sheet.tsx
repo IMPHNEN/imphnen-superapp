@@ -1,11 +1,13 @@
 'use client';
 
-import * as React from 'react';
+import type * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { cn } from '@imphnen-frontend-service/utils';
 
-function Sheet({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
+function Sheet({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="sheet" {...props} />;
 }
 

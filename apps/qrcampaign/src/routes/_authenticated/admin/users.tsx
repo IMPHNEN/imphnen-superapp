@@ -1,68 +1,71 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
-import { DataTable } from '@imphnen-frontend-service/ui/organisms'
-import { userService, User } from '../../../app/features/admin/api/user.service'
-import { DeleteOutlined, EditOutlined, UserOutlined } from '@ant-design/icons'
+import { createFileRoute } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@imphnen-frontend-service/ui/organisms';
+import {
+  userService,
+  type User,
+} from '../../../app/features/admin/api/user.service';
+import { DeleteOutlined, EditOutlined, UserOutlined } from '@ant-design/icons';
 
 export const Route = createFileRoute('/_authenticated/admin/users')({
   component: UsersPage,
-})
+});
 
 function UsersPage() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [selectedRole, setSelectedRole] = useState<string>('')
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>('');
 
   const fetchUsers = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const data = await userService.getUsers()
-      setUsers(data)
+      setLoading(true);
+      setError(null);
+      const data = await userService.getUsers();
+      setUsers(data);
     } catch (err) {
-      setError('Failed to load users')
-      console.error('Error fetching users:', err)
+      setError('Failed to load users');
+      console.error('Error fetching users:', err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
 
   const handleUpdateRole = async (userId: string, currentRole: string) => {
     if (editingUserId === userId) {
       try {
-        await userService.updateUserRole(userId, selectedRole)
-        setEditingUserId(null)
-        setSelectedRole('')
-        await fetchUsers()
+        await userService.updateUserRole(userId, selectedRole);
+        setEditingUserId(null);
+        setSelectedRole('');
+        await fetchUsers();
       } catch (err) {
-        console.error('Error updating user role:', err)
-        alert('Failed to update user role')
+        console.error('Error updating user role:', err);
+        alert('Failed to update user role');
       }
     } else {
-      setEditingUserId(userId)
-      setSelectedRole(currentRole)
+      setEditingUserId(userId);
+      setSelectedRole(currentRole);
     }
-  }
+  };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
     if (!confirm(`Are you sure you want to delete user "${userName}"?`)) {
-      return
+      return;
     }
     try {
-      await userService.deleteUser(userId)
-      await fetchUsers()
+      await userService.deleteUser(userId);
+      await fetchUsers();
     } catch (err) {
-      console.error('Error deleting user:', err)
-      alert('Failed to delete user')
+      console.error('Error deleting user:', err);
+      alert('Failed to delete user');
     }
-  }
+  };
 
   const columns: ColumnDef<User>[] = [
     {
@@ -83,7 +86,7 @@ function UsersPage() {
       accessorKey: 'role',
       header: 'Role',
       cell: ({ row }) => {
-        const isEditing = editingUserId === row.original.id
+        const isEditing = editingUserId === row.original.id;
         return (
           <div className="flex items-center gap-2">
             {isEditing ? (
@@ -108,7 +111,7 @@ function UsersPage() {
               </span>
             )}
           </div>
-        )
+        );
       },
     },
     {
@@ -124,7 +127,7 @@ function UsersPage() {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
-        const isEditing = editingUserId === row.original.id
+        const isEditing = editingUserId === row.original.id;
         return (
           <div className="flex gap-2">
             <button
@@ -143,8 +146,8 @@ function UsersPage() {
             {isEditing && (
               <button
                 onClick={() => {
-                  setEditingUserId(null)
-                  setSelectedRole('')
+                  setEditingUserId(null);
+                  setSelectedRole('');
                 }}
                 className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
                 title="Cancel"
@@ -164,10 +167,10 @@ function UsersPage() {
               </button>
             )}
           </div>
-        )
+        );
       },
     },
-  ]
+  ];
 
   if (loading) {
     return (
@@ -176,7 +179,7 @@ function UsersPage() {
           <div className="text-gray-600">Loading users...</div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -186,7 +189,7 @@ function UsersPage() {
           {error}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -214,5 +217,5 @@ function UsersPage() {
         <DataTable data={users} columns={columns} pageSize={10} />
       )}
     </div>
-  )
+  );
 }

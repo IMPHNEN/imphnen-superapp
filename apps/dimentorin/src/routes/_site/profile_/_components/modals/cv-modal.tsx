@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { ModalButton } from '../buttons/modal-button';
 import { useUploadCV } from '@imphnen-frontend-service/service';
 import { FileUploader } from '../shared/file-uploader';
@@ -27,7 +27,6 @@ export const CVModal: FC<CVModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const uploadCVMutation = useUploadCV();
 
-  
   useEffect(() => {
     setCvData(initialValue);
   }, [initialValue]);
@@ -39,7 +38,6 @@ export const CVModal: FC<CVModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Save failed:', error);
-
     }
   };
 
@@ -52,16 +50,13 @@ export const CVModal: FC<CVModalProps> = ({
     try {
       setIsUploading(true);
 
-
       if (!file.type.includes('pdf')) {
         throw new Error('Please select a PDF file');
       }
 
-
       const uploadResult = await uploadCVMutation.mutateAsync(file);
 
       console.log('CV upload response:', uploadResult);
-
 
       interface UploadData {
         original_filename?: string;
@@ -69,10 +64,14 @@ export const CVModal: FC<CVModalProps> = ({
         url?: string;
       }
 
-      const uploadData = ('data' in uploadResult ? (uploadResult as { data: UploadData }).data : uploadResult as UploadData);
+      const uploadData =
+        'data' in uploadResult
+          ? (uploadResult as { data: UploadData }).data
+          : (uploadResult as UploadData);
 
       setCvData({
-        fileName: uploadData.original_filename || uploadData.filename || file.name,
+        fileName:
+          uploadData.original_filename || uploadData.filename || file.name,
         fileUrl: uploadData.url || '',
       });
 
@@ -80,7 +79,9 @@ export const CVModal: FC<CVModalProps> = ({
     } catch (error) {
       console.error('CV upload error:', error);
 
-      const fileInput = document.getElementById('cv-upload') as HTMLInputElement;
+      const fileInput = document.getElementById(
+        'cv-upload'
+      ) as HTMLInputElement;
       if (fileInput) fileInput.value = '';
     } finally {
       setIsUploading(false);
@@ -91,7 +92,6 @@ export const CVModal: FC<CVModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-
       <button
         className="absolute inset-0 bg-black/20"
         onClick={handleCancel}
@@ -101,7 +101,9 @@ export const CVModal: FC<CVModalProps> = ({
 
       <div className="relative max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-2xl bg-[#F6F6F6] p-5 sm:p-6">
         <div className="rounded-[6px] bg-[#DFECF7] px-4 py-2">
-          <h2 className="text-2xl font-semibold leading-8 text-[#4B4B4B]">CV/Resume</h2>
+          <h2 className="text-2xl font-semibold leading-8 text-[#4B4B4B]">
+            CV/Resume
+          </h2>
         </div>
 
         <div className="space-y-5 pt-8">
@@ -126,14 +128,20 @@ export const CVModal: FC<CVModalProps> = ({
 
             {cvData.fileName && (
               <div className="rounded-[6px] border border-[#BFDCF4] bg-[#EDF7FF] p-4">
-                <h4 className="mb-2 text-sm font-medium leading-5 text-[#1F6FA3]">File Terpilih</h4>
+                <h4 className="mb-2 text-sm font-medium leading-5 text-[#1F6FA3]">
+                  File Terpilih
+                </h4>
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-[6px] bg-[#23A1EB]">
                     <span className="text-xs font-bold text-white">PDF</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium leading-5 text-[#1F6FA3]">{cvData.fileName}</p>
-                    <p className="text-xs leading-5 text-[#3A85B8]">Siap untuk disimpan</p>
+                    <p className="text-sm font-medium leading-5 text-[#1F6FA3]">
+                      {cvData.fileName}
+                    </p>
+                    <p className="text-xs leading-5 text-[#3A85B8]">
+                      Siap untuk disimpan
+                    </p>
                   </div>
                   {cvData.fileUrl && (
                     <a
@@ -174,5 +182,3 @@ export const CVModal: FC<CVModalProps> = ({
     </div>
   );
 };
-
-

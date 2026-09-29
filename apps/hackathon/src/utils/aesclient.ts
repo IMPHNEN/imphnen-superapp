@@ -21,7 +21,11 @@ function base64ToBuf(b64: string): ArrayBuffer {
   return arr.buffer;
 }
 
-async function deriveKeyFromPassphrase(passphrase: string, salt: Uint8Array, iterations = 100_000) {
+async function deriveKeyFromPassphrase(
+  passphrase: string,
+  salt: Uint8Array,
+  iterations = 100_000
+) {
   const passKey = await crypto.subtle.importKey(
     'raw',
     enc.encode(passphrase),
@@ -35,7 +39,7 @@ async function deriveKeyFromPassphrase(passphrase: string, salt: Uint8Array, ite
       name: 'PBKDF2',
       salt,
       iterations,
-      hash: 'SHA-256'
+      hash: 'SHA-256',
     },
     passKey,
     { name: 'AES-GCM', length: 256 },

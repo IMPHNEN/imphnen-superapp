@@ -64,7 +64,9 @@ export default function TestimonialSection() {
         <div className="flex flex-col items-center justify-center space-y-3 text-center mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight animate-[fadeInUp_0.4s_ease-out]">
             Apa Kata Mereka Tentang
-            <span className="block sm:inline sm:ml-2 text-primary-500">Komunitas Kami?</span>
+            <span className="block sm:inline sm:ml-2 text-primary-500">
+              Komunitas Kami?
+            </span>
           </h2>
         </div>
 
@@ -89,7 +91,9 @@ export default function TestimonialSection() {
                     <h4 className="font-semibold text-gray-900">
                       {testimonial.name}
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600">{testimonial.role}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {testimonial.role}
+                    </p>
                   </div>
                 </div>
                 <div className="text-gray-600 relative">

@@ -1,10 +1,10 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { Header } from './_site/_components/header'
-import { Footer } from './_site/_components/footer'
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { Header } from './_site/_components/header';
+import { Footer } from './_site/_components/footer';
 
 export const Route = createFileRoute('/_site')({
   component: SiteLayout,
-})
+});
 
 function SiteLayout() {
   return (
@@ -15,5 +15,5 @@ function SiteLayout() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

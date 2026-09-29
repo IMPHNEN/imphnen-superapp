@@ -1,14 +1,25 @@
-import { DeleteOutlined, UserSwitchOutlined } from "@ant-design/icons";
-import { Button } from "@imphnen-frontend-service/ui/atoms";
-import { DataTable } from "@imphnen-frontend-service/ui/organisms";
-import { cn } from "@imphnen-frontend-service/utils";
-import { ColumnDef, getCoreRowModel, getPaginationRowModel, PaginationState, RowSelectionState, useReactTable } from "@tanstack/react-table";
-import { FC, useState } from "react";
-import { useRoleList, useDeleteRole, TRolesListItem } from "@imphnen-frontend-service/service";
-import { toast } from "sonner";
+import { DeleteOutlined, UserSwitchOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { DataTable } from '@imphnen-frontend-service/ui/organisms';
+import { cn } from '@imphnen-frontend-service/utils';
+import {
+  type ColumnDef,
+  getCoreRowModel,
+  getPaginationRowModel,
+  type PaginationState,
+  type RowSelectionState,
+  useReactTable,
+} from '@tanstack/react-table';
+import { type FC, useState } from 'react';
+import {
+  useRoleList,
+  useDeleteRole,
+  type TRolesListItem,
+} from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
 
 export const UserRolesPermission: FC = () => {
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 9,
@@ -35,7 +46,7 @@ export const UserRolesPermission: FC = () => {
   const columns: ColumnDef<TRolesListItem>[] = [
     {
       id: 'select',
-      meta: { cellClassName: cn("w-20") },
+      meta: { cellClassName: cn('w-20') },
       header: ({ table }) => (
         <input
           type="checkbox"
@@ -65,7 +76,7 @@ export const UserRolesPermission: FC = () => {
     },
     {
       header: 'Action',
-      meta: { cellClassName: cn("w-96") },
+      meta: { cellClassName: cn('w-96') },
       cell: ({ row }) => (
         <div className="flex items-center gap-4">
           <Button
@@ -92,7 +103,7 @@ export const UserRolesPermission: FC = () => {
         </div>
       ),
     },
-  ]
+  ];
 
   const table = useReactTable({
     data: roles,
@@ -113,10 +124,10 @@ export const UserRolesPermission: FC = () => {
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-p2 font-semibold text-neutral-700">User Roles & Permissions</h1>
-        <Button type="button">
-          Add Role
-        </Button>
+        <h1 className="text-p2 font-semibold text-neutral-700">
+          User Roles & Permissions
+        </h1>
+        <Button type="button">Add Role</Button>
       </div>
 
       <div className="bg-white shadow p-8 rounded-lg">
@@ -127,5 +138,5 @@ export const UserRolesPermission: FC = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};

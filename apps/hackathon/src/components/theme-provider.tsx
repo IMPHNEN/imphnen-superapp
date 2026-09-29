@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState, FC, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type FC,
+  type ReactNode,
+} from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -14,7 +21,9 @@ const STORAGE_KEY = 'hackathon-theme';
 
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
   }
   return 'light';
 }
@@ -24,7 +33,10 @@ interface ThemeProviderProps {
   defaultTheme?: Theme;
 }
 
-export const ThemeProvider: FC<ThemeProviderProps> = ({ children, defaultTheme = 'system' }) => {
+export const ThemeProvider: FC<ThemeProviderProps> = ({
+  children,
+  defaultTheme = 'system',
+}) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;

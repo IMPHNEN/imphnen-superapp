@@ -1,28 +1,28 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateEvent } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { useCreateEvent } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/cms-events_/create')({
   component: CmsEventsCreatePage,
-})
+});
 
 function CmsEventsCreatePage() {
-  const navigate = useNavigate()
-  const createEvent = useCreateEvent()
+  const navigate = useNavigate();
+  const createEvent = useCreateEvent();
 
   const form = useForm<{
-    name: string
-    description: string
-    detail_link: string
-    location: string
-    price: number
-    start_date: string
-    end_date: string
-    is_online: boolean
+    name: string;
+    description: string;
+    detail_link: string;
+    location: string;
+    price: number;
+    start_date: string;
+    end_date: string;
+    is_online: boolean;
   }>({
     mode: 'all',
     defaultValues: {
@@ -35,18 +35,18 @@ function CmsEventsCreatePage() {
       end_date: '',
       is_online: false,
     },
-  })
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createEvent.mutateAsync(data)
-      toast.success('Data event berhasil ditambahkan')
-      navigate({ to: '/cms-events' })
+      await createEvent.mutateAsync(data);
+      toast.success('Data event berhasil ditambahkan');
+      navigate({ to: '/cms-events' });
     } catch (error) {
-      console.log(error)
-      toast.error('Data event gagal ditambahkan')
+      console.log(error);
+      toast.error('Data event gagal ditambahkan');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -133,7 +133,10 @@ function CmsEventsCreatePage() {
                 className="rounded"
                 {...form.register('is_online')}
               />
-              <label htmlFor="is_online" className="text-p3 font-medium text-neutral-800">
+              <label
+                htmlFor="is_online"
+                className="text-p3 font-medium text-neutral-800"
+              >
                 Event Online
               </label>
             </div>
@@ -160,5 +163,5 @@ function CmsEventsCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

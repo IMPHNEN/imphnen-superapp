@@ -1,9 +1,9 @@
-import { FC, useState, useEffect, useMemo, useRef } from 'react';
+import { type FC, useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { CityFilterSelect } from '../../../../components/city-filter-select';
 import TeamBannerPlaceholder from './team-banner-placeholder';
 import { cn } from '@imphnen-frontend-service/utils';
-import { TAdminTeamItem } from '@imphnen-frontend-service/service';
+import type { TAdminTeamItem } from '@imphnen-frontend-service/service';
 import {
   TeamOutlined,
   CloseOutlined,

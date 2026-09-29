@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Search, ChevronDown, ChevronRight, Menu, X, Rocket, Disc, Settings, Wrench } from 'lucide-react';
+import {
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  X,
+  Rocket,
+  Disc,
+  Settings,
+  Wrench,
+} from 'lucide-react';
 
 interface Article {
   slug: string;
@@ -24,10 +34,14 @@ const iconMap: Record<string, any> = {
   rocket: Rocket,
   disc: Disc,
   settings: Settings,
-  wrench: Wrench
+  wrench: Wrench,
 };
 
-export default function WikiSidebar({ categories, currentSlug, className = '' }: WikiSidebarProps) {
+export default function WikiSidebar({
+  categories,
+  currentSlug,
+  className = '',
+}: WikiSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpenMobile, setIsOpenMobile] = useState(false);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>(
@@ -35,13 +49,17 @@ export default function WikiSidebar({ categories, currentSlug, className = '' }:
   );
 
   const toggleCat = (name: string) => {
-    setExpandedCats(prev => ({ ...prev, [name]: !prev[name] }));
+    setExpandedCats((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const filteredCategories = categories.map(cat => ({
-    ...cat,
-    articles: cat.articles.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  })).filter(cat => cat.articles.length > 0);
+  const filteredCategories = categories
+    .map((cat) => ({
+      ...cat,
+      articles: cat.articles.filter((a) =>
+        a.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    }))
+    .filter((cat) => cat.articles.length > 0);
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white">
@@ -82,15 +100,15 @@ export default function WikiSidebar({ categories, currentSlug, className = '' }:
 
               {isExpanded && (
                 <div className="pl-6 space-y-1 mt-2">
-                  {cat.articles.map(article => {
+                  {cat.articles.map((article) => {
                     const isActive = currentSlug === article.slug;
                     return (
                       <Link
                         key={article.slug}
                         to={`/wiki/${article.slug}`}
                         className={`block py-1.5 px-3 rounded-lg text-sm transition-colors ${
-                          isActive 
-                            ? 'bg-primary-50 text-primary-700 font-medium' 
+                          isActive
+                            ? 'bg-primary-50 text-primary-700 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                         onClick={() => setIsOpenMobile(false)}
@@ -111,7 +129,7 @@ export default function WikiSidebar({ categories, currentSlug, className = '' }:
   return (
     <>
       {/* Mobile toggle button */}
-      <button 
+      <button
         onClick={() => setIsOpenMobile(true)}
         className="md:hidden fixed bottom-6 right-6 z-40 bg-primary-600 text-white p-3 rounded-full shadow-lg"
       >
@@ -119,27 +137,30 @@ export default function WikiSidebar({ categories, currentSlug, className = '' }:
       </button>
 
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:block w-64 shrink-0 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] ${className}`}>
+      <aside
+        className={`hidden md:block w-64 shrink-0 border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] ${className}`}
+      >
         {sidebarContent}
       </aside>
 
       {/* Mobile Drawer */}
       {isOpenMobile && (
         <div className="md:hidden fixed inset-0 z-50 flex">
-          <div 
+          <div
             className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"
             onClick={() => setIsOpenMobile(false)}
           />
           <div className="relative w-4/5 max-w-sm bg-white h-full flex flex-col shadow-2xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
               <span className="font-bold text-gray-900">Wiki Navigasi</span>
-              <button onClick={() => setIsOpenMobile(false)} className="text-gray-500 hover:text-gray-900">
+              <button
+                onClick={() => setIsOpenMobile(false)}
+                className="text-gray-500 hover:text-gray-900"
+              >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
-              {sidebarContent}
-            </div>
+            <div className="flex-1 overflow-hidden">{sidebarContent}</div>
           </div>
         </div>
       )}

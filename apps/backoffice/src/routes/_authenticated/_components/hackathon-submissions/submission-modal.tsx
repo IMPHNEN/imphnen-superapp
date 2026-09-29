@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import {
   CloseOutlined,
@@ -6,7 +6,7 @@ import {
   ProjectOutlined,
   FileImageOutlined,
 } from '@ant-design/icons';
-import { TAdminSubmissionItem } from '@imphnen-frontend-service/service';
+import type { TAdminSubmissionItem } from '@imphnen-frontend-service/service';
 import { cn } from '@imphnen-frontend-service/utils';
 
 interface SubmissionModalProps {
@@ -40,7 +40,6 @@ const SubmissionModal: FC<SubmissionModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-
         <div className="flex items-center justify-between p-6 border-b border-neutral-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-success-100 flex items-center justify-center">
@@ -69,7 +68,6 @@ const SubmissionModal: FC<SubmissionModalProps> = ({
         </div>
 
         <div className="p-6 space-y-6">
-
           <div
             className={cn(
               'flex items-center gap-3 p-4 border rounded-lg',
@@ -223,7 +221,6 @@ const SubmissionModal: FC<SubmissionModalProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
-
         </div>
       </div>
     </div>

@@ -1,36 +1,36 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Dropzone } from '../../app/features/watermark/components/Dropzone'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { toast } from 'sonner'
-import { api } from '../../app/features/auth/api/auth.service'
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Dropzone } from '../../app/features/watermark/components/Dropzone';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { toast } from 'sonner';
+import { api } from '../../app/features/auth/api/auth.service';
 
 export const Route = createFileRoute('/_authenticated/')({
   component: HomePage,
-})
+});
 
 function HomePage() {
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageDropped = (file: File) => {
-    setImageFile(file)
-    setGeneratedImage(null)
-    toast.success('Image selected ready for generation!')
-  }
+    setImageFile(file);
+    setGeneratedImage(null);
+    toast.success('Image selected ready for generation!');
+  };
 
   const handleReset = () => {
-    setImageFile(null)
-    setGeneratedImage(null)
-  }
+    setImageFile(null);
+    setGeneratedImage(null);
+  };
 
   const handleGenerate = async () => {
-    if (!imageFile) return
+    if (!imageFile) return;
 
-    setIsLoading(true)
-    const formData = new FormData()
-    formData.append('image', imageFile)
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('image', imageFile);
 
     try {
       const response = await api.post('/campaigns/process-image', formData, {
@@ -38,30 +38,30 @@ function HomePage() {
           'Content-Type': 'multipart/form-data',
         },
         responseType: 'blob',
-      })
+      });
 
-      const imageUrl = URL.createObjectURL(response.data)
-      setGeneratedImage(imageUrl)
-      toast.success('QR Code generated successfully!')
+      const imageUrl = URL.createObjectURL(response.data);
+      setGeneratedImage(imageUrl);
+      toast.success('QR Code generated successfully!');
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
       const message =
-        error.response?.data?.message || 'Failed to generate QR code.'
-      toast.error(message)
+        error.response?.data?.message || 'Failed to generate QR code.';
+      toast.error(message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDownload = () => {
-    if (!generatedImage) return
-    const link = document.createElement('a')
-    link.href = generatedImage
-    link.download = `qr-campaign-${Date.now()}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    if (!generatedImage) return;
+    const link = document.createElement('a');
+    link.href = generatedImage;
+    link.download = `qr-campaign-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 flex flex-col gap-8">
@@ -145,5 +145,5 @@ function HomePage() {
         )}
       </div>
     </div>
-  )
+  );
 }

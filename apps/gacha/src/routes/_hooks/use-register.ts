@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import {
   authRegisterSchema,
-  TRegisterRequest,
+  type TRegisterRequest,
   usePostRegister,
 } from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';

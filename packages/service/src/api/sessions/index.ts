@@ -1,4 +1,4 @@
-import { api, ApiResponse } from '../index';
+import { api, type ApiResponse } from '../index';
 import type {
   TBookSessionRequest,
   TBookSessionResponse,
@@ -10,14 +10,19 @@ import type {
   TMentorAvailability,
 } from '../../types/sessions';
 
-export const getMentorAvailability = async (mentorId: string): Promise<TMentorAvailability> => {
+export const getMentorAvailability = async (
+  mentorId: string
+): Promise<TMentorAvailability> => {
   const response = await api.get<ApiResponse<TMentorAvailability>>(
     `/v1/dimentorin/mentors/${mentorId}/availability`
   );
   return response.data.data;
 };
 
-export const bookSession = async (mentorId: string, data: TBookSessionRequest): Promise<TBookSessionResponse> => {
+export const bookSession = async (
+  mentorId: string,
+  data: TBookSessionRequest
+): Promise<TBookSessionResponse> => {
   const response = await api.post<ApiResponse<TBookSessionResponse>>(
     `/v1/dimentorin/mentors/${mentorId}/sessions/create`,
     data
@@ -25,7 +30,10 @@ export const bookSession = async (mentorId: string, data: TBookSessionRequest): 
   return response.data.data;
 };
 
-export const getMentorSessions = async (mentorId: string, params?: { status?: string }): Promise<TSessionListResponse> => {
+export const getMentorSessions = async (
+  mentorId: string,
+  params?: { status?: string }
+): Promise<TSessionListResponse> => {
   const response = await api.get<ApiResponse<TSessionListResponse>>(
     `/v1/dimentorin/mentors/${mentorId}/sessions`,
     { params }
@@ -33,7 +41,9 @@ export const getMentorSessions = async (mentorId: string, params?: { status?: st
   return response.data.data;
 };
 
-export const getMySessions = async (params?: { status?: string }): Promise<TSessionListResponse> => {
+export const getMySessions = async (params?: {
+  status?: string;
+}): Promise<TSessionListResponse> => {
   const response = await api.get<ApiResponse<TSessionListResponse>>(
     '/v1/dimentorin/sessions/me',
     { params }

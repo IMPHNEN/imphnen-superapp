@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { ModalButton } from '../buttons/modal-button';
 
 interface DescriptionModalProps {
@@ -18,7 +18,6 @@ export const DescriptionModal: FC<DescriptionModalProps> = ({
 }) => {
   const [description, setDescription] = useState(initialValue);
 
-  
   useEffect(() => {
     setDescription(initialValue);
   }, [initialValue]);
@@ -30,7 +29,6 @@ export const DescriptionModal: FC<DescriptionModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Save failed:', error);
-
     }
   };
 
@@ -52,12 +50,17 @@ export const DescriptionModal: FC<DescriptionModalProps> = ({
 
       <div className="relative max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-2xl bg-[#F6F6F6] p-5 sm:p-6">
         <div className="rounded-[6px] bg-[#DFECF7] px-4 py-2">
-          <h2 className="text-2xl font-semibold leading-8 text-[#4B4B4B]">Description</h2>
+          <h2 className="text-2xl font-semibold leading-8 text-[#4B4B4B]">
+            Description
+          </h2>
         </div>
 
         <div className="pt-8">
           <div>
-            <label htmlFor="description-textarea" className="mb-2 block text-lg font-medium leading-7 text-[#4B4B4B]">
+            <label
+              htmlFor="description-textarea"
+              className="mb-2 block text-lg font-medium leading-7 text-[#4B4B4B]"
+            >
               Deskripsi
             </label>
             <textarea
@@ -94,4 +97,3 @@ export const DescriptionModal: FC<DescriptionModalProps> = ({
     </div>
   );
 };
-

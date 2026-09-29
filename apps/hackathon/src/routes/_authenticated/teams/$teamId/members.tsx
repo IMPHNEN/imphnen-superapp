@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState } from 'react';
+import { type FC, type ReactElement, useState } from 'react';
 import { Button, Input } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import {
@@ -10,14 +10,16 @@ import {
   useRespondToJoinRequest,
   ETeamMemberStatus,
   inviteMemberSchema,
-  TInviteMemberForm,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  type TInviteMemberForm,
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/teams/$teamId/members')({
-  component: ManageMembersPage })
+  component: ManageMembersPage,
+});
 
 const ManageMembersPage: FC = (): ReactElement => {
   const { teamId } = Route.useParams();
@@ -53,7 +55,8 @@ const ManageMembersPage: FC = (): ReactElement => {
 
   const form = useForm<TInviteMemberForm>({
     resolver: zodResolver(inviteMemberSchema),
-    mode: 'all' });
+    mode: 'all',
+  });
 
   if (isLoadingTeam) {
     return (
@@ -137,7 +140,11 @@ const ManageMembersPage: FC = (): ReactElement => {
               <Button
                 onClick={() => setShowInviteModal(true)}
                 disabled={hasSubmission}
-                title={hasSubmission ? 'Cannot invite members after project submission' : undefined}
+                title={
+                  hasSubmission
+                    ? 'Cannot invite members after project submission'
+                    : undefined
+                }
               >
                 Invite Member
               </Button>
@@ -162,7 +169,8 @@ const ManageMembersPage: FC = (): ReactElement => {
                   Team Locked
                 </h3>
                 <p className="text-amber-800 dark:text-amber-200 text-sm font-sans mt-1">
-                  Your team has submitted a project. You cannot add or remove members after submission to maintain competition integrity.
+                  Your team has submitted a project. You cannot add or remove
+                  members after submission to maintain competition integrity.
                 </p>
               </div>
             </div>
@@ -217,7 +225,11 @@ const ManageMembersPage: FC = (): ReactElement => {
                         size="sm"
                         onClick={() => handleApproveRequest(request.id)}
                         disabled={isResponding || hasSubmission}
-                        title={hasSubmission ? 'Cannot accept members after project submission' : undefined}
+                        title={
+                          hasSubmission
+                            ? 'Cannot accept members after project submission'
+                            : undefined
+                        }
                       >
                         Approve
                       </Button>
@@ -378,4 +390,3 @@ const ManageMembersPage: FC = (): ReactElement => {
     </div>
   );
 };
-

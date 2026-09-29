@@ -1,13 +1,17 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { DescriptionModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface DescriptionSectionProps {
   initialDescription: string;
   onSave: (newDescription: string) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
   isViewOnly?: boolean;
 }
@@ -22,7 +26,6 @@ export const DescriptionSection: FC<DescriptionSectionProps> = ({
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [description, setDescription] = useState(initialDescription);
 
-  
   useEffect(() => {
     setDescription(initialDescription);
   }, [initialDescription]);

@@ -1,31 +1,33 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, useState } from 'react'
-import { ProfileSection } from './$id/_components/sections/profile'
-import { StatisticsSection } from './$id/_components/sections/senpai-statistics'
-import { TopicsSection } from './$id/_components/sections/topics'
-import { ExperienceSection } from './$id/_components/sections/experience'
-import { EducationSection } from './$id/_components/sections/education'
-import { SenpaiScheduleSection } from './$id/_components/sections/senpai-schedule'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { AppointmentModal } from './$id/_components/modals/appointment'
-import { useMentorById } from '@imphnen-frontend-service/service'
+import { createFileRoute } from '@tanstack/react-router';
+import { FC, useState } from 'react';
+import { ProfileSection } from './$id/_components/sections/profile';
+import { StatisticsSection } from './$id/_components/sections/senpai-statistics';
+import { TopicsSection } from './$id/_components/sections/topics';
+import { ExperienceSection } from './$id/_components/sections/experience';
+import { EducationSection } from './$id/_components/sections/education';
+import { SenpaiScheduleSection } from './$id/_components/sections/senpai-schedule';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { AppointmentModal } from './$id/_components/modals/appointment';
+import { useMentorById } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_site/mentoring_/$id')({
   component: MentorDetailPage,
-})
+});
 
 function MentorDetailPage() {
-  const [open, setOpen] = useState(false)
-  const { id } = Route.useParams()
-  const mentorId = id ?? ''
-  const { data: mentor, isLoading } = useMentorById(mentorId)
+  const [open, setOpen] = useState(false);
+  const { id } = Route.useParams();
+  const mentorId = id ?? '';
+  const { data: mentor, isLoading } = useMentorById(mentorId);
 
   if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-neutral-400">Loading mentor profile...</div>
+        <div className="text-center text-neutral-400">
+          Loading mentor profile...
+        </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -34,7 +36,12 @@ function MentorDetailPage() {
         <div className="max-w-7xl mx-auto space-y-8 md:bg-white xl:bg-transparent">
           <ProfileSection mentor={mentor} onBook={() => setOpen(true)} />
 
-          <Button type="button" size="sm" className="w-full md:hidden" onClick={() => setOpen(true)}>
+          <Button
+            type="button"
+            size="sm"
+            className="w-full md:hidden"
+            onClick={() => setOpen(true)}
+          >
             Book Your Senpai!
           </Button>
 
@@ -45,7 +52,9 @@ function MentorDetailPage() {
 
               {mentor?.bio && (
                 <div className="px-6 py-8 rounded-md shadow-md">
-                  <h2 className="text-xs text-neutral-800 font-semibold mb-5 md:text-[15px] xl:text-[19px]">Senpai Resume</h2>
+                  <h2 className="text-xs text-neutral-800 font-semibold mb-5 md:text-[15px] xl:text-[19px]">
+                    Senpai Resume
+                  </h2>
                   <p className="text-[10px] font-medium text-neutral-600 text-pretty md:text-[15px]">
                     {mentor.bio}
                   </p>
@@ -65,5 +74,5 @@ function MentorDetailPage() {
 
       <AppointmentModal open={open} setOpen={setOpen} mentorId={mentorId} />
     </main>
-  )
+  );
 }

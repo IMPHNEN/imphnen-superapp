@@ -1,31 +1,35 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import {
   useGachaItemList,
   useUpdateGachaItem,
-} from '@imphnen-frontend-service/service'
+} from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/gacha-roll_/$id')({
   component: GachaRollEditPage,
-})
+});
 
 function GachaRollEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updateItem = useUpdateGachaItem()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updateItem = useUpdateGachaItem();
 
-  const { data: itemsData, isLoading } = useGachaItemList({ per_page: 100 })
-  const item = itemsData?.data?.find((i) => i.id === id)
+  const { data: itemsData, isLoading } = useGachaItemList({ per_page: 100 });
+  const item = itemsData?.data?.find((i) => i.id === id);
 
-  const form = useForm<{ itemName: string; quantity: number; chanceRate: number }>({
+  const form = useForm<{
+    itemName: string;
+    quantity: number;
+    chanceRate: number;
+  }>({
     mode: 'all',
     defaultValues: { itemName: '', quantity: 1, chanceRate: 0.1 },
-  })
+  });
 
   useEffect(() => {
     if (item) {
@@ -33,9 +37,9 @@ function GachaRollEditPage() {
         itemName: item.name,
         quantity: item.stock,
         chanceRate: item.weight,
-      })
+      });
     }
-  }, [item])
+  }, [item]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -46,21 +50,21 @@ function GachaRollEditPage() {
           weight: data.chanceRate,
           stock: data.quantity,
         },
-      })
-      toast.success('Perubahan item roll berhasil dilakukan')
-      navigate({ to: '/gacha-roll' })
+      });
+      toast.success('Perubahan item roll berhasil dilakukan');
+      navigate({ to: '/gacha-roll' });
     } catch (error) {
-      console.log(error)
-      toast.error('Perubahan item roll gagal dilakukan')
+      console.log(error);
+      toast.error('Perubahan item roll gagal dilakukan');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -73,7 +77,9 @@ function GachaRollEditPage() {
           >
             <ArrowLeftOutlined className="text-[20px]" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Item Roll Gacha</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Edit Item Roll Gacha
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -132,5 +138,5 @@ function GachaRollEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

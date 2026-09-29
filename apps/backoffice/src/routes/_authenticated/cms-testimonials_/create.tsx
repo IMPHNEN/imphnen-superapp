@@ -1,34 +1,36 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateTestimonial } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { useCreateTestimonial } from '@imphnen-frontend-service/service';
 
-export const Route = createFileRoute('/_authenticated/cms-testimonials_/create')({
+export const Route = createFileRoute(
+  '/_authenticated/cms-testimonials_/create'
+)({
   component: CmsTestimonialsCreatePage,
-})
+});
 
 function CmsTestimonialsCreatePage() {
-  const navigate = useNavigate()
-  const createTestimonial = useCreateTestimonial()
+  const navigate = useNavigate();
+  const createTestimonial = useCreateTestimonial();
 
   const form = useForm<{ role: string; content: string }>({
     mode: 'all',
     defaultValues: { role: '', content: '' },
-  })
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createTestimonial.mutateAsync(data)
-      toast.success('Data testimonial berhasil ditambahkan')
-      navigate({ to: '/cms-testimonials' })
+      await createTestimonial.mutateAsync(data);
+      toast.success('Data testimonial berhasil ditambahkan');
+      navigate({ to: '/cms-testimonials' });
     } catch (error) {
-      console.log(error)
-      toast.error('Data testimonial gagal ditambahkan')
+      console.log(error);
+      toast.error('Data testimonial gagal ditambahkan');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -40,7 +42,9 @@ function CmsTestimonialsCreatePage() {
           >
             <ArrowLeftOutlined className="text-[20px]" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Tambah Testimonial</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Tambah Testimonial
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -86,5 +90,5 @@ function CmsTestimonialsCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

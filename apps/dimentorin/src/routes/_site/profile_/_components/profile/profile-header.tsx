@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { EditOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
@@ -9,15 +9,19 @@ interface ProfileHeaderProps {
   isViewOnly?: boolean;
 }
 
-export const ProfileHeader: FC<ProfileHeaderProps> = ({ onEditProfileClick, isViewOnly = false }) => {
+export const ProfileHeader: FC<ProfileHeaderProps> = ({
+  onEditProfileClick,
+  isViewOnly = false,
+}) => {
   const { profileData, profileType } = useProfile();
 
-  
-  const avatarSrc = (profileType === 'user' && profileData && 'avatar' in profileData)
-    ? profileData.avatar || "/image/testimonial.webp"
-    : "/image/testimonial.webp";
+  const avatarSrc =
+    profileType === 'user' && profileData && 'avatar' in profileData
+      ? profileData.avatar || '/image/testimonial.webp'
+      : '/image/testimonial.webp';
 
-  const displayFullname = profileData?.fullname ||
+  const displayFullname =
+    profileData?.fullname ||
     (profileType === 'mentor' && profileData && 'legal_name' in profileData
       ? profileData.legal_name
       : 'User Name');
@@ -25,20 +29,24 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ onEditProfileClick, isVi
   if (profileData) {
     if (profileType === 'mentor' && 'current_role' in profileData) {
       displayJob = profileData.current_role || 'Mentor';
-    } else if (profileType === 'user' && 'role' in profileData && profileData.role) {
+    } else if (
+      profileType === 'user' &&
+      'role' in profileData &&
+      profileData.role
+    ) {
       displayJob = profileData.role.name || 'User';
     } else if ('current_role' in profileData) {
-
       displayJob = profileData.current_role || 'Role';
     }
   }
 
-  const joinDate = profileData && 'created_at' in profileData
-    ? new Date(profileData.created_at).toLocaleDateString('id-ID', {
-        year: 'numeric',
-        month: 'long'
-      })
-    : 'April 2024';
+  const joinDate =
+    profileData && 'created_at' in profileData
+      ? new Date(profileData.created_at).toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+        })
+      : 'April 2024';
 
   return (
     <motion.div
@@ -90,13 +98,19 @@ export const ProfileHeader: FC<ProfileHeaderProps> = ({ onEditProfileClick, isVi
         <div className="flex justify-around md:justify-start md:gap-12 mt-6 pt-6 border-t border-neutral-100">
           <div className="text-center md:text-left">
             <p className="text-lg md:text-xl font-semibold text-primary-500">
-              {profileData && 'mentoring_sessions' in profileData ? profileData.mentoring_sessions || 'N/A' : 'N/A'}
+              {profileData && 'mentoring_sessions' in profileData
+                ? profileData.mentoring_sessions || 'N/A'
+                : 'N/A'}
             </p>
-            <p className="text-xs md:text-sm text-neutral-600">Mentoring Sessions</p>
+            <p className="text-xs md:text-sm text-neutral-600">
+              Mentoring Sessions
+            </p>
           </div>
           <div className="text-center md:text-left">
             <p className="text-lg md:text-xl font-semibold text-primary-500">
-              {profileData && 'rating' in profileData ? profileData.rating || 'N/A' : 'N/A'}
+              {profileData && 'rating' in profileData
+                ? profileData.rating || 'N/A'
+                : 'N/A'}
             </p>
             <p className="text-xs md:text-sm text-neutral-600">Rating</p>
           </div>

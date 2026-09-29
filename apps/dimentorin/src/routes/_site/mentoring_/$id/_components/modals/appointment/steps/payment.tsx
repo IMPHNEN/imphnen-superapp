@@ -1,11 +1,11 @@
-import { For, Show } from "@imphnen-frontend-service/utils"
-import { FC } from "react"
-import { motion } from "framer-motion"
-import { TOPICS } from "../../../sections/topics"
+import { For, Show } from '@imphnen-frontend-service/utils';
+import type { FC } from 'react';
+import { motion } from 'framer-motion';
+import { TOPICS } from '../../../sections/topics';
 
 type Props = {
-  selectedTopics: number[]
-}
+  selectedTopics: number[];
+};
 
 export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
   return (
@@ -22,7 +22,11 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
           </p>
           <div>
             <div className="aspect-square mb-2 size-10 mx-auto rounded-full overflow-hidden md:size-20 md:ms-0">
-              <img src="/image/testimonial.webp" alt="Mentor" className="w-full object-cover" />
+              <img
+                src="/image/testimonial.webp"
+                alt="Mentor"
+                className="w-full object-cover"
+              />
             </div>
             <div className="w-44 mx-auto text-center md:ms-0 md:text-left md:mb-2 md:text-[15px] md:w-auto">
               <h3 className="text-xs font-semibold mb-1 xl:text-[15px]">
@@ -42,10 +46,11 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
           <div className="flex flex-wrap gap-2">
             <For data={TOPICS}>
               {(topic) => (
-                <Show key={topic.id} condition={selectedTopics.includes(topic.id)}>
-                  <div
-                    className="px-2.5 py-2 text-neutral-800 bg-white border border-primary-100 rounded-md shadow text-[10px] font-medium"
-                  >
+                <Show
+                  key={topic.id}
+                  condition={selectedTopics.includes(topic.id)}
+                >
+                  <div className="px-2.5 py-2 text-neutral-800 bg-white border border-primary-100 rounded-md shadow text-[10px] font-medium">
                     <span>{topic.icon} </span>
                     <span>{topic.name}</span>
                   </div>
@@ -66,15 +71,34 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
               Virtual Account
             </p>
             <div className="grid grid-cols-3 gap-2 md:grid-cols-4">
-              <For data={['BCA', 'BRI', 'BNI', 'MANDIRI', 'BCA-Virtual', 'BNI-Virtual', 'MANDIRI-Virtual']}>
+              <For
+                data={[
+                  'BCA',
+                  'BRI',
+                  'BNI',
+                  'MANDIRI',
+                  'BCA-Virtual',
+                  'BNI-Virtual',
+                  'MANDIRI-Virtual',
+                ]}
+              >
                 {(bank, index) => (
                   <div
                     key={index}
                     className="p-1 bg-white rounded-xs border border-primary-50 flex items-center gap-x-1"
                   >
-                    <input type="radio" name="payment" id={bank} className="size-2" />
+                    <input
+                      type="radio"
+                      name="payment"
+                      id={bank}
+                      className="size-2"
+                    />
                     <label htmlFor={bank} className="block">
-                      <img src="/image/payment/bca.webp" alt={bank} className="object-scale-down" />
+                      <img
+                        src="/image/payment/bca.webp"
+                        alt={bank}
+                        className="object-scale-down"
+                      />
                     </label>
                   </div>
                 )}
@@ -86,12 +110,19 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
               QRIS
             </p>
             <div className="grid grid-cols-3 gap-2 md:grid-cols-4">
-              <div
-                className="p-1 bg-white rounded-xs border border-primary-50 flex items-center gap-x-1"
-              >
-                <input type="radio" name="payment" id="QRIS" className="size-2" />
+              <div className="p-1 bg-white rounded-xs border border-primary-50 flex items-center gap-x-1">
+                <input
+                  type="radio"
+                  name="payment"
+                  id="QRIS"
+                  className="size-2"
+                />
                 <label htmlFor="QRIS" className="block">
-                  <img src="/image/payment/qris.webp" alt="QRIS" className="object-scale-down" />
+                  <img
+                    src="/image/payment/qris.webp"
+                    alt="QRIS"
+                    className="object-scale-down"
+                  />
                 </label>
               </div>
             </div>
@@ -116,5 +147,5 @@ export const PaymentStep: FC<Props> = ({ selectedTopics }) => {
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

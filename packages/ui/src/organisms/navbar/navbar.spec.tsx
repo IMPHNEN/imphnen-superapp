@@ -3,7 +3,7 @@ import {
   render,
   screen,
   fireEvent,
-  RenderResult,
+  type RenderResult,
 } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Navbar } from './navbar';

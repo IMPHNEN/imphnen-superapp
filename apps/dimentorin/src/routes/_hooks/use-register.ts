@@ -1,24 +1,31 @@
 import { useForm } from 'react-hook-form';
 import {
-  TRegisterRequest,
+  type TRegisterRequest,
   usePostRegister,
 } from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 // Local schema for the UI fields
-const registerFormSchema = z.object({
-  first_name: z.string().min(1, 'Nama depan tidak boleh kosong'),
-  last_name: z.string().min(1, 'Nama belakang tidak boleh kosong'),
-  email: z.string().min(1, 'Email tidak boleh kosong').email('Email harus valid'),
-  phone_number: z.string().min(1, 'Nomor telepon tidak boleh kosong'),
-  otp_code: z.string().optional(),
-  password: z.string().min(8, 'Password minimal 8 karakter'),
-  confirm_password: z.string().min(1, 'Konfirmasi password tidak boleh kosong'),
-}).refine((data) => data.password === data.confirm_password, {
-  message: 'Password tidak cocok',
-  path: ['confirm_password'],
-});
+const registerFormSchema = z
+  .object({
+    first_name: z.string().min(1, 'Nama depan tidak boleh kosong'),
+    last_name: z.string().min(1, 'Nama belakang tidak boleh kosong'),
+    email: z
+      .string()
+      .min(1, 'Email tidak boleh kosong')
+      .email('Email harus valid'),
+    phone_number: z.string().min(1, 'Nomor telepon tidak boleh kosong'),
+    otp_code: z.string().optional(),
+    password: z.string().min(8, 'Password minimal 8 karakter'),
+    confirm_password: z
+      .string()
+      .min(1, 'Konfirmasi password tidak boleh kosong'),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: 'Password tidak cocok',
+    path: ['confirm_password'],
+  });
 
 type TRegisterFormFields = z.infer<typeof registerFormSchema>;
 
@@ -53,6 +60,6 @@ export const useRegisterHook = () => {
   return {
     form,
     onSubmit,
-    isLoading
+    isLoading,
   };
 };

@@ -18,7 +18,8 @@ interface DashboardTestCase {
  */
 const mockToken = {
   access_token: 'mock_access_token_' + Math.random().toString(36).substring(7),
-  refresh_token: 'mock_refresh_token_' + Math.random().toString(36).substring(7),
+  refresh_token:
+    'mock_refresh_token_' + Math.random().toString(36).substring(7),
 };
 
 /**
@@ -91,7 +92,10 @@ test.describe('Dashboard Screenshot Capture', () => {
       context,
     }) => {
       // Set viewport size based on device type
-      const viewportSize = testCase.viewport === 'desktop' ? { width: 1280, height: 832 } : { width: 375, height: 667 };
+      const viewportSize =
+        testCase.viewport === 'desktop'
+          ? { width: 1280, height: 832 }
+          : { width: 375, height: 667 };
       await page.setViewportSize(viewportSize);
 
       // Set authentication cookie with mock token
@@ -107,7 +111,9 @@ test.describe('Dashboard Screenshot Capture', () => {
 
       // Set user in localStorage
       const mockUser = createMockUser(testCase.persona);
-      await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
+      await page.goto('http://localhost:3000', {
+        waitUntil: 'domcontentloaded',
+      });
       await page.evaluate(
         ({ user }) => {
           localStorage.setItem('users', JSON.stringify(user));
@@ -117,19 +123,24 @@ test.describe('Dashboard Screenshot Capture', () => {
 
       // Navigate to dashboard with persona parameter for explicit override
       const dashboardUrl = `http://localhost:3000/dashboard?persona=${testCase.persona}`;
-      await page.goto(dashboardUrl, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.goto(dashboardUrl, {
+        waitUntil: 'networkidle',
+        timeout: 30000,
+      });
 
       // Wait for stable dashboard content
-      await page.waitForSelector(
-        `text="${testCase.waitForText}"`,
-        { timeout: 10000 }
-      );
+      await page.waitForSelector(`text="${testCase.waitForText}"`, {
+        timeout: 10000,
+      });
 
       // Additional wait for content to render
       await page.waitForTimeout(1000);
 
       // Capture screenshot
-      const screenshotPath = path.join(screenshotDir, testCase.screenshotFileName);
+      const screenshotPath = path.join(
+        screenshotDir,
+        testCase.screenshotFileName
+      );
       await page.screenshot({
         path: screenshotPath,
         fullPage: true,

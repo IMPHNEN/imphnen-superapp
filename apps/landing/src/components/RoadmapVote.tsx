@@ -108,14 +108,16 @@ export default function RoadmapVote() {
                 <div className="flex items-center justify-between border-t border-gray-100 pt-3">
                   <button
                     onClick={() => handleVote(item.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${votedIds.has(item.id)
-                      ? 'bg-primary-500 text-white hover:bg-primary-600'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      votedIds.has(item.id)
+                        ? 'bg-primary-500 text-white hover:bg-primary-600'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                   >
                     <BiUpvote
-                      className={`w-4 h-4 ${votedIds.has(item.id) ? 'text-white' : 'text-gray-600'
-                        }`}
+                      className={`w-4 h-4 ${
+                        votedIds.has(item.id) ? 'text-white' : 'text-gray-600'
+                      }`}
                     />
                     <span>{votedIds.has(item.id) ? 'Voted' : 'Vote'}</span>
                   </button>
@@ -213,7 +215,9 @@ export default function RoadmapVote() {
             </div>
           ))}
           {completedItems.length === 0 && (
-            <p className="text-gray-500 text-sm px-2">No completed items yet.</p>
+            <p className="text-gray-500 text-sm px-2">
+              No completed items yet.
+            </p>
           )}
         </div>
       </div>

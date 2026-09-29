@@ -1,58 +1,62 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import {
   useGachaItemList,
   useUpdateGachaItem,
-} from '@imphnen-frontend-service/service'
+} from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/dashboard_/$id')({
   component: DashboardEditPage,
-})
+});
 
 function DashboardEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updateItem = useUpdateGachaItem()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updateItem = useUpdateGachaItem();
 
-  const { data: gachaItemsData, isLoading } = useGachaItemList({ per_page: 100 })
-  const item = gachaItemsData?.data?.find((i) => i.id === id)
+  const { data: gachaItemsData, isLoading } = useGachaItemList({
+    per_page: 100,
+  });
+  const item = gachaItemsData?.data?.find((i) => i.id === id);
 
-  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>({
-    mode: 'all',
-    defaultValues: { itemName: '', quantity: 1 },
-  })
+  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>(
+    {
+      mode: 'all',
+      defaultValues: { itemName: '', quantity: 1 },
+    }
+  );
 
   useEffect(() => {
     if (item) {
-      form.reset({ itemName: item.name, quantity: item.stock })
+      form.reset({ itemName: item.name, quantity: item.stock });
     }
-  }, [item])
+  }, [item]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
       await updateItem.mutateAsync({
         id,
         data: { name: data.itemName, stock: data.quantity },
-      })
-      toast.success('Perubahan item berhasil dilakukan')
-      navigate({ to: '/dashboard' })
+      });
+      toast.success('Perubahan item berhasil dilakukan');
+      navigate({ to: '/dashboard' });
     } catch (error) {
-      console.log(error)
-      toast.error('Perubahan item gagal dilakukan')
+      console.log(error);
+      toast.error('Perubahan item gagal dilakukan');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -120,5 +124,5 @@ function DashboardEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

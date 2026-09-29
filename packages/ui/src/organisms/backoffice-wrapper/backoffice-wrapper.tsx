@@ -1,13 +1,9 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { LogOut, User, Settings } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore, useSession } from '@imphnen-frontend-service/service';
 import { cn } from '@imphnen-frontend-service/utils';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '../../atoms/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../../atoms/avatar';
 import { Button } from '../../atoms/button';
 import {
   DropdownMenu,

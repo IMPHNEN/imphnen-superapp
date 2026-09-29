@@ -1,34 +1,68 @@
-import { cn, Show } from "@imphnen-frontend-service/utils"
-import { DetailedHTMLProps, FC, HTMLAttributes, useState } from "react"
-import { AnimatePresence, motion, Variants } from "framer-motion"
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
+import { cn, Show } from '@imphnen-frontend-service/utils';
+import {
+  type DetailedHTMLProps,
+  type FC,
+  type HTMLAttributes,
+  useState,
+} from 'react';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 
 export type AccordionOptions = {
-  title: string
-  description: string
-}
+  title: string;
+  description: string;
+};
 
 export type AccordionProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
-> & AccordionOptions & {
-  titleClassName?: string
-  contentClassName?: string
-}
+> &
+  AccordionOptions & {
+    titleClassName?: string;
+    contentClassName?: string;
+  };
 
-export const Accordion: FC<AccordionProps> = ({ title, description, className, titleClassName, contentClassName, ...rest }) => {
-  const [expand, setExpand] = useState(false)
+export const Accordion: FC<AccordionProps> = ({
+  title,
+  description,
+  className,
+  titleClassName,
+  contentClassName,
+  ...rest
+}) => {
+  const [expand, setExpand] = useState(false);
 
   const variants: Variants = {
     expand: { opacity: 1, y: 0, marginTop: 16, height: 'auto' },
     collapse: { opacity: 0, y: -10, marginTop: 0, height: 0 },
-  }
+  };
 
   return (
-    <div className={cn("bg-white rounded-lg shadow cursor-pointer pb-4", className)} {...rest}>
-      <div className="px-5 pt-4 select-none flex justify-between items-center gap-x-2" onClick={() => setExpand(prev => !prev)}>
-        <h4 className={cn("text-primary-500 font-semibold text-lg leading-tight md:text-xl", titleClassName)}>{title}</h4>
-        <div className={cn("text-primary-500 transition-all duration-300", expand && "rotate-90")}>
+    <div
+      className={cn(
+        'bg-white rounded-lg shadow cursor-pointer pb-4',
+        className
+      )}
+      {...rest}
+    >
+      <div
+        className="px-5 pt-4 select-none flex justify-between items-center gap-x-2"
+        onClick={() => setExpand((prev) => !prev)}
+      >
+        <h4
+          className={cn(
+            'text-primary-500 font-semibold text-lg leading-tight md:text-xl',
+            titleClassName
+          )}
+        >
+          {title}
+        </h4>
+        <div
+          className={cn(
+            'text-primary-500 transition-all duration-300',
+            expand && 'rotate-90'
+          )}
+        >
           <Show condition={expand} fallback={<PlusOutlined />}>
             <MinusOutlined className="rotate-90" />
           </Show>
@@ -37,7 +71,10 @@ export const Accordion: FC<AccordionProps> = ({ title, description, className, t
       <AnimatePresence>
         {expand && (
           <motion.p
-            className={cn("mt-4 px-5 text-neutral-500 text-sm font-medium cursor-text md:text-base", contentClassName)}
+            className={cn(
+              'mt-4 px-5 text-neutral-500 text-sm font-medium cursor-text md:text-base',
+              contentClassName
+            )}
             variants={variants}
             initial="collapse"
             animate="expand"
@@ -49,5 +86,5 @@ export const Accordion: FC<AccordionProps> = ({ title, description, className, t
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};

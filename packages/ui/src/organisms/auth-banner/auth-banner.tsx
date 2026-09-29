@@ -1,7 +1,7 @@
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Icon } from "@iconify/react";
-import { Button } from "../../atoms";
-import { FC, ReactElement } from "react";
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react';
+import { Button } from '../../atoms';
+import type { FC, ReactElement } from 'react';
 
 function AuthBanner({ text, href }: { text: string; href: string }) {
   return (
@@ -13,7 +13,7 @@ function AuthBanner({ text, href }: { text: string; href: string }) {
       />
       {/* Top Gradient */}
       <div className="absolute top-0 left-0 w-full h-[263px] bg-gradient-to-b from-[#23a1eb] to-transparent" />
-      
+
       {/* Bottom Gradient */}
       <div className="absolute bottom-0 left-0 w-full h-[263px] bg-gradient-to-t from-[#23a1eb] to-transparent" />
 
@@ -41,9 +41,9 @@ function AuthBanner({ text, href }: { text: string; href: string }) {
 }
 
 export const LoginBanner: FC = (): ReactElement => {
-    return AuthBanner({text: "Back To Homepage", href: "/"})
-}
+  return AuthBanner({ text: 'Back To Homepage', href: '/' });
+};
 
 export const RegisterResetBanner: FC = (): ReactElement => {
-    return AuthBanner({text: "Back To Login", href: "/auth/login"})
-}
+  return AuthBanner({ text: 'Back To Login', href: '/auth/login' });
+};

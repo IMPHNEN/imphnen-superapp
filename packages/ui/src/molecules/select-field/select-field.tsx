@@ -39,7 +39,10 @@ export const SelectField = React.forwardRef<
     const fieldId = htmlFor ?? id ?? autoId;
     return (
       <div className="flex flex-col gap-2">
-        <Label htmlFor={fieldId} className="text-sm font-medium text-foreground">
+        <Label
+          htmlFor={fieldId}
+          className="text-sm font-medium text-foreground"
+        >
           {label}
         </Label>
         <NativeSelect

@@ -20,16 +20,16 @@ import {
 } from '@imphnen-frontend-service/ui/organisms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   useMySessions,
-  TSessionListItem,
+  type TSessionListItem,
 } from '@imphnen-frontend-service/service';
 import {
   SelectAllCheckbox,
@@ -43,8 +43,7 @@ export const Route = createFileRoute('/_authenticated/session-dimentorin')({
 function SessionDimentorinPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = React.useState('all');
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,

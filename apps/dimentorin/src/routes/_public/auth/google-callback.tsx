@@ -1,7 +1,10 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { FC, ReactElement, useEffect } from 'react'
-import { useGoogleCallback, useAuthStore } from '@imphnen-frontend-service/service'
-import { toast } from 'sonner'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { FC, type ReactElement, useEffect } from 'react';
+import {
+  useGoogleCallback,
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_public/auth/google-callback')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -10,26 +13,26 @@ export const Route = createFileRoute('/_public/auth/google-callback')({
     error: (search.error as string) || '',
   }),
   component: GoogleCallbackPage,
-})
+});
 
 function GoogleCallbackPage(): ReactElement {
-  const { code, state, error: errorParam } = Route.useSearch()
-  const navigate = useNavigate()
-  const { setSession, clearSession } = useAuthStore()
-  const { mutate: googleCallback } = useGoogleCallback()
+  const { code, state, error: errorParam } = Route.useSearch();
+  const navigate = useNavigate();
+  const { setSession, clearSession } = useAuthStore();
+  const { mutate: googleCallback } = useGoogleCallback();
 
   useEffect(() => {
     const handleCallback = async () => {
       if (errorParam) {
-        toast.error('Google login dibatalkan atau terjadi kesalahan')
-        navigate({ to: '/auth/login' })
-        return
+        toast.error('Google login dibatalkan atau terjadi kesalahan');
+        navigate({ to: '/auth/login' });
+        return;
       }
 
       if (!code || !state) {
-        toast.error('Parameter login Google tidak valid')
-        navigate({ to: '/auth/login' })
-        return
+        toast.error('Parameter login Google tidak valid');
+        navigate({ to: '/auth/login' });
+        return;
       }
 
       try {
@@ -41,31 +44,39 @@ function GoogleCallbackPage(): ReactElement {
                 setSession({
                   token: response.token,
                   user: response.user,
-                })
-                toast.success('Login Google berhasil!')
-                navigate({ to: '/dashboard' })
+                });
+                toast.success('Login Google berhasil!');
+                navigate({ to: '/dashboard' });
               } else {
-                throw new Error('Response data tidak valid')
+                throw new Error('Response data tidak valid');
               }
             },
             onError: (error) => {
-              console.error('Google OAuth callback error:', error)
-              toast.error('Login Google gagal')
-              clearSession()
-              navigate({ to: '/auth/login' })
+              console.error('Google OAuth callback error:', error);
+              toast.error('Login Google gagal');
+              clearSession();
+              navigate({ to: '/auth/login' });
             },
           }
-        )
+        );
       } catch (error) {
-        console.error('Google OAuth callback error:', error)
-        toast.error('Login Google gagal')
-        clearSession()
-        navigate({ to: '/auth/login' })
+        console.error('Google OAuth callback error:', error);
+        toast.error('Login Google gagal');
+        clearSession();
+        navigate({ to: '/auth/login' });
       }
-    }
+    };
 
-    handleCallback()
-  }, [code, state, errorParam, navigate, setSession, clearSession, googleCallback])
+    handleCallback();
+  }, [
+    code,
+    state,
+    errorParam,
+    navigate,
+    setSession,
+    clearSession,
+    googleCallback,
+  ]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -79,5 +90,5 @@ function GoogleCallbackPage(): ReactElement {
         </p>
       </div>
     </div>
-  )
+  );
 }

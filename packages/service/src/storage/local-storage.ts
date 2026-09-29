@@ -1,5 +1,9 @@
 import type { TRoleDetailItem } from '../types/roles';
-import type { THackathonProfile, TQrProfile, TMentorProfile } from '../types/users';
+import type {
+  THackathonProfile,
+  TQrProfile,
+  TMentorProfile,
+} from '../types/users';
 
 type TUserItem = {
   id: string;

@@ -1,21 +1,21 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { useAuthStore } from '../app/features/auth/store/auth.store'
-import { Sidebar } from '../components/Sidebar'
-import { MenuOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { useAuthStore } from '../app/features/auth/store/auth.store';
+import { Sidebar } from '../components/Sidebar';
+import { MenuOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: () => {
-    const { isAuthenticated } = useAuthStore.getState()
+    const { isAuthenticated } = useAuthStore.getState();
     if (!isAuthenticated) {
-      throw redirect({ to: '/auth/login' })
+      throw redirect({ to: '/auth/login' });
     }
   },
   component: AuthenticatedLayout,
-})
+});
 
 function AuthenticatedLayout() {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -42,5 +42,5 @@ function AuthenticatedLayout() {
         </main>
       </div>
     </div>
-  )
+  );
 }

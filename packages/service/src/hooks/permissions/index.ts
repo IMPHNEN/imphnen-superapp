@@ -6,13 +6,17 @@ import {
   updatePermission,
   deletePermission,
 } from '../../api/permissions';
-import type { TPermissionCreateRequest, TPermissionUpdateRequest } from '../../types/permissions';
+import type {
+  TPermissionCreateRequest,
+  TPermissionUpdateRequest,
+} from '../../types/permissions';
 import type { TPaginationParams } from '../../types/common';
 
 export const permissionKeys = {
   all: ['permissions'] as const,
   lists: () => [...permissionKeys.all, 'list'] as const,
-  list: (params?: TPaginationParams) => [...permissionKeys.lists(), params] as const,
+  list: (params?: TPaginationParams) =>
+    [...permissionKeys.lists(), params] as const,
   detail: (id: string) => [...permissionKeys.all, 'detail', id] as const,
 };
 
@@ -35,17 +39,26 @@ export const useCreatePermission = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TPermissionCreateRequest) => createPermission(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: permissionKeys.lists() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: permissionKeys.lists() }),
   });
 };
 
 export const useUpdatePermission = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: TPermissionUpdateRequest }) => updatePermission(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: TPermissionUpdateRequest;
+    }) => updatePermission(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: permissionKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: permissionKeys.detail(vars.id) });
+      queryClient.invalidateQueries({
+        queryKey: permissionKeys.detail(vars.id),
+      });
     },
   });
 };
@@ -54,6 +67,7 @@ export const useDeletePermission = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deletePermission(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: permissionKeys.lists() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: permissionKeys.lists() }),
   });
 };

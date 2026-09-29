@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { ModalButton } from '../buttons/modal-button';
 
 interface Education {
@@ -15,7 +15,11 @@ interface EducationModalProps {
   initialValue: Education[];
   onSave: (value: Education[]) => Promise<void>;
   isLoading?: boolean;
-  showNotification?: (type: 'success' | 'error', title: string, message?: string) => void;
+  showNotification?: (
+    type: 'success' | 'error',
+    title: string,
+    message?: string
+  ) => void;
 }
 
 interface EducationFormData {
@@ -99,9 +103,15 @@ function toInitialFormData(source?: Education): EducationFormData {
   };
 }
 
-function normalizeEducationFromForm(form: EducationFormData, existingId?: string): Education {
-  const endValue = form.isCurrentRole ? 'Sekarang' : [form.endMonth, form.endYear].filter(Boolean).join(' ');
-  const period = `${[form.startMonth, form.startYear].filter(Boolean).join(' ')} - ${endValue}`.trim();
+function normalizeEducationFromForm(
+  form: EducationFormData,
+  existingId?: string
+): Education {
+  const endValue = form.isCurrentRole
+    ? 'Sekarang'
+    : [form.endMonth, form.endYear].filter(Boolean).join(' ');
+  const period =
+    `${[form.startMonth, form.startYear].filter(Boolean).join(' ')} - ${endValue}`.trim();
 
   return {
     id: existingId || Date.now().toString(),
@@ -121,7 +131,9 @@ export const EducationModal: FC<EducationModalProps> = ({
   showNotification,
 }) => {
   const firstEducation = useMemo(() => initialValue[0], [initialValue]);
-  const [formData, setFormData] = useState<EducationFormData>(toInitialFormData(firstEducation));
+  const [formData, setFormData] = useState<EducationFormData>(
+    toInitialFormData(firstEducation)
+  );
   const [isSuccessState, setIsSuccessState] = useState(false);
 
   useEffect(() => {
@@ -136,21 +148,36 @@ export const EducationModal: FC<EducationModalProps> = ({
     onClose();
   };
 
-  const handleChange = (field: keyof EducationFormData, value: string | boolean) => {
+  const handleChange = (
+    field: keyof EducationFormData,
+    value: string | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
-    const hasMissingRequired = !formData.institution.trim() || !formData.degree.trim() || !formData.field.trim()
-      || !formData.startMonth || !formData.startYear || (!formData.isCurrentRole && (!formData.endMonth || !formData.endYear));
+    const hasMissingRequired =
+      !formData.institution.trim() ||
+      !formData.degree.trim() ||
+      !formData.field.trim() ||
+      !formData.startMonth ||
+      !formData.startYear ||
+      (!formData.isCurrentRole && (!formData.endMonth || !formData.endYear));
 
     if (hasMissingRequired) {
-      showNotification?.('error', 'Data Tidak Lengkap', 'Mohon lengkapi semua data pendidikan wajib.');
+      showNotification?.(
+        'error',
+        'Data Tidak Lengkap',
+        'Mohon lengkapi semua data pendidikan wajib.'
+      );
       return;
     }
 
     try {
-      const nextEducation = normalizeEducationFromForm(formData, firstEducation?.id);
+      const nextEducation = normalizeEducationFromForm(
+        formData,
+        firstEducation?.id
+      );
       const updated = firstEducation
         ? [nextEducation, ...initialValue.slice(1)]
         : [nextEducation, ...initialValue];
@@ -159,7 +186,11 @@ export const EducationModal: FC<EducationModalProps> = ({
       setIsSuccessState(true);
     } catch (error) {
       console.error('Save failed:', error);
-      showNotification?.('error', 'Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan pendidikan.');
+      showNotification?.(
+        'error',
+        'Gagal Menyimpan',
+        'Terjadi kesalahan saat menyimpan pendidikan.'
+      );
     }
   };
 
@@ -181,19 +212,29 @@ export const EducationModal: FC<EducationModalProps> = ({
 
       <div className="relative max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-2xl bg-[#F1F1F1] p-5 sm:p-6">
         <div className="rounded-[6px] bg-[#DFECF7] px-4 py-2">
-          <h2 className="text-xl font-semibold leading-7 text-[#4B4B4B]">Education</h2>
+          <h2 className="text-xl font-semibold leading-7 text-[#4B4B4B]">
+            Education
+          </h2>
         </div>
 
         {isSuccessState ? (
           <div className="pt-10 text-center">
             <div className="mx-auto flex h-23 w-23 items-center justify-center rounded-full bg-[#B7F0B1]">
               <div className="flex h-15 w-15 items-center justify-center rounded-full bg-[#2DB84D]">
-                <svg viewBox="0 0 24 24" className="h-8 w-8 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
               </div>
             </div>
-            <p className="mt-5 text-lg font-medium leading-7 text-[#2DB84D]">Pendidikan berhasil ditambahkan</p>
+            <p className="mt-5 text-lg font-medium leading-7 text-[#2DB84D]">
+              Pendidikan berhasil ditambahkan
+            </p>
             <ModalButton
               variant="primary"
               onClick={finishSuccess}
@@ -204,20 +245,26 @@ export const EducationModal: FC<EducationModalProps> = ({
           </div>
         ) : (
           <div className="space-y-4 pt-8">
-            <h3 className="text-base font-semibold text-[#4B4B4B]">Informasi Pendidikan</h3>
+            <h3 className="text-base font-semibold text-[#4B4B4B]">
+              Informasi Pendidikan
+            </h3>
 
             <label className="flex items-center gap-2 text-sm text-[#757575]">
               <input
                 type="checkbox"
                 checked={formData.isCurrentRole}
-                onChange={(e) => handleChange('isCurrentRole', e.target.checked)}
+                onChange={(e) =>
+                  handleChange('isCurrentRole', e.target.checked)
+                }
                 className="h-4 w-4 rounded border border-[#BDBDBD]"
               />
               Ini adalah role saya saat ini
             </label>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Universitas/Sekolah</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Universitas/Sekolah
+              </label>
               <input
                 value={formData.institution}
                 onChange={(e) => handleChange('institution', e.target.value)}
@@ -227,7 +274,9 @@ export const EducationModal: FC<EducationModalProps> = ({
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Gelar</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Gelar
+              </label>
               <input
                 value={formData.degree}
                 onChange={(e) => handleChange('degree', e.target.value)}
@@ -237,7 +286,9 @@ export const EducationModal: FC<EducationModalProps> = ({
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Jurusan</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Jurusan
+              </label>
               <input
                 value={formData.field}
                 onChange={(e) => handleChange('field', e.target.value)}
@@ -246,10 +297,14 @@ export const EducationModal: FC<EducationModalProps> = ({
               />
             </div>
 
-            <h3 className="pt-2 text-base font-semibold text-[#4B4B4B]">Periode Pendidikan</h3>
+            <h3 className="pt-2 text-base font-semibold text-[#4B4B4B]">
+              Periode Pendidikan
+            </h3>
 
             <div>
-              <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">Tanggal Mulai</p>
+              <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">
+                Tanggal Mulai
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <select
                   value={formData.startMonth}
@@ -258,7 +313,9 @@ export const EducationModal: FC<EducationModalProps> = ({
                 >
                   <option value="">Bulan</option>
                   {MONTH_OPTIONS.map((month) => (
-                    <option key={month} value={month}>{month}</option>
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -268,7 +325,9 @@ export const EducationModal: FC<EducationModalProps> = ({
                 >
                   <option value="">Tahun</option>
                   {YEAR_OPTIONS.map((year) => (
-                    <option key={year} value={year}>{year}</option>
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -276,7 +335,9 @@ export const EducationModal: FC<EducationModalProps> = ({
 
             {!formData.isCurrentRole && (
               <div>
-                <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">Tanggal Berakhir</p>
+                <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">
+                  Tanggal Berakhir
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={formData.endMonth}
@@ -285,7 +346,9 @@ export const EducationModal: FC<EducationModalProps> = ({
                   >
                     <option value="">Bulan</option>
                     {MONTH_OPTIONS.map((month) => (
-                      <option key={month} value={month}>{month}</option>
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -295,7 +358,9 @@ export const EducationModal: FC<EducationModalProps> = ({
                   >
                     <option value="">Tahun</option>
                     {YEAR_OPTIONS.map((year) => (
-                      <option key={year} value={year}>{year}</option>
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -303,7 +368,9 @@ export const EducationModal: FC<EducationModalProps> = ({
             )}
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Deskripsi</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Deskripsi
+              </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}

@@ -83,7 +83,12 @@ const transformUser = (backendUser: BackendUser): User => {
     fullname: backendUser.name,
     role: {
       id: '',
-      name: backendUser.role === 'admin' ? 'Admin' : backendUser.role === 'user' ? 'User' : 'User',
+      name:
+        backendUser.role === 'admin'
+          ? 'Admin'
+          : backendUser.role === 'user'
+            ? 'User'
+            : 'User',
       permissions: [],
     },
   };
@@ -103,7 +108,10 @@ export const authService = {
   },
 
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
-    const response = await api.post<BackendAuthResponse>('/auth/register', data);
+    const response = await api.post<BackendAuthResponse>(
+      '/auth/register',
+      data
+    );
     return {
       success: response.data.success,
       message: response.data.message,

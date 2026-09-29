@@ -1,21 +1,21 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { Icon } from '@iconify/react'
-import { ThemeToggle } from '../components/theme-toggle'
-import { useAuthStore } from '@imphnen-frontend-service/service'
+import { createFileRoute } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { Icon } from '@iconify/react';
+import { ThemeToggle } from '../components/theme-toggle';
+import { useAuthStore } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
-})
+});
 
 function HomePage() {
-  const navigate = useNavigate()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const { session } = useAuthStore()
-  const isAuthenticated = !!session?.token
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const { session } = useAuthStore();
+  const isAuthenticated = !!session?.token;
 
   const faqs = [
     {
@@ -68,11 +68,10 @@ function HomePage() {
       answer:
         'Jika menemukan masalah teknis, silakan hubungi kami melalui grup WA Hackathon.',
     },
-  ]
+  ];
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-950">
-
       <div id="#top" className="hidden"></div>
       <nav className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-50">
         <div className="flex items-center justify-between max-w-7xl mx-auto px-4 md:px-8 py-4">
@@ -222,7 +221,6 @@ function HomePage() {
           <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(to_right,rgba(59,130,246,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(to_right,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-size-[40px_40px]"></div>
         </div>
         <div className="mx-auto container px-4 relative flex flex-col items-center">
-
           <div className="flex items-center gap-4 md:gap-8 lg:gap-12 mb-8 md:mb-12 lg:mb-16 flex-wrap justify-center">
             <div className="flex items-center">
               <img
@@ -342,44 +340,75 @@ function HomePage() {
             <div className="bg-white dark:bg-gray-900 rounded-xl px-4 py-8 shadow-lg border-2 border-gray-300 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 transition-colors">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                  <Icon icon="ic:round-star" className="h-8 w-8 text-primary-500" />
+                  <Icon
+                    icon="ic:round-star"
+                    className="h-8 w-8 text-primary-500"
+                  />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">Juara 1</h3>
-              <p className="text-2xl font-bold text-primary-500 text-center font-sans">Rp6.000.000</p>
+              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">
+                Juara 1
+              </h3>
+              <p className="text-2xl font-bold text-primary-500 text-center font-sans">
+                Rp6.000.000
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-xl px-4 py-8 shadow-lg border-2 border-gray-300 dark:border-gray-700 hover:border-gray-500 dark:hover:border-gray-500 transition-colors">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <Icon icon="ic:round-star" className="h-8 w-8 text-gray-600 dark:text-gray-200" />
+                  <Icon
+                    icon="ic:round-star"
+                    className="h-8 w-8 text-gray-600 dark:text-gray-200"
+                  />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">Juara 2</h3>
-              <p className="text-2xl font-bold text-primary-500 text-center font-sans">Rp4.000.000</p>
+              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">
+                Juara 2
+              </h3>
+              <p className="text-2xl font-bold text-primary-500 text-center font-sans">
+                Rp4.000.000
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-xl px-4 py-8 shadow-lg border-2 border-gray-300 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-500 transition-colors">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                  <Icon icon="ic:round-star" className="h-8 w-8 text-orange-600 dark:text-orange-500" />
+                  <Icon
+                    icon="ic:round-star"
+                    className="h-8 w-8 text-orange-600 dark:text-orange-500"
+                  />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">Juara 3</h3>
-              <p className="text-2xl font-bold text-orange-600 dark:text-orange-500 text-center font-sans">Rp2.500.000</p>
+              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">
+                Juara 3
+              </h3>
+              <p className="text-2xl font-bold text-orange-600 dark:text-orange-500 text-center font-sans">
+                Rp2.500.000
+              </p>
             </div>
             <div className="bg-white dark:bg-gray-900 rounded-xl px-4 py-8 shadow-lg border-2 border-gray-300 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 transition-colors">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                  <Icon icon="ic:round-star" className="h-8 w-8 text-purple-600 dark:text-purple-500" />
+                  <Icon
+                    icon="ic:round-star"
+                    className="h-8 w-8 text-purple-600 dark:text-purple-500"
+                  />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">Juara Kategori Lainnya</h3>
-              <p className="text-2xl font-bold text-purple-600 dark:text-purple-500 text-center font-sans">Rp2.000.000</p>
+              <h3 className="text-xl font-bold text-center mb-2 dark:text-white">
+                Juara Kategori Lainnya
+              </h3>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-500 text-center font-sans">
+                Rp2.000.000
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="timeline" className="py-16 md:py-24 px-4 md:px-8 bg-white dark:bg-gray-950">
+      <section
+        id="timeline"
+        className="py-16 md:py-24 px-4 md:px-8 bg-white dark:bg-gray-950"
+      >
         <div className="max-w-4xl mx-auto font-sans">
           <div className="text-center mb-12 font-bai-jamjuree">
             <h2 className="text-3xl md:text-5xl font-bold mb-4 dark:text-white">
@@ -397,21 +426,14 @@ function HomePage() {
                 <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
               </div>
               <div className="flex-1 pb-8">
-                <p className="text-primary-500 font-semibold mb-2">30 November 2025</p>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">Penutupan Registrasi</h3>
-                <p className="text-gray-600 dark:text-gray-200">Batas akhir pendaftaran peserta hackathon.</p>
-              </div>
-            </div>
-            <div className="flex gap-6">
-              <div className="flex flex-col items-center">
-                <div className="w-4 h-4 bg-primary-500 rounded-full"></div>
-                <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
-              </div>
-              <div className="flex-1 pb-8">
-                <p className="text-primary-500 font-semibold mb-2">30 November 2025</p>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">Technical Meeting</h3>
+                <p className="text-primary-500 font-semibold mb-2">
+                  30 November 2025
+                </p>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  Penutupan Registrasi
+                </h3>
                 <p className="text-gray-600 dark:text-gray-200">
-                  Akan diadakan technical meeting terkait lomba melalui Google Meet. Stay tune di grup WA Hackathon.
+                  Batas akhir pendaftaran peserta hackathon.
                 </p>
               </div>
             </div>
@@ -421,9 +443,16 @@ function HomePage() {
                 <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
               </div>
               <div className="flex-1 pb-8">
-                <p className="text-primary-500 font-semibold mb-2">1 - 7 Desember 2025</p>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">Tahap Penyisihan</h3>
-                <p className="text-gray-600 dark:text-gray-200">Peserta mengerjakan tantangan yang diberikan.</p>
+                <p className="text-primary-500 font-semibold mb-2">
+                  30 November 2025
+                </p>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  Technical Meeting
+                </h3>
+                <p className="text-gray-600 dark:text-gray-200">
+                  Akan diadakan technical meeting terkait lomba melalui Google
+                  Meet. Stay tune di grup WA Hackathon.
+                </p>
               </div>
             </div>
             <div className="flex gap-6">
@@ -432,9 +461,32 @@ function HomePage() {
                 <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
               </div>
               <div className="flex-1 pb-8">
-                <p className="text-primary-500 font-semibold mb-2">8 - 14 Desember 2025</p>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">Penilaian & Webinar</h3>
-                <p className="text-gray-600 dark:text-gray-200">Proses penilaian oleh juri dan sesi webinar.</p>
+                <p className="text-primary-500 font-semibold mb-2">
+                  1 - 7 Desember 2025
+                </p>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  Tahap Penyisihan
+                </h3>
+                <p className="text-gray-600 dark:text-gray-200">
+                  Peserta mengerjakan tantangan yang diberikan.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-4 bg-primary-500 rounded-full"></div>
+                <div className="w-0.5 h-full bg-gray-300 dark:bg-gray-700"></div>
+              </div>
+              <div className="flex-1 pb-8">
+                <p className="text-primary-500 font-semibold mb-2">
+                  8 - 14 Desember 2025
+                </p>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  Penilaian & Webinar
+                </h3>
+                <p className="text-gray-600 dark:text-gray-200">
+                  Proses penilaian oleh juri dan sesi webinar.
+                </p>
               </div>
             </div>
             <div className="flex gap-6">
@@ -442,9 +494,15 @@ function HomePage() {
                 <div className="w-4 h-4 bg-primary-500 rounded-full"></div>
               </div>
               <div className="flex-1">
-                <p className="text-primary-500 font-semibold mb-2">15 Desember 2025</p>
-                <h3 className="text-xl font-bold mb-2 dark:text-white">Pengumuman & Final</h3>
-                <p className="text-gray-600 dark:text-gray-200">Presentasi final dan pengumuman pemenang.</p>
+                <p className="text-primary-500 font-semibold mb-2">
+                  15 Desember 2025
+                </p>
+                <h3 className="text-xl font-bold mb-2 dark:text-white">
+                  Pengumuman & Final
+                </h3>
+                <p className="text-gray-600 dark:text-gray-200">
+                  Presentasi final dan pengumuman pemenang.
+                </p>
               </div>
             </div>
           </div>
@@ -464,21 +522,27 @@ function HomePage() {
 
           <div className="w-full max-w-md md:max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col justify-between bg-white dark:bg-gray-800 rounded-xl px-4 py-8 shadow-lg text-center">
-              <h3 className="text-p3 font-bold mb-1 dark:text-white">Alifais Farrel Ramdhani</h3>
+              <h3 className="text-p3 font-bold mb-1 dark:text-white">
+                Alifais Farrel Ramdhani
+              </h3>
               <div>
                 <p className="text-primary-500 font-semibold mb-1">CTO</p>
                 <p className="text-gray-600 dark:text-gray-200">Kolosal.ai</p>
               </div>
             </div>
             <div className="flex flex-col justify-between bg-white dark:bg-gray-800 rounded-xl px-4 py-8 shadow-lg text-center">
-              <h3 className="text-p3 font-bold mb-1 dark:text-white">Muhammad Alif Ramadhan</h3>
+              <h3 className="text-p3 font-bold mb-1 dark:text-white">
+                Muhammad Alif Ramadhan
+              </h3>
               <div>
                 <p className="text-primary-500 font-semibold mb-1">Admin</p>
                 <p className="text-gray-600 dark:text-gray-200">IMPHNEN</p>
               </div>
             </div>
             <div className="flex flex-col justify-between bg-white dark:bg-gray-800 rounded-xl px-4 py-8 shadow-lg text-center">
-              <h3 className="text-p3 font-bold mb-1 dark:text-white">Hafid Nur</h3>
+              <h3 className="text-p3 font-bold mb-1 dark:text-white">
+                Hafid Nur
+              </h3>
               <div>
                 <p className="text-primary-500 font-semibold mb-1">Moderator</p>
                 <p className="text-gray-600 dark:text-gray-200">IMPHNEN</p>
@@ -615,7 +679,9 @@ function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-4 font-bai-jamjuree">
                 <span className="text-2xl font-bold">IMPHNEN</span>
-                <span className="text-2xl font-bold text-blue-500">Hackathon</span>
+                <span className="text-2xl font-bold text-blue-500">
+                  Hackathon
+                </span>
               </div>
               <p className="text-gray-400 text-sm">
                 Wujudkan ide brilian mu menjadi solusi nyata. Bergabunglah dalam
@@ -623,48 +689,135 @@ function HomePage() {
                 masa depan.
               </p>
               <div className="flex gap-4 mt-4">
-                <a href="https://fb.com/groups/programmerhandal" className="text-gray-400 hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <a
+                  href="https://fb.com/groups/programmerhandal"
+                  className="text-gray-400 hover:text-accent transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                >
                   <Icon icon="ic:baseline-facebook" className="w-6 h-6" />
                 </a>
-                <a href="https://www.instagram.com/imphnen.dev" className="text-gray-400 hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a
+                  href="https://www.instagram.com/imphnen.dev"
+                  className="text-gray-400 hover:text-accent transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
                   <Icon icon="mdi:instagram" className="w-6 h-6" />
                 </a>
-                <a href="https://www.linkedin.com/company/imphnen" className="text-gray-400 hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <a
+                  href="https://www.linkedin.com/company/imphnen"
+                  className="text-gray-400 hover:text-accent transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                >
                   <Icon icon="mdi:linkedin" className="w-6 h-6" />
                 </a>
-                <a href="https://www.tiktok.com/@imphnen" className="text-gray-400 hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                <a
+                  href="https://www.tiktok.com/@imphnen"
+                  className="text-gray-400 hover:text-accent transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                >
                   <Icon icon="ic:baseline-tiktok" className="w-6 h-6" />
                 </a>
-                <a href="https://github.com/IMPHNEN" className="text-gray-400 hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <a
+                  href="https://github.com/IMPHNEN"
+                  className="text-gray-400 hover:text-accent transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                >
                   <Icon icon="mdi:github" className="w-6 h-6" />
                 </a>
               </div>
             </div>
 
             <div>
-              <h3 className="font-bold text-lg mb-4 font-bai-jamjuree">Quick Links</h3>
+              <h3 className="font-bold text-lg mb-4 font-bai-jamjuree">
+                Quick Links
+              </h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#timeline" className="hover:text-white transition-colors">Timeline</a></li>
-                <li><a href="#hadiah" className="hover:text-white transition-colors">Hadiah</a></li>
-                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="/auth/signup" className="hover:text-white transition-colors">Daftar</a></li>
+                <li>
+                  <a
+                    href="#timeline"
+                    className="hover:text-white transition-colors"
+                  >
+                    Timeline
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#hadiah"
+                    className="hover:text-white transition-colors"
+                  >
+                    Hadiah
+                  </a>
+                </li>
+                <li>
+                  <a href="#faq" className="hover:text-white transition-colors">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/auth/signup"
+                    className="hover:text-white transition-colors"
+                  >
+                    Daftar
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-bold text-lg mb-4 font-bai-jamjuree">Contact</h3>
+              <h3 className="font-bold text-lg mb-4 font-bai-jamjuree">
+                Contact
+              </h3>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li className="flex items-start gap-2">
-                  <Icon icon="material-symbols:mail-outline-rounded" className="min-w-5 min-h-5 mt-0.5" />
-                  <a href="mailto:imphnen@gmail.com" className="hover:text-white transition-colors">imphnen@gmail.com</a>
+                  <Icon
+                    icon="material-symbols:mail-outline-rounded"
+                    className="min-w-5 min-h-5 mt-0.5"
+                  />
+                  <a
+                    href="mailto:imphnen@gmail.com"
+                    className="hover:text-white transition-colors"
+                  >
+                    imphnen@gmail.com
+                  </a>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Icon icon="solar:phone-linear" className="min-w-5 min-h-5 mt-0.5" />
-                  <a href="https://chat.whatsapp.com/BlxrYh9uSC37d7VPhJslGL" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">WA Group Hackathon</a>
+                  <Icon
+                    icon="solar:phone-linear"
+                    className="min-w-5 min-h-5 mt-0.5"
+                  />
+                  <a
+                    href="https://chat.whatsapp.com/BlxrYh9uSC37d7VPhJslGL"
+                    className="hover:text-white transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WA Group Hackathon
+                  </a>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Icon icon="streamline-plump:web" className="min-w-5 min-h-5 mt-0.5" />
-                  <a href="https://imphnen.dev" className="hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">IMPHNEN.dev</a>
+                  <Icon
+                    icon="streamline-plump:web"
+                    className="min-w-5 min-h-5 mt-0.5"
+                  />
+                  <a
+                    href="https://imphnen.dev"
+                    className="hover:text-white transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    IMPHNEN.dev
+                  </a>
                 </li>
               </ul>
             </div>
@@ -679,5 +832,5 @@ function HomePage() {
         </div>
       </footer>
     </main>
-  )
+  );
 }

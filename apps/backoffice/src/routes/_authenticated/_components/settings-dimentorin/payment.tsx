@@ -1,8 +1,15 @@
-import { Button, Input, NativeSelect as Select, Textarea } from "@imphnen-frontend-service/ui/atoms"
-import { cn } from "@imphnen-frontend-service/utils"
-import { FC } from "react"
+import {
+  Button,
+  Input,
+  NativeSelect as Select,
+  Textarea,
+} from '@imphnen-frontend-service/ui/atoms';
+import { cn } from '@imphnen-frontend-service/utils';
+import type { FC } from 'react';
 
-const labelClass = cn('text-neutral-800 text-[10px] font-medium mb-1.5 inline-block md:text-xs md:mb-2 xl:text-p3')
+const labelClass = cn(
+  'text-neutral-800 text-[10px] font-medium mb-1.5 inline-block md:text-xs md:mb-2 xl:text-p3'
+);
 
 export const PaymentSettings: FC = () => {
   return (
@@ -12,7 +19,10 @@ export const PaymentSettings: FC = () => {
       <div className="grid grid-cols-2 gap-x-8 gap-y-5 mb-8">
         <div>
           <label className={labelClass}>Integrasi Payment Gateway</label>
-          <Textarea className="min-w-full w-full h-20" placeholder="Durasi dalam menit" />
+          <Textarea
+            className="min-w-full w-full h-20"
+            placeholder="Durasi dalam menit"
+          />
         </div>
         <div>
           <label className={labelClass}>Mata Uang</label>
@@ -22,29 +32,42 @@ export const PaymentSettings: FC = () => {
           </Select>
         </div>
         <div>
-          <label className={labelClass}>Harga sesi mentoring <span className="text-neutral-600">(default)</span></label>
-          <Input type="text" className="min-w-full w-full" placeholder="Masukkan harga sesi mentoring" />
+          <label className={labelClass}>
+            Harga sesi mentoring{' '}
+            <span className="text-neutral-600">(default)</span>
+          </label>
+          <Input
+            type="text"
+            className="min-w-full w-full"
+            placeholder="Masukkan harga sesi mentoring"
+          />
         </div>
         <div>
           <label className={labelClass}>Tarif Komisi untuk Platform</label>
-          <Input type="text" className="min-w-full w-full" placeholder="Masukkan persentase komisi" />
+          <Input
+            type="text"
+            className="min-w-full w-full"
+            placeholder="Masukkan persentase komisi"
+          />
         </div>
       </div>
 
       <h2 className="text-p3 font-semibold text-neutral-700 mb-5">Invoice</h2>
       <div className="mb-32">
         <label className={labelClass}>Masukkan Format Invoice</label>
-        <Input type="file" className="min-w-full w-full" placeholder="InvoiceDimentorin.png" />
+        <Input
+          type="file"
+          className="min-w-full w-full"
+          placeholder="InvoiceDimentorin.png"
+        />
       </div>
 
       <div className="flex justify-end gap-5">
         <Button type="button" variant="bordered">
           Batal
         </Button>
-        <Button type="button">
-          Simpan
-        </Button>
+        <Button type="button">Simpan</Button>
       </div>
     </div>
-  )
-}
+  );
+};

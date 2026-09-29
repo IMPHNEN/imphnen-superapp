@@ -1,14 +1,17 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { ReactElement } from 'react'
-import { ControlledInputField, RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms'
-import { useRegisterHook } from '../../_hooks/use-register'
+import { createFileRoute, Link } from '@tanstack/react-router';
+import type { ReactElement } from 'react';
+import {
+  ControlledInputField,
+  RegisterResetBanner,
+} from '@imphnen-frontend-service/ui/organisms';
+import { useRegisterHook } from '../../_hooks/use-register';
 
 export const Route = createFileRoute('/_public/auth/register')({
   component: RegisterPage,
-})
+});
 
 function RegisterPage(): ReactElement {
-  const { form, onSubmit, isLoading } = useRegisterHook()
+  const { form, onSubmit, isLoading } = useRegisterHook();
 
   return (
     <div className="min-h-screen bg-primary-50 flex items-center justify-center p-5">
@@ -17,8 +20,12 @@ function RegisterPage(): ReactElement {
 
         <div className="flex-1 py-[53px] px-12 bg-white border border-border-light rounded-[48px] flex flex-col items-center justify-start w-full">
           <div className="w-full max-w-[493px] mb-7">
-            <h1 className="text-[37px] font-semibold leading-[1.2] text-text-dark mb-2">Register</h1>
-            <p className="text-base font-medium text-text-secondary">Yosha~! Saatnya Bergabung dengan Dimentorin!</p>
+            <h1 className="text-[37px] font-semibold leading-[1.2] text-text-dark mb-2">
+              Register
+            </h1>
+            <p className="text-base font-medium text-text-secondary">
+              Yosha~! Saatnya Bergabung dengan Dimentorin!
+            </p>
           </div>
 
           <form onSubmit={onSubmit} className="w-full max-w-[493px]">
@@ -99,10 +106,13 @@ function RegisterPage(): ReactElement {
                 disabled={isLoading}
               />
               <p className="mt-2 text-[10px] text-gray-500 italic">
-                Tips membuat password yang OP:<br/>
-                - Minimal 8 karakter (semakin panjang, semakin power-up! ⚡)<br/>
-                - Campur huruf besar, kecil, angka, dan simbol untuk kombinasi ultimate!🔥<br/>
-                - Jangan pakai password yang gampang ditebak, nanti ketahuan musuh!🚨
+                Tips membuat password yang OP:
+                <br />- Minimal 8 karakter (semakin panjang, semakin power-up!
+                ⚡)
+                <br />- Campur huruf besar, kecil, angka, dan simbol untuk
+                kombinasi ultimate!🔥
+                <br />- Jangan pakai password yang gampang ditebak, nanti
+                ketahuan musuh!🚨
               </p>
             </div>
 
@@ -121,7 +131,7 @@ function RegisterPage(): ReactElement {
             <div className="mt-8">
               <button
                 type="submit"
-                disabled={(!form.formState.isValid || isLoading)}
+                disabled={!form.formState.isValid || isLoading}
                 className="w-full h-[34px] bg-primary-accent text-white rounded-md text-[15px] font-semibold flex items-center justify-center hover:bg-[#1e8cd1] disabled:bg-neutral-400 transition-all duration-200 ease-in-out cursor-pointer"
               >
                 {isLoading ? 'Processing...' : 'Linked Start!!!'}
@@ -130,10 +140,18 @@ function RegisterPage(): ReactElement {
           </form>
 
           <div className="mt-6 text-center w-full max-w-[493px]">
-            <p className="text-base font-medium text-text-secondary">Sudah punya akun? <Link to="/auth/login" className="text-primary-accent font-medium text-base hover:underline cursor-pointer">Login disini</Link></p>
+            <p className="text-base font-medium text-text-secondary">
+              Sudah punya akun?{' '}
+              <Link
+                to="/auth/login"
+                className="text-primary-accent font-medium text-base hover:underline cursor-pointer"
+              >
+                Login disini
+              </Link>
+            </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

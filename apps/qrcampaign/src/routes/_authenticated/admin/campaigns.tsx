@@ -1,93 +1,93 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
-import { DataTable } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@imphnen-frontend-service/ui/organisms';
 import {
   campaignService,
-  Campaign,
-  CreateCampaignRequest,
-} from '../../../app/features/admin/api/campaign.service'
+  type Campaign,
+  type CreateCampaignRequest,
+} from '../../../app/features/admin/api/campaign.service';
 import {
   DeleteOutlined,
   CheckCircleOutlined,
   PlusOutlined,
   FileOutlined,
-} from '@ant-design/icons'
+} from '@ant-design/icons';
 
 export const Route = createFileRoute('/_authenticated/admin/campaigns')({
   component: CampaignsPage,
-})
+});
 
 function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [createLoading, setCreateLoading] = useState(false)
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
   const [formData, setFormData] = useState<CreateCampaignRequest>({
     name: '',
     url: '',
-  })
+  });
 
   const fetchCampaigns = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const data = await campaignService.getCampaigns()
-      setCampaigns(data)
+      setLoading(true);
+      setError(null);
+      const data = await campaignService.getCampaigns();
+      setCampaigns(data);
     } catch (err) {
-      setError('Failed to load campaigns')
-      console.error('Error fetching campaigns:', err)
+      setError('Failed to load campaigns');
+      console.error('Error fetching campaigns:', err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchCampaigns()
-  }, [])
+    fetchCampaigns();
+  }, []);
 
   const handleCreateCampaign = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setCreateLoading(true)
-      await campaignService.createCampaign(formData)
-      setShowCreateModal(false)
-      setFormData({ name: '', url: '' })
-      await fetchCampaigns()
+      setCreateLoading(true);
+      await campaignService.createCampaign(formData);
+      setShowCreateModal(false);
+      setFormData({ name: '', url: '' });
+      await fetchCampaigns();
     } catch (err) {
-      console.error('Error creating campaign:', err)
-      alert('Failed to create campaign')
+      console.error('Error creating campaign:', err);
+      alert('Failed to create campaign');
     } finally {
-      setCreateLoading(false)
+      setCreateLoading(false);
     }
-  }
+  };
 
   const handleActivateCampaign = async (campaignId: string) => {
     try {
-      await campaignService.activateCampaign(campaignId)
-      await fetchCampaigns()
+      await campaignService.activateCampaign(campaignId);
+      await fetchCampaigns();
     } catch (err) {
-      console.error('Error activating campaign:', err)
-      alert('Failed to activate campaign')
+      console.error('Error activating campaign:', err);
+      alert('Failed to activate campaign');
     }
-  }
+  };
 
   const handleDeleteCampaign = async (
     campaignId: string,
     campaignName: string
   ) => {
     if (!confirm(`Are you sure you want to delete "${campaignName}"?`)) {
-      return
+      return;
     }
     try {
-      await campaignService.deleteCampaign(campaignId)
-      await fetchCampaigns()
+      await campaignService.deleteCampaign(campaignId);
+      await fetchCampaigns();
     } catch (err) {
-      console.error('Error deleting campaign:', err)
-      alert('Failed to delete campaign')
+      console.error('Error deleting campaign:', err);
+      alert('Failed to delete campaign');
     }
-  }
+  };
 
   const columns: ColumnDef<Campaign>[] = [
     {
@@ -161,7 +161,7 @@ function CampaignsPage() {
         </div>
       ),
     },
-  ]
+  ];
 
   if (loading) {
     return (
@@ -170,7 +170,7 @@ function CampaignsPage() {
           <div className="text-gray-600">Loading campaigns...</div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -180,7 +180,7 @@ function CampaignsPage() {
           {error}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -265,8 +265,8 @@ function CampaignsPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowCreateModal(false)
-                    setFormData({ name: '', url: '' })
+                    setShowCreateModal(false);
+                    setFormData({ name: '', url: '' });
                   }}
                   className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
                   disabled={createLoading}
@@ -286,5 +286,5 @@ function CampaignsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

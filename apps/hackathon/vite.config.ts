@@ -27,7 +27,9 @@ export default defineConfig(() => ({
       transformMixedEsModules: true,
     },
     rolldownOptions: {
-      output: { codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] } },
+      output: {
+        codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] },
+      },
     },
   },
   test: {

@@ -1,4 +1,4 @@
-import { FC, ReactElement, ReactNode } from 'react';
+import type { FC, ReactElement, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
 interface SectionWrapperProps {
@@ -8,7 +8,12 @@ interface SectionWrapperProps {
   delay?: number;
 }
 
-export const SectionWrapper: FC<SectionWrapperProps> = ({ title, editButton, children, delay = 0 }): ReactElement => {
+export const SectionWrapper: FC<SectionWrapperProps> = ({
+  title,
+  editButton,
+  children,
+  delay = 0,
+}): ReactElement => {
   return (
     <motion.div
       className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow duration-300"

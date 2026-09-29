@@ -7,19 +7,35 @@ export const winnerKeys = {
 };
 
 interface Team {
-  id: string; name: string; description: string; city: string; visibility: string;
-  logo: string; banner: string; leader_id: string; created_at: string; updated_at: string;
+  id: string;
+  name: string;
+  description: string;
+  city: string;
+  visibility: string;
+  logo: string;
+  banner: string;
+  leader_id: string;
+  created_at: string;
+  updated_at: string;
 }
 interface Winner {
-  id: string; team_id: string; team: Team; rank: number; prize: string;
-  announced_at: string; created_at: string; updated_at: string;
+  id: string;
+  team_id: string;
+  team: Team;
+  rank: number;
+  prize: string;
+  announced_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useWinners = () => {
   return useQuery({
     queryKey: winnerKeys.lists(),
     queryFn: async () => {
-      const response = await api.get<{ data: Winner[] }>('/v1/hackathon/winners');
+      const response = await api.get<{ data: Winner[] }>(
+        '/v1/hackathon/winners'
+      );
       return response.data;
     },
   });

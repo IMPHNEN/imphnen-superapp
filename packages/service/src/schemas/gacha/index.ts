@@ -21,9 +21,10 @@ export const gachaItemSchema = z.object({
       'Ukuran file maksimal 5MB'
     )
     .refine(
-      (file) => !file || ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
+      (file) =>
+        !file || ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
       'Format file harus JPG, PNG, atau WEBP'
-    )
+    ),
 });
 
 export const gachaRollItemSchema = z.object({

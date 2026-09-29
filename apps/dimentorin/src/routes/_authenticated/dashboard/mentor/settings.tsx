@@ -1,9 +1,11 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_authenticated/dashboard/mentor/settings')({
+export const Route = createFileRoute(
+  '/_authenticated/dashboard/mentor/settings'
+)({
   component: MentorSettingsLayout,
-})
+});
 
 function MentorSettingsLayout() {
-  return <Outlet />
+  return <Outlet />;
 }

@@ -1,17 +1,19 @@
-import { FC, ReactElement } from "react";
+import type { FC, ReactElement } from 'react';
 
 type TRegisterMentorStep = {
   step: number;
 };
 
 const steps = [
-  "Informasi Personal",
-  "Detail Mentor",
-  "Sesi Mentoring & Dokumen Pendukung",
-  "Informasi Akun Pribadi",
+  'Informasi Personal',
+  'Detail Mentor',
+  'Sesi Mentoring & Dokumen Pendukung',
+  'Informasi Akun Pribadi',
 ];
 
-export const RegisterMentorStep: FC<TRegisterMentorStep> = ({ step }): ReactElement => {
+export const RegisterMentorStep: FC<TRegisterMentorStep> = ({
+  step,
+}): ReactElement => {
   const progressPercent = ((step - 1) / (steps.length - 1)) * 100;
 
   return (
@@ -29,17 +31,22 @@ export const RegisterMentorStep: FC<TRegisterMentorStep> = ({ step }): ReactElem
           const isActive = currentStep === step;
 
           return (
-            <div key={index} className="flex flex-col items-center flex-1 text-center">
+            <div
+              key={index}
+              className="flex flex-col items-center flex-1 text-center"
+            >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
                   isActive
-                    ? "bg-gradient-to-b from-purple-600 to-blue-500 text-white border-transparent"
-                    : "bg-white text-gray-700 border-blue-400"
+                    ? 'bg-gradient-to-b from-purple-600 to-blue-500 text-white border-transparent'
+                    : 'bg-white text-gray-700 border-blue-400'
                 }`}
               >
                 <span className="font-bold">{currentStep}</span>
               </div>
-              <span className="text-xs text-blue-600 mt-2 leading-tight">{label}</span>
+              <span className="text-xs text-blue-600 mt-2 leading-tight">
+                {label}
+              </span>
             </div>
           );
         })}

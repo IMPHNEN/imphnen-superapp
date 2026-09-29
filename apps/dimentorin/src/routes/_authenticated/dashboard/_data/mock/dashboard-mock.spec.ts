@@ -139,8 +139,12 @@ describe('Dashboard Mock Data', () => {
       const data = getMentorMockDashboardData();
 
       for (let i = 0; i < data.payments.length - 1; i++) {
-        const current = new Date(data.payments[i].tanggalMentoring.split('-').reverse().join('-'));
-        const next = new Date(data.payments[i + 1].tanggalMentoring.split('-').reverse().join('-'));
+        const current = new Date(
+          data.payments[i].tanggalMentoring.split('-').reverse().join('-')
+        );
+        const next = new Date(
+          data.payments[i + 1].tanggalMentoring.split('-').reverse().join('-')
+        );
         expect(current.getTime()).toBeGreaterThanOrEqual(next.getTime());
       }
     });

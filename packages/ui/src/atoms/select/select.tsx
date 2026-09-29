@@ -36,13 +36,17 @@ function SelectTrigger({
   size?: 'sm' | 'md' | 'lg';
 }) {
   const sizeCls =
-    size === 'sm' ? 'h-8 text-xs' : size === 'lg' ? 'h-11 text-base' : 'h-9 text-sm';
+    size === 'sm'
+      ? 'h-8 text-xs'
+      : size === 'lg'
+        ? 'h-11 text-base'
+        : 'h-9 text-sm';
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 font-bai-jamjuree text-foreground shadow-xs transition-colors outline-none",
+        'flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1 font-bai-jamjuree text-foreground shadow-xs transition-colors outline-none',
         'data-[placeholder]:text-muted-foreground',
         'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
         'aria-invalid:border-destructive aria-invalid:ring-destructive/20',
@@ -121,7 +125,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+        'relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none',
         'focus:bg-accent focus:text-accent-foreground',
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -213,25 +217,37 @@ const nativeSizeClasses: Record<TNativeSelectSize, string> = {
 export const NativeSelect = React.forwardRef<
   HTMLSelectElement,
   TNativeSelectProps
->(({ size = 'md', widthform = 'standard', disabled, className, children, ...rest }, ref) => {
-  return (
-    <select
-      ref={ref}
-      disabled={disabled}
-      className={cn(
-        'appearance-none rounded-md border border-input bg-background px-3 py-1 font-bai-jamjuree text-foreground shadow-xs transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        nativeSizeClasses[size],
-        widthform === 'standard' && 'min-w-0 w-full',
-        className
-      )}
-      {...rest}
-    >
-      {children}
-    </select>
-  );
-});
+>(
+  (
+    {
+      size = 'md',
+      widthform = 'standard',
+      disabled,
+      className,
+      children,
+      ...rest
+    },
+    ref
+  ) => {
+    return (
+      <select
+        ref={ref}
+        disabled={disabled}
+        className={cn(
+          'appearance-none rounded-md border border-input bg-background px-3 py-1 font-bai-jamjuree text-foreground shadow-xs transition-colors',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          nativeSizeClasses[size],
+          widthform === 'standard' && 'min-w-0 w-full',
+          className
+        )}
+        {...rest}
+      >
+        {children}
+      </select>
+    );
+  }
+);
 NativeSelect.displayName = 'NativeSelect';
 
 export {

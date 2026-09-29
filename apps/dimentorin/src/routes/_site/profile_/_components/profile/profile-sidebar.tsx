@@ -1,19 +1,30 @@
-import { FC, useState, useEffect, useCallback } from 'react';
+import { type FC, useState, useEffect, useCallback } from 'react';
 import { NativeSelect as Select } from '@imphnen-frontend-service/ui/atoms';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { PersonalInfoSection } from '../sections/personal-info-section';
 import { SkillsSection } from '../sections/skills-section';
-import type { MentorUpdateRequestDto, UserUpdateRequestDto } from '@imphnen-frontend-service/service';
+import type {
+  MentorUpdateRequestDto,
+  UserUpdateRequestDto,
+} from '@imphnen-frontend-service/service';
 import { useProfile } from '../contexts/profile-context';
 
 interface ProfileSidebarProps {
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isViewOnly?: boolean;
 }
 
-export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isViewOnly = false }) => {
-  const { profileData, updateProfile, profileType, isLoading, isUpdating } = useProfile();
+export const ProfileSidebar: FC<ProfileSidebarProps> = ({
+  showNotification,
+  isViewOnly = false,
+}) => {
+  const { profileData, updateProfile, profileType, isLoading, isUpdating } =
+    useProfile();
 
   const getCareerStatus = useCallback(() => {
     if (!profileData) {
@@ -29,7 +40,11 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
 
     if (profileType === 'mentor' && 'availability_commitment' in profileData) {
       const commitment = profileData.availability_commitment;
-      if (commitment && typeof commitment === 'string' && commitment.trim() !== '') {
+      if (
+        commitment &&
+        typeof commitment === 'string' &&
+        commitment.trim() !== ''
+      ) {
         return commitment;
       }
     }
@@ -45,10 +60,19 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
   }, [profileData]);
 
   const getPhone = useCallback(() => {
-    if (profileData && 'phone_for_verification' in profileData && profileData.phone_for_verification) {
+    if (
+      profileData &&
+      'phone_for_verification' in profileData &&
+      profileData.phone_for_verification
+    ) {
       return profileData.phone_for_verification;
     }
-    if (profileType === 'user' && profileData && 'phone_number' in profileData && profileData.phone_number) {
+    if (
+      profileType === 'user' &&
+      profileData &&
+      'phone_number' in profileData &&
+      profileData.phone_number
+    ) {
       return profileData.phone_number;
     }
     return '+62 (88) 8888 8888';
@@ -58,17 +82,32 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
     if (profileData && 'domicile' in profileData && profileData.domicile) {
       return profileData.domicile;
     }
-    if (profileType === 'user' && profileData && 'location' in profileData && profileData.location) {
+    if (
+      profileType === 'user' &&
+      profileData &&
+      'location' in profileData &&
+      profileData.location
+    ) {
       return profileData.location;
     }
     return 'Location';
   }, [profileType, profileData]);
 
   const getSkills = useCallback(() => {
-    if (profileType === 'mentor' && profileData && 'expertise' in profileData && profileData.expertise) {
+    if (
+      profileType === 'mentor' &&
+      profileData &&
+      'expertise' in profileData &&
+      profileData.expertise
+    ) {
       return Array.isArray(profileData.expertise) ? profileData.expertise : [];
     }
-    if (profileType === 'user' && profileData && 'skills' in profileData && profileData.skills) {
+    if (
+      profileType === 'user' &&
+      profileData &&
+      'skills' in profileData &&
+      profileData.skills
+    ) {
       return Array.isArray(profileData.skills) ? profileData.skills : [];
     }
     return [''];
@@ -81,7 +120,7 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
   const [personalInfo, setPersonalInfo] = useState({
     email: 'email@example.com',
     phone: '+62 (88) 8888 8888',
-    location: 'Location'
+    location: 'Location',
   });
 
   const [skills, setSkills] = useState<string[]>(['']);
@@ -99,19 +138,33 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
     if (profileData && !isLoading) {
       if (!isUpdatingCareerStatus && isInitialized) {
         const newCareerStatus = getCareerStatus();
-        console.log('ProfileSidebar: Updating career status from API:', newCareerStatus);
+        console.log(
+          'ProfileSidebar: Updating career status from API:',
+          newCareerStatus
+        );
         setCareerStatus(newCareerStatus);
       }
 
       setPersonalInfo({
         email: getEmail(),
         phone: getPhone(),
-        location: getLocation()
+        location: getLocation(),
       });
 
       setSkills(getSkills());
     }
-  }, [profileData, profileType, isLoading, isInitialized, getCareerStatus, getEmail, getPhone, getLocation, getSkills, isUpdatingCareerStatus]);
+  }, [
+    profileData,
+    profileType,
+    isLoading,
+    isInitialized,
+    getCareerStatus,
+    getEmail,
+    getPhone,
+    getLocation,
+    getSkills,
+    isUpdatingCareerStatus,
+  ]);
 
   const tryParseJsonMessage = (msg: string): string => {
     if (msg.trim().startsWith('{') && msg.trim().endsWith('}')) {
@@ -130,12 +183,17 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
   const extractApiMessage = (err: unknown): string => {
     if (typeof err !== 'object' || err === null) return '';
 
-    const maybeAxiosError = err as { response?: { data?: { message?: string } } };
+    const maybeAxiosError = err as {
+      response?: { data?: { message?: string } };
+    };
     if (maybeAxiosError.response?.data?.message) {
       return maybeAxiosError.response.data.message;
     }
 
-    if ('message' in err && typeof (err as { message?: string }).message === 'string') {
+    if (
+      'message' in err &&
+      typeof (err as { message?: string }).message === 'string'
+    ) {
       const msg = (err as { message?: string }).message || '';
       return tryParseJsonMessage(msg);
     }
@@ -143,9 +201,15 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
     return '';
   };
 
-  const handleProfileUpdate = async (updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>) => {
+  const handleProfileUpdate = async (
+    updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>
+  ) => {
     if (isViewOnly) {
-      showNotification('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk mengedit profil ini.');
+      showNotification(
+        'error',
+        'Akses Ditolak',
+        'Anda tidak memiliki izin untuk mengedit profil ini.'
+      );
       return;
     }
     try {
@@ -154,7 +218,11 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
     } catch (err) {
       console.error('Profile update error:', err);
       const apiMessage = extractApiMessage(err);
-      showNotification('error', 'Gagal menyimpan perubahan', apiMessage || 'Silakan coba lagi');
+      showNotification(
+        'error',
+        'Gagal menyimpan perubahan',
+        apiMessage || 'Silakan coba lagi'
+      );
     }
   };
 
@@ -166,22 +234,33 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
           onChange={async (e) => {
             if (isUpdatingCareerStatus) return;
             const newStatus = e.target.value;
-            console.log('ProfileSidebar: User selected career status:', newStatus);
+            console.log(
+              'ProfileSidebar: User selected career status:',
+              newStatus
+            );
             setCareerStatus(newStatus);
             setIsUpdatingCareerStatus(true);
             try {
-              console.log('ProfileSidebar: Updating career status on backend...');
+              console.log(
+                'ProfileSidebar: Updating career status on backend...'
+              );
 
-              const updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto> = {};
+              const updates: Partial<
+                MentorUpdateRequestDto | UserUpdateRequestDto
+              > = {};
               if (profileType === 'mentor') {
-                (updates as MentorUpdateRequestDto).availability_commitment = newStatus;
+                (updates as MentorUpdateRequestDto).availability_commitment =
+                  newStatus;
               } else {
                 (updates as UserUpdateRequestDto).career_status = newStatus;
               }
 
               await handleProfileUpdate(updates);
             } catch (error) {
-              console.error('ProfileSidebar: Career status update failed:', error);
+              console.error(
+                'ProfileSidebar: Career status update failed:',
+                error
+              );
             } finally {
               setIsUpdatingCareerStatus(false);
             }
@@ -203,9 +282,11 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
         initialContactInfo={personalInfo}
         onSave={async (newPersonalInfo) => {
           setPersonalInfo(newPersonalInfo);
-          const updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto> = {
+          const updates: Partial<
+            MentorUpdateRequestDto | UserUpdateRequestDto
+          > = {
             phone_for_verification: newPersonalInfo.phone || null,
-            domicile: newPersonalInfo.location || null
+            domicile: newPersonalInfo.location || null,
           };
           await handleProfileUpdate(updates);
         }}
@@ -219,7 +300,9 @@ export const ProfileSidebar: FC<ProfileSidebarProps> = ({ showNotification, isVi
         onSave={async (newSkills) => {
           setSkills(newSkills);
 
-          const updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto> = {};
+          const updates: Partial<
+            MentorUpdateRequestDto | UserUpdateRequestDto
+          > = {};
           if (profileType === 'mentor') {
             (updates as MentorUpdateRequestDto).expertise = newSkills;
           } else if (profileType === 'user') {

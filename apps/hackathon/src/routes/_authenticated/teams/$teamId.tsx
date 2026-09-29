@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from 'react';
+import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -10,12 +10,14 @@ import {
   useLeaveTeam,
   useDeleteTeam,
   ETeamMemberRole,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/teams/$teamId')({
-  component: TeamDashboardPage })
+  component: TeamDashboardPage,
+});
 
 const MAX_TEAM_MEMBERS = 5;
 
@@ -371,15 +373,16 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       >
                         <Icon icon="mdi:plus" className="inline-block mr-2" />
                         Invite Member{' '}
-                        {!canInvite && `(${members.length}/${MAX_TEAM_MEMBERS})`}
+                        {!canInvite &&
+                          `(${members.length}/${MAX_TEAM_MEMBERS})`}
                       </Button>
                       <Button
                         className="w-full relative"
                         variant="secondary"
                         onClick={() => setShowJoinRequestsModal(true)}
                       >
-                        <Icon icon="mdi:email" className="inline-block mr-2" /> Join
-                        Requests
+                        <Icon icon="mdi:email" className="inline-block mr-2" />{' '}
+                        Join Requests
                         {pendingJoinRequests.length > 0 && (
                           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                             {pendingJoinRequests.length}
@@ -414,7 +417,10 @@ const TeamDashboardPage: FC = (): ReactElement => {
                   {team.has_submission ? (
                     <Link to={`/teams/${teamId}/submission`}>
                       <Button className="w-full" variant="secondary">
-                        <Icon icon="mdi:file-document" className="inline-block mr-2" />
+                        <Icon
+                          icon="mdi:file-document"
+                          className="inline-block mr-2"
+                        />
                         View Submission
                       </Button>
                     </Link>
@@ -427,25 +433,29 @@ const TeamDashboardPage: FC = (): ReactElement => {
                     </Link>
                   )}
                 </div>
-                {!team.has_submission && !canInvite && members.length >= MAX_TEAM_MEMBERS && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 text-center">
-                    Maximum team size reached ({MAX_TEAM_MEMBERS} members)
-                  </p>
-                )}
-                {members.length === 1 && !team.has_submission && !isTeamFeaturesClosed && (
-                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-medium text-red-600 dark:text-red-400 mb-3">
-                      Danger Zone
-                    </h3>
-                    <Button
-                      className="w-full bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => setShowDeleteModal(true)}
-                    >
-                      <Icon icon="mdi:delete" className="inline-block mr-2" />
-                      Delete Team
-                    </Button>
-                  </div>
-                )}
+                {!team.has_submission &&
+                  !canInvite &&
+                  members.length >= MAX_TEAM_MEMBERS && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 text-center">
+                      Maximum team size reached ({MAX_TEAM_MEMBERS} members)
+                    </p>
+                  )}
+                {members.length === 1 &&
+                  !team.has_submission &&
+                  !isTeamFeaturesClosed && (
+                    <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <h3 className="text-sm font-medium text-red-600 dark:text-red-400 mb-3">
+                        Danger Zone
+                      </h3>
+                      <Button
+                        className="w-full bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        <Icon icon="mdi:delete" className="inline-block mr-2" />
+                        Delete Team
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
 
@@ -464,7 +474,10 @@ const TeamDashboardPage: FC = (): ReactElement => {
                   {team.has_submission && (
                     <Link to={`/teams/${teamId}/submission`}>
                       <Button className="w-full" variant="secondary">
-                        <Icon icon="mdi:file-document" className="inline-block mr-2" />
+                        <Icon
+                          icon="mdi:file-document"
+                          className="inline-block mr-2"
+                        />
                         View Submission
                       </Button>
                     </Link>
@@ -491,7 +504,8 @@ const TeamDashboardPage: FC = (): ReactElement => {
                       Team Needs More Members
                     </h3>
                     <p className="text-amber-700 dark:text-amber-300 text-sm">
-                      Your team needs at least 2 members to submit a project. Invite someone or wait for join requests!
+                      Your team needs at least 2 members to submit a project.
+                      Invite someone or wait for join requests!
                     </p>
                   </div>
                 </div>
@@ -792,7 +806,8 @@ const TeamDashboardPage: FC = (): ReactElement => {
             </div>
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
               <p className="text-sm text-amber-800 dark:text-amber-300 font-sans">
-                <strong>Warning:</strong> If you leave, you will need to request to join again or be re-invited by the team leader.
+                <strong>Warning:</strong> If you leave, you will need to request
+                to join again or be re-invited by the team leader.
               </p>
             </div>
             <div className="flex space-x-3">
@@ -830,17 +845,26 @@ const TeamDashboardPage: FC = (): ReactElement => {
                 Delete Team?
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                This action is <strong className="text-red-600 dark:text-red-400">permanent</strong> and cannot be undone.
+                This action is{' '}
+                <strong className="text-red-600 dark:text-red-400">
+                  permanent
+                </strong>{' '}
+                and cannot be undone.
               </p>
             </div>
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
               <p className="text-sm text-red-800 dark:text-red-300 font-sans">
-                <strong>Warning:</strong> All team data, chat messages, and submissions will be permanently deleted.
+                <strong>Warning:</strong> All team data, chat messages, and
+                submissions will be permanently deleted.
               </p>
             </div>
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Type <span className="font-bold text-red-600 dark:text-red-400">{team?.name}</span> to confirm:
+                Type{' '}
+                <span className="font-bold text-red-600 dark:text-red-400">
+                  {team?.name}
+                </span>{' '}
+                to confirm:
               </label>
               <input
                 type="text"
@@ -877,4 +901,3 @@ const TeamDashboardPage: FC = (): ReactElement => {
     </div>
   );
 };
-

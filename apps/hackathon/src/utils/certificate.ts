@@ -1,18 +1,26 @@
-import { decryptText, encryptText } from "./aesclient";
+import { decryptText, encryptText } from './aesclient';
 
 const SECRET_KEY = 'imphnen-hackathon-2025';
 
-export const encodeCertificateId = async (teamId: string, submissionId: string, userId: string): Promise<string> => {
+export const encodeCertificateId = async (
+  teamId: string,
+  submissionId: string,
+  userId: string
+): Promise<string> => {
   const combined = `${teamId}::${submissionId}::${userId}`;
   return encryptText(combined, SECRET_KEY);
 };
 
-export const encodeWinnerCertificateId = async (teamId: string): Promise<string> => {
+export const encodeWinnerCertificateId = async (
+  teamId: string
+): Promise<string> => {
   const combined = `winner::${teamId}`;
   return encryptText(combined, SECRET_KEY);
 };
 
-export const decodeCertificateId = async (certId: string): Promise<{ teamId: string; submissionId: string; userId: string }> => {
+export const decodeCertificateId = async (
+  certId: string
+): Promise<{ teamId: string; submissionId: string; userId: string }> => {
   try {
     const decoded = await decryptText(certId, SECRET_KEY);
     const parts = decoded.split('::');
@@ -31,7 +39,9 @@ export const decodeCertificateId = async (certId: string): Promise<{ teamId: str
   }
 };
 
-export const decodeWinnerCertificateId = async (certId: string): Promise<{ teamId: string }> => {
+export const decodeWinnerCertificateId = async (
+  certId: string
+): Promise<{ teamId: string }> => {
   try {
     const decoded = await decryptText(certId, SECRET_KEY);
     const parts = decoded.split('::');
@@ -46,7 +56,10 @@ export const decodeWinnerCertificateId = async (certId: string): Promise<{ teamI
   }
 };
 
-export const encodeCertificateIdWithTimestamp = (teamId: string, createdAt: string): string => {
+export const encodeCertificateIdWithTimestamp = (
+  teamId: string,
+  createdAt: string
+): string => {
   const combined = `${teamId}::${createdAt}`;
   return Buffer.from(combined).toString('base64');
 };

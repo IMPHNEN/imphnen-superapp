@@ -18,12 +18,12 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
+  type PaginationState,
   useReactTable,
-  RowSelectionState,
+  type RowSelectionState,
 } from '@tanstack/react-table';
 import ModalValidate from './_components/transactions/modal-validate';
 import {
@@ -40,19 +40,16 @@ interface Transaction {
   status: TransactionStatus;
 }
 
-const mockTransactions: Transaction[] = Array.from(
-  { length: 20 },
-  (_, i) => ({
-    id: i + 1,
-    name: i === 0 ? 'Ahmad Wijuana' : 'Nama Lengkap',
-    transactionNumber: '25D2133Y9AFYBD',
-    status: (i % 3 === 0
-      ? 'invalid'
-      : i % 5 === 0
-        ? 'unchecked'
-        : 'valid') as TransactionStatus,
-  })
-);
+const mockTransactions: Transaction[] = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  name: i === 0 ? 'Ahmad Wijuana' : 'Nama Lengkap',
+  transactionNumber: '25D2133Y9AFYBD',
+  status: (i % 3 === 0
+    ? 'invalid'
+    : i % 5 === 0
+      ? 'unchecked'
+      : 'valid') as TransactionStatus,
+}));
 
 export const Route = createFileRoute('/_authenticated/transactions')({
   component: TransactionsPage,
@@ -64,8 +61,7 @@ function TransactionsPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [showFilter, setShowFilter] = React.useState(false);
 
   const validationOptions = [

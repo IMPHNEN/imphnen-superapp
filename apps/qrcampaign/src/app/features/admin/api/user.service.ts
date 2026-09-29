@@ -36,10 +36,7 @@ export const userService = {
     return response.data.data;
   },
 
-  updateUserRole: async (
-    userId: string,
-    role: string
-  ): Promise<User> => {
+  updateUserRole: async (userId: string, role: string): Promise<User> => {
     const response = await api.put<UserResponse>(`/users/${userId}/role`, {
       role,
     });

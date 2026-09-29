@@ -1,74 +1,74 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
 import {
   useResetPassword,
   useAuthStore,
-} from '@imphnen-frontend-service/service'
-import { toast } from 'sonner'
-import { Icon } from '@iconify/react'
+} from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
+import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_public/auth/reset-password')({
   component: ResetPasswordPage,
-})
+});
 
 function ResetPasswordPage() {
-  const navigate = useNavigate()
-  const { clearSession } = useAuthStore()
-  const resetPasswordMutation = useResetPassword()
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const navigate = useNavigate();
+  const { clearSession } = useAuthStore();
+  const resetPasswordMutation = useResetPassword();
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const hashParams = new URLSearchParams(
       globalThis.location.hash.substring(1)
-    )
-    const queryParams = new URLSearchParams(globalThis.location.search)
+    );
+    const queryParams = new URLSearchParams(globalThis.location.search);
     const token =
-      hashParams.get('access_token') || queryParams.get('access_token')
+      hashParams.get('access_token') || queryParams.get('access_token');
 
     if (token) {
-      setAccessToken(token)
+      setAccessToken(token);
     } else {
-      toast.error('Invalid or expired reset link')
-      setTimeout(() => navigate({ to: '/auth/forgot-password' }), 2000)
+      toast.error('Invalid or expired reset link');
+      setTimeout(() => navigate({ to: '/auth/forgot-password' }), 2000);
     }
-  }, [navigate])
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return
+      toast.error('Passwords do not match');
+      return;
     }
 
     if (password.length < 6) {
-      toast.error('Password must be at least 6 characters')
-      return
+      toast.error('Password must be at least 6 characters');
+      return;
     }
 
     if (!accessToken) {
-      toast.error('Invalid reset token')
-      return
+      toast.error('Invalid reset token');
+      return;
     }
 
     try {
       await resetPasswordMutation.mutateAsync({
         access_token: accessToken,
         new_password: password,
-      })
+      });
 
-      toast.success('Password updated successfully!')
+      toast.success('Password updated successfully!');
 
-      clearSession()
-      navigate({ to: '/auth/login' })
+      clearSession();
+      navigate({ to: '/auth/login' });
     } catch (err) {
-      toast.error((err as Error).message || 'Failed to reset password')
+      toast.error((err as Error).message || 'Failed to reset password');
     }
-  }
+  };
 
   if (!accessToken) {
     return (
@@ -78,7 +78,7 @@ function ResetPasswordPage() {
           <p className="text-gray-600">Verifying reset link...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,5 +168,5 @@ function ResetPasswordPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

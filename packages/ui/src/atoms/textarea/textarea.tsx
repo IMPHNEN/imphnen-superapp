@@ -42,7 +42,10 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TTextareaProps>(
           {...rest}
         />
         {error && (
-          <p className="mt-1 text-xs text-destructive" data-slot="textarea-error">
+          <p
+            className="mt-1 text-xs text-destructive"
+            data-slot="textarea-error"
+          >
             {error}
           </p>
         )}

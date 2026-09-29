@@ -1,9 +1,9 @@
-import { FC, useRef } from "react";
-import { motion, useInView, Variants } from "framer-motion";
+import { type FC, useRef } from 'react';
+import { motion, useInView, type Variants } from 'framer-motion';
 
 export const Contribute: FC = () => {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -14,7 +14,7 @@ export const Contribute: FC = () => {
         delayChildren: 0.8,
       },
     },
-  }
+  };
 
   const childVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -26,10 +26,13 @@ export const Contribute: FC = () => {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   return (
-    <section ref={ref} className="w-full p-8 md:py-14 md:px-[60px] lg:py-16 lg:px-20 xl:py-20">
+    <section
+      ref={ref}
+      className="w-full p-8 md:py-14 md:px-[60px] lg:py-16 lg:px-20 xl:py-20"
+    >
       <div className="relative max-w-7xl mx-auto xl:py-14">
         <div className="md:max-w-[514px] mx-auto">
           <motion.h1
@@ -48,7 +51,9 @@ export const Contribute: FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Punya platform, artikel, atau tool keren untuk membantu mentee belajar IT? Bergabunglah dengan kami dan jadilah bagian dari ekosistem pembelajaran yang lebih besar!
+            Punya platform, artikel, atau tool keren untuk membantu mentee
+            belajar IT? Bergabunglah dengan kami dan jadilah bagian dari
+            ekosistem pembelajaran yang lebih besar!
           </motion.p>
         </div>
 
@@ -56,7 +61,7 @@ export const Contribute: FC = () => {
           className="hidden xl:block absolute inset-0 text-neutral-800"
           variants={containerVariants}
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          animate={inView ? 'visible' : 'hidden'}
         >
           <motion.div
             className="absolute top-0 left-0 text-[23px] font-semibold bg-white border rounded-md px-5 py-2 shadow-lg -rotate-6"
@@ -88,16 +93,18 @@ export const Contribute: FC = () => {
             className="absolute top-2/3 left-4 text-[31.62px] font-semibold bg-white border rounded-md px-6 py-2.5 shadow-lg leading-tight rotate-1"
             variants={childVariants}
           >
-            Coding <br />Playground
+            Coding <br />
+            Playground
           </motion.div>
           <motion.div
             className="absolute top-[70%] right-16 text-2xl font-semibold bg-white border rounded-md px-5 py-2.5 shadow-lg leading-tight rotate-6"
             variants={childVariants}
           >
-            Challenge <br />Platform
+            Challenge <br />
+            Platform
           </motion.div>
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};

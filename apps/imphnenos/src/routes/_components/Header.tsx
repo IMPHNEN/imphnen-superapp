@@ -21,7 +21,11 @@ export default function Header() {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center gap-2">
-              <img src="https://imphnen.dev/logo.webp" alt="IMPHNEN" className="h-8 w-auto" />
+              <img
+                src="https://imphnen.dev/logo.webp"
+                alt="IMPHNEN"
+                className="h-8 w-auto"
+              />
               <span className="font-bold text-xl text-primary-900 tracking-tight hidden sm:block">
                 Imphnen<span className="text-primary-500">OS</span>
               </span>
@@ -68,7 +72,11 @@ export default function Header() {
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-primary-600 hover:bg-primary-50 focus:outline-none"
             >
               <span className="sr-only">Buka menu utama</span>
-              {isMobileMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
+              {isMobileMenuOpen ? (
+                <X className="block h-6 w-6" />
+              ) : (
+                <Menu className="block h-6 w-6" />
+              )}
             </button>
           </div>
         </div>

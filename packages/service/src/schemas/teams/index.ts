@@ -24,8 +24,16 @@ export const teamUpdateSchema = z.object({
     .min(3, 'Nama tim minimal 3 karakter')
     .max(50, 'Nama tim maksimal 50 karakter')
     .optional(),
-  logo: z.string().url('Logo harus berupa URL yang valid').nullable().optional(),
-  banner: z.string().url('Banner harus berupa URL yang valid').nullable().optional(),
+  logo: z
+    .string()
+    .url('Logo harus berupa URL yang valid')
+    .nullable()
+    .optional(),
+  banner: z
+    .string()
+    .url('Banner harus berupa URL yang valid')
+    .nullable()
+    .optional(),
   description: z
     .string()
     .min(10, 'Deskripsi minimal 10 karakter')
@@ -61,13 +69,21 @@ export const projectSubmissionSchema = z.object({
     .max(1000, 'Deskripsi maksimal 1000 karakter'),
   repository_url: z.string().url('URL repository tidak valid'),
   demo_url: z.string().url('URL demo tidak valid').optional().or(z.literal('')),
-  presentation_url: z.string().url('URL presentasi tidak valid').optional().or(z.literal('')),
+  presentation_url: z
+    .string()
+    .url('URL presentasi tidak valid')
+    .optional()
+    .or(z.literal('')),
   screenshots: z.array(z.string().url('URL screenshot tidak valid')).optional(),
 });
 
 export const userOnboardingSchema = z.object({
   fullname: z.string().min(3, 'Nama lengkap minimal 3 karakter').optional(),
-  avatar: z.string().url('Avatar harus berupa URL yang valid').nullable().optional(),
+  avatar: z
+    .string()
+    .url('Avatar harus berupa URL yang valid')
+    .nullable()
+    .optional(),
   location: z.string().min(1, 'Domisili harus diisi'),
   bio: z.string().max(500, 'Bio maksimal 500 karakter').optional(),
   skills: z.array(z.string()).optional(),
@@ -75,7 +91,11 @@ export const userOnboardingSchema = z.object({
 
 export const userEditProfileSchema = z.object({
   fullname: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
-  avatar: z.string().url('Avatar harus berupa URL yang valid').nullable().optional(),
+  avatar: z
+    .string()
+    .url('Avatar harus berupa URL yang valid')
+    .nullable()
+    .optional(),
   location: z.string().optional(),
   bio: z.string().max(500, 'Bio maksimal 500 karakter').optional(),
   skills: z.array(z.string()).optional(),

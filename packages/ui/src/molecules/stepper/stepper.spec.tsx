@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { Stepper, StepperProps } from './Stepper';
+import { Stepper, type StepperProps } from './Stepper';
 
 vi.mock('@imphnen-frontend-service/utils', () => ({
   cn: (...args: string[]) => args.filter(Boolean).join(' '),

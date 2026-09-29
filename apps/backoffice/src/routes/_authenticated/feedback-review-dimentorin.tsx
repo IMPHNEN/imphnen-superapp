@@ -24,14 +24,17 @@ import {
 } from '@imphnen-frontend-service/ui/organisms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
-import { useMySessions, TSessionListItem } from '@imphnen-frontend-service/service';
+import {
+  useMySessions,
+  type TSessionListItem,
+} from '@imphnen-frontend-service/service';
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -50,8 +53,7 @@ function FeedbackReviewDimentorinPage() {
   const [ratingFilter, setRatingFilter] = React.useState<string>('all');
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
 
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,

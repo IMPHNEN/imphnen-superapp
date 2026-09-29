@@ -1,23 +1,31 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Icon } from '@iconify/react'
-import { Button, Card, Input, NativeSelect } from '@imphnen-frontend-service/ui/atoms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { Icon } from '@iconify/react';
+import {
+  Button,
+  Card,
+  Input,
+  NativeSelect,
+} from '@imphnen-frontend-service/ui/atoms';
 
-export const Route = createFileRoute('/_authenticated/dashboard/user/roadmap-discovery')({
+export const Route = createFileRoute(
+  '/_authenticated/dashboard/user/roadmap-discovery'
+)({
   component: RoadmapDiscoveryPage,
-})
+});
 
 function RoadmapDiscoveryPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleGenerate = () => {
-    navigate({ to: '/dashboard/user/learning-path' })
-  }
+    navigate({ to: '/dashboard/user/learning-path' });
+  };
 
   return (
     <section className="flex flex-col items-center pt-10 min-h-screen bg-linear-to-t from-bg-light-blue via-bg-light-blue to-white">
       <div className="text-center mb-12">
         <h2 className="text-[23px] font-normal text-text-secondary mb-2">
-          Welcome to <span className="text-primary-accent">Roadmap Discovery</span>
+          Welcome to{' '}
+          <span className="text-primary-accent">Roadmap Discovery</span>
         </h2>
         <div className="flex items-center justify-center gap-3">
           <h1 className="text-[46px] font-bold text-neutral-600">
@@ -66,15 +74,12 @@ function RoadmapDiscoveryPage() {
         </div>
 
         <div className="flex justify-center">
-          <Button
-            size="lg"
-            onClick={handleGenerate}
-          >
+          <Button size="lg" onClick={handleGenerate}>
             <Icon icon="mdi:sparkles" width="16" />
             Generate
           </Button>
         </div>
       </div>
     </section>
-  )
+  );
 }

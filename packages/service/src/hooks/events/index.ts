@@ -6,7 +6,10 @@ import {
   updateEvent,
   deleteEvent,
 } from '../../api/events';
-import type { TEventCreateRequest, TEventUpdateRequest } from '../../types/events';
+import type {
+  TEventCreateRequest,
+  TEventUpdateRequest,
+} from '../../types/events';
 import type { TPaginationParams } from '../../types/common';
 
 export const eventKeys = {
@@ -35,14 +38,16 @@ export const useCreateEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TEventCreateRequest) => createEvent(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: eventKeys.lists() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: eventKeys.lists() }),
   });
 };
 
 export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: TEventUpdateRequest }) => updateEvent(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TEventUpdateRequest }) =>
+      updateEvent(id, data),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(vars.id) });
@@ -54,6 +59,7 @@ export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteEvent(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: eventKeys.lists() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: eventKeys.lists() }),
   });
 };

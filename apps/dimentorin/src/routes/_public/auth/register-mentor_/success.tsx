@@ -1,12 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, ReactElement } from 'react'
-import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ArrowRightOutlined } from '@ant-design/icons'
+import { createFileRoute } from '@tanstack/react-router';
+import { FC, type ReactElement } from 'react';
+import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ArrowRightOutlined } from '@ant-design/icons';
 
 export const Route = createFileRoute('/_public/auth/register-mentor_/success')({
   component: RegisterMentorSuccessPage,
-})
+});
 
 function RegisterMentorSuccessPage(): ReactElement {
   return (
@@ -44,7 +44,8 @@ function RegisterMentorSuccessPage(): ReactElement {
               />
             </svg>
             <h4 className="mt-10 text-primary-500 font-medium text-xl text-center">
-              Kamu sekarang bisa login dan mulai menggunakan layanan kami. Selamat bergabung! SENPAIIII
+              Kamu sekarang bisa login dan mulai menggunakan layanan kami.
+              Selamat bergabung! SENPAIIII
             </h4>
             <a href="/auth/login">
               <Button className="gap-3 mt-10" size="lg">
@@ -56,5 +57,5 @@ function RegisterMentorSuccessPage(): ReactElement {
         </div>
       </div>
     </div>
-  )
+  );
 }

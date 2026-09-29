@@ -36,7 +36,10 @@ export default function RequestFeature() {
 
               <div className="grid gap-4">
                 <div className="flex justify-between items-center">
-                  <label htmlFor="deskripsiFitur" className="font-medium text-sm">
+                  <label
+                    htmlFor="deskripsiFitur"
+                    className="font-medium text-sm"
+                  >
                     Deskripsi Fitur *
                   </label>
                   <span className="text-sm text-gray-500">

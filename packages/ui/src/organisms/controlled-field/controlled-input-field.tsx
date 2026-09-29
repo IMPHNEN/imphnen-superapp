@@ -1,11 +1,8 @@
+import { InputField, type TInputFieldProps } from '../../molecules';
 import {
-  InputField,
-  TInputFieldProps,
-} from '../../molecules';
-import {
-  FieldValues,
+  type FieldValues,
   useController,
-  UseControllerProps,
+  type UseControllerProps,
 } from 'react-hook-form';
 
 export type TControlledInputFieldProps<T extends FieldValues> =

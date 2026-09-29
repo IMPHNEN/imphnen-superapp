@@ -97,7 +97,8 @@ export const useForgotPassword = () => {
 
 export const useResetPassword = () => {
   return useMutation({
-    mutationFn: (data: { token: string; password: string }) => postNewPassword(data),
+    mutationFn: (data: { token: string; password: string }) =>
+      postNewPassword(data),
   });
 };
 
@@ -143,13 +144,22 @@ export const getGitHubOAuthUrl = (clientId: string, redirectUri: string) => {
 export const useGitHubAuth = () => {
   const signInWithGitHub = async () => {
     let clientId = '';
-    if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID) {
+    if (
+      typeof process !== 'undefined' &&
+      process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+    ) {
       clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
     } else {
       try {
-        const meta = import.meta as unknown as Record<string, Record<string, string>>;
-        if (meta.env?.VITE_GITHUB_CLIENT_ID) clientId = meta.env.VITE_GITHUB_CLIENT_ID;
-      } catch { /* not in Vite context */ }
+        const meta = import.meta as unknown as Record<
+          string,
+          Record<string, string>
+        >;
+        if (meta.env?.VITE_GITHUB_CLIENT_ID)
+          clientId = meta.env.VITE_GITHUB_CLIENT_ID;
+      } catch {
+        /* not in Vite context */
+      }
     }
     if (!clientId) throw new Error('GitHub Client ID not configured.');
     const redirectUri = `${globalThis.location.origin}/auth/callback`;
@@ -165,7 +175,9 @@ export const useGitHubCallback = () => {
       // GitHub OAuth callback is handled by the backend redirect.
       // This hook exists for compatibility; in practice the backend
       // redirects to the frontend with a token in the URL params.
-      throw new Error(`GitHub callback must be handled via backend redirect. Code: ${data.code}`);
+      throw new Error(
+        `GitHub callback must be handled via backend redirect. Code: ${data.code}`
+      );
     },
   });
 };
@@ -186,12 +198,26 @@ export const useEmailAuth = () => {
     };
   };
 
-  const signUpWithEmail = async (email: string, password: string, fullname: string, phone_number = '', confirm_password?: string) => {
-    const result = await signupMutation.mutateAsync({ email, password, fullname, phone_number, confirm_password: confirm_password || password });
+  const signUpWithEmail = async (
+    email: string,
+    password: string,
+    fullname: string,
+    phone_number = '',
+    confirm_password?: string
+  ) => {
+    const result = await signupMutation.mutateAsync({
+      email,
+      password,
+      fullname,
+      phone_number,
+      confirm_password: confirm_password || password,
+    });
     return { message: result.message };
   };
 
-  const signOut = async () => { clearSession(); };
+  const signOut = async () => {
+    clearSession();
+  };
 
   return { signInWithEmail, signUpWithEmail, signOut };
 };

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { cn } from '@imphnen-frontend-service/utils';
 
 function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {

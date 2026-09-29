@@ -150,7 +150,13 @@ export const mockMentorDashboardData: MentorDashboardData = {
   mentoringSetup: {
     sessionRate: 'Rp.100.000/sesi',
     availability: 'Senin-Jumat, 19:00-21:00',
-    expertise: ['JavaScript', 'React', 'TypeScript', 'Backend',  'System Design'],
+    expertise: [
+      'JavaScript',
+      'React',
+      'TypeScript',
+      'Backend',
+      'System Design',
+    ],
     experienceLevel: 'Senior',
     status: 'Complete',
   },

@@ -47,7 +47,10 @@ export const InputField = React.forwardRef<HTMLInputElement, TInputFieldProps>(
     const fieldId = htmlFor ?? id ?? autoId;
     return (
       <div className="flex flex-col gap-2">
-        <Label htmlFor={fieldId} className="text-sm font-medium text-foreground">
+        <Label
+          htmlFor={fieldId}
+          className="text-sm font-medium text-foreground"
+        >
           {label}
           {isRequired && <span className="text-destructive">*</span>}
         </Label>

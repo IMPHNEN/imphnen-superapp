@@ -1,28 +1,34 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useRoadmapList, useUpdateRoadmap, TRoadmapStatus } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import {
+  useRoadmapList,
+  useUpdateRoadmap,
+  type TRoadmapStatus,
+} from '@imphnen-frontend-service/service';
 
-export const Route = createFileRoute('/_authenticated/roadmap-dimentorin_/$id')({
-  component: RoadmapEditPage,
-})
+export const Route = createFileRoute('/_authenticated/roadmap-dimentorin_/$id')(
+  {
+    component: RoadmapEditPage,
+  }
+);
 
 function RoadmapEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updateRoadmap = useUpdateRoadmap()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updateRoadmap = useUpdateRoadmap();
 
-  const { data: roadmapData, isLoading } = useRoadmapList()
-  const roadmap = roadmapData?.find((r) => r.id === id)
+  const { data: roadmapData, isLoading } = useRoadmapList();
+  const roadmap = roadmapData?.find((r) => r.id === id);
 
   const form = useForm<{
-    title: string
-    description: string
-    status: TRoadmapStatus
+    title: string;
+    description: string;
+    status: TRoadmapStatus;
   }>({
     mode: 'all',
     defaultValues: {
@@ -30,7 +36,7 @@ function RoadmapEditPage() {
       description: '',
       status: 'upcoming',
     },
-  })
+  });
 
   useEffect(() => {
     if (roadmap) {
@@ -38,27 +44,27 @@ function RoadmapEditPage() {
         title: roadmap.title,
         description: roadmap.description,
         status: roadmap.status,
-      })
+      });
     }
-  }, [roadmap])
+  }, [roadmap]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateRoadmap.mutateAsync({ id, data })
-      toast.success('Roadmap berhasil diperbarui')
-      navigate({ to: '/roadmap-dimentorin' })
+      await updateRoadmap.mutateAsync({ id, data });
+      toast.success('Roadmap berhasil diperbarui');
+      navigate({ to: '/roadmap-dimentorin' });
     } catch (error) {
-      console.log(error)
-      toast.error('Gagal memperbarui roadmap')
+      console.log(error);
+      toast.error('Gagal memperbarui roadmap');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -95,7 +101,9 @@ function RoadmapEditPage() {
               className="w-full"
             />
             <div className="flex flex-col gap-2">
-              <label className="text-p3 font-medium text-neutral-800">Status</label>
+              <label className="text-p3 font-medium text-neutral-800">
+                Status
+              </label>
               <select
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-p3 focus:border-primary-500 focus:outline-none"
                 {...form.register('status')}
@@ -128,5 +136,5 @@ function RoadmapEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

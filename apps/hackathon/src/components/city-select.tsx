@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useEffect } from 'react';
+import { type FC, useState, useRef, useEffect } from 'react';
 import INDONESIAN_CITIES from '../constants/cities';
 
 interface CitySelectProps {

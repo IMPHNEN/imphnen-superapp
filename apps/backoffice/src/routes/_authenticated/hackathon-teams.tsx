@@ -6,7 +6,7 @@ import {
   BackofficeWrapper,
   DataTable,
 } from '@imphnen-frontend-service/ui/organisms';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
   AvatarFallback,
@@ -21,7 +21,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
   getAdminTeams,
-  TAdminTeamItem,
+  type TAdminTeamItem,
 } from '@imphnen-frontend-service/service';
 
 type TeamType = TAdminTeamItem;
@@ -130,7 +130,10 @@ function HackathonTeamsPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={row.original.logo ?? undefined} alt={row.original.name} />
+              <AvatarImage
+                src={row.original.logo ?? undefined}
+                alt={row.original.name}
+              />
               <AvatarFallback>
                 <TeamIcon className="size-4 text-muted-foreground" />
               </AvatarFallback>

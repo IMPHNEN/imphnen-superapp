@@ -2,14 +2,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   gachaRollItemSchema,
-  TGachaRollItem
+  type TGachaRollItem,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 
 export const useItem = (
   nextStep: () => void,
   initialValues?: Partial<TGachaRollItem>,
-  onDataCapture?: (data: any) => void,
+  onDataCapture?: (data: any) => void
 ) => {
   const form = useForm<any>({
     resolver: zodResolver(gachaRollItemSchema),

@@ -1,13 +1,20 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Input, NativeSelect as Select, Textarea } from '@imphnen-frontend-service/ui/atoms'
-import { cn, For } from '@imphnen-frontend-service/utils'
-import { useMySessions, TSessionListItem } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import {
+  Input,
+  NativeSelect as Select,
+  Textarea,
+} from '@imphnen-frontend-service/ui/atoms';
+import { cn, For } from '@imphnen-frontend-service/utils';
+import {
+  useMySessions,
+  type TSessionListItem,
+} from '@imphnen-frontend-service/service';
 
 const TOPICS = [
   { id: 2, icon: '\uD83C\uDFE2', name: 'Industry Insight' },
   { id: 4, icon: '\uD83D\uDDA5\uFE0F', name: 'Basic IT' },
-]
+];
 
 const placeholder = `Hi [Nama Mentor], Saya [Nama Kamu] & saya berharap dapat memiliki sesi mentoring dengan Anda.
 
@@ -16,20 +23,26 @@ Saat ini, saya tertarik untuk mengejar __. Tujuan saya untuk sesi ini adalah __.
 Saya ingin tahu secara khusus tentang ___.
 1.Pertanyaan Anda
 2. ...
-3. ...`
+3. ...`;
 
-const labelClass = cn('text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]')
+const labelClass = cn(
+  'text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]'
+);
 
-export const Route = createFileRoute('/_authenticated/session-dimentorin_/$id')({
-  component: SessionDetailPage,
-})
+export const Route = createFileRoute('/_authenticated/session-dimentorin_/$id')(
+  {
+    component: SessionDetailPage,
+  }
+);
 
 function SessionDetailPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
 
-  const { data: sessionsData, isLoading } = useMySessions()
-  const session: TSessionListItem | undefined = sessionsData?.sessions?.find((s) => s.id === id)
+  const { data: sessionsData, isLoading } = useMySessions();
+  const session: TSessionListItem | undefined = sessionsData?.sessions?.find(
+    (s) => s.id === id
+  );
 
   const statusColors: Record<string, string> = {
     pending: 'bg-warning-200 text-warning-700',
@@ -37,14 +50,14 @@ function SessionDetailPage() {
     ongoing: 'bg-warning-200 text-warning-700',
     completed: 'bg-success-200 text-success-500',
     cancelled: 'bg-danger-200 text-danger-500',
-  }
+  };
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -68,24 +81,38 @@ function SessionDetailPage() {
           <div className="grid grid-cols-9 px-9 py-7 border rounded-md gap-12 mb-10">
             <div className="col-span-4 flex items-center gap-x-12">
               <div>
-                <h3 className="text-p2 font-semibold text-primary-500 mb-4">Mentor</h3>
+                <h3 className="text-p2 font-semibold text-primary-500 mb-4">
+                  Mentor
+                </h3>
                 <div>
-                  <p className="text-p3 font-semibold mb-2.5">{session?.mentor_id ?? "-"}</p>
+                  <p className="text-p3 font-semibold mb-2.5">
+                    {session?.mentor_id ?? '-'}
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="col-span-5 flex items-center gap-12">
               <div>
-                <h3 className="text-p2 font-semibold text-primary-500 mb-4">Mentee</h3>
+                <h3 className="text-p2 font-semibold text-primary-500 mb-4">
+                  Mentee
+                </h3>
                 <div>
-                  <p className="text-p3 font-semibold mb-2.5">{session?.mentee_fullname ?? "-"}</p>
-                  <p className="text-neutral-600">{session?.mentee_email ?? "-"}</p>
+                  <p className="text-p3 font-semibold mb-2.5">
+                    {session?.mentee_fullname ?? '-'}
+                  </p>
+                  <p className="text-neutral-600">
+                    {session?.mentee_email ?? '-'}
+                  </p>
                 </div>
               </div>
               <div>
-                <h3 className="text-p2 font-semibold text-neutral-700 mb-4">Status</h3>
-                <div className={`py-2 px-6 rounded-md text-center capitalize font-semibold ${statusColors[session?.status ?? ``] ?? `bg-neutral-200 text-neutral-700`}`}>
+                <h3 className="text-p2 font-semibold text-neutral-700 mb-4">
+                  Status
+                </h3>
+                <div
+                  className={`py-2 px-6 rounded-md text-center capitalize font-semibold ${statusColors[session?.status ?? ``] ?? `bg-neutral-200 text-neutral-700`}`}
+                >
                   {session?.status ?? '-'}
                 </div>
               </div>
@@ -120,7 +147,13 @@ function SessionDetailPage() {
                 <Input
                   type="date"
                   className="min-w-full w-full"
-                  value={session?.scheduled_at ? new Date(session.scheduled_at).toISOString().split('T')[0] : ''}
+                  value={
+                    session?.scheduled_at
+                      ? new Date(session.scheduled_at)
+                          .toISOString()
+                          .split('T')[0]
+                      : ''
+                  }
                   readOnly
                 />
               </div>
@@ -129,13 +162,23 @@ function SessionDetailPage() {
                 <Input
                   type="time"
                   className="min-w-full w-full"
-                  value={session?.scheduled_at ? new Date(session.scheduled_at).toTimeString().slice(0, 5) : ''}
+                  value={
+                    session?.scheduled_at
+                      ? new Date(session.scheduled_at)
+                          .toTimeString()
+                          .slice(0, 5)
+                      : ''
+                  }
                   readOnly
                 />
               </div>
               <div className="relative md:col-span-full">
                 <label className={labelClass}>Tipe Sesi</label>
-                <Select className="min-w-full w-full" value={session?.session_type ?? "online"} disabled>
+                <Select
+                  className="min-w-full w-full"
+                  value={session?.session_type ?? 'online'}
+                  disabled
+                >
                   <option value="online">Online</option>
                   <option value="offline">Offline</option>
                 </Select>
@@ -154,5 +197,5 @@ function SessionDetailPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

@@ -19,16 +19,16 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
+  type PaginationState,
   useReactTable,
-  RowSelectionState,
+  type RowSelectionState,
 } from '@tanstack/react-table';
 import {
   useUserList,
-  TUsersListItem,
+  type TUsersListItem,
 } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/accounts')({
@@ -42,8 +42,7 @@ function AccountsPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [showFilter, setShowFilter] = React.useState(false);
 
   const { data: usersData, isLoading } = useUserList({

@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useEffect } from 'react';
+import { type FC, useState, useRef, useEffect } from 'react';
 import { FilterOutlined } from '@ant-design/icons';
 import INDONESIAN_CITIES from '../constants/cities';
 

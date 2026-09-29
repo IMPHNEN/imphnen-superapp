@@ -1,61 +1,75 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, ReactElement, useState } from 'react'
-import { ProfileForm, ProfileSidebar, ProfileHeader } from './profile_/_components'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { NotificationModal, NotificationType } from './profile_/_components/modals/notification-modal'
-import { ProfileProvider, useProfile } from './profile_/_components/contexts/profile-context'
-import { EditProfileModal } from './profile_/_components/modals/edit-profile-modal'
+import { createFileRoute } from '@tanstack/react-router';
+import { type FC, type ReactElement, useState } from 'react';
+import {
+  ProfileForm,
+  ProfileSidebar,
+  ProfileHeader,
+} from './profile_/_components';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import {
+  NotificationModal,
+  type NotificationType,
+} from './profile_/_components/modals/notification-modal';
+import {
+  ProfileProvider,
+  useProfile,
+} from './profile_/_components/contexts/profile-context';
+import { EditProfileModal } from './profile_/_components/modals/edit-profile-modal';
 
 export const Route = createFileRoute('/_site/profile')({
   component: ProfilePage,
-})
+});
 
 function ProfilePage(): ReactElement {
   return (
     <ProfileProvider profileType="user">
       <ProfileContent />
     </ProfileProvider>
-  )
+  );
 }
 
 const ProfileContent: FC = (): ReactElement => {
-  const { isLoading, error } = useProfile()
+  const { isLoading, error } = useProfile();
 
   const [notification, setNotification] = useState<{
-    isOpen: boolean
-    type: 'success' | 'error'
-    title: string
-    message?: string
+    isOpen: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message?: string;
   }>({
     isOpen: false,
     type: 'success',
     title: '',
-    message: ''
-  })
+    message: '',
+  });
 
-  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
 
-  const showNotification = (type: NotificationType['type'], title: string, message?: string) => {
+  const showNotification = (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => {
     setNotification({
       isOpen: true,
       type,
       title,
-      message
-    })
-  }
+      message,
+    });
+  };
 
   const hideNotification = () => {
-    setNotification(prev => ({ ...prev, isOpen: false }))
-  }
+    setNotification((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const openEditProfileModal = () => {
-    setIsEditProfileModalOpen(true)
-  }
+    setIsEditProfileModalOpen(true);
+  };
 
   const closeEditProfileModal = () => {
-    setIsEditProfileModalOpen(false)
-  }
+    setIsEditProfileModalOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -65,7 +79,7 @@ const ProfileContent: FC = (): ReactElement => {
           <p className="mt-4 text-gray-600">Loading profile...</p>
         </div>
       </main>
-    )
+    );
   }
 
   if (error) {
@@ -76,7 +90,7 @@ const ProfileContent: FC = (): ReactElement => {
           <p className="text-gray-600 mt-2">Please try again later.</p>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -129,5 +143,5 @@ const ProfileContent: FC = (): ReactElement => {
         showNotification={showNotification}
       />
     </main>
-  )
-}
+  );
+};

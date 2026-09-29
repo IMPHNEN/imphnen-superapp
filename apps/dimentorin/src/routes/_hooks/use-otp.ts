@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import {
-  TVerifyOtpRequest,
+  type TVerifyOtpRequest,
   verifyEmailSchema,
   usePostVerifyEmail,
 } from '@imphnen-frontend-service/service';
@@ -19,6 +19,6 @@ export const useOtpHook = () => {
   return {
     form,
     onSubmit,
-    isLoading
+    isLoading,
   };
 };

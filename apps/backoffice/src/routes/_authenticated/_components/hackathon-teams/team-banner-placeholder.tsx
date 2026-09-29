@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { TeamOutlined } from '@ant-design/icons';
 import { cn } from '@imphnen-frontend-service/utils';
 

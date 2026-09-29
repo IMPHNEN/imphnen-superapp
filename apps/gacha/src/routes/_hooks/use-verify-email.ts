@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import {
-  TVerifyEmailRequest,
+  type TVerifyEmailRequest,
   usePostVerifyEmail,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';

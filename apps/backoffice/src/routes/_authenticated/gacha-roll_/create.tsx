@@ -1,23 +1,27 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateGachaItem } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { useCreateGachaItem } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/gacha-roll_/create')({
   component: GachaRollCreatePage,
-})
+});
 
 function GachaRollCreatePage() {
-  const navigate = useNavigate()
-  const createItem = useCreateGachaItem()
+  const navigate = useNavigate();
+  const createItem = useCreateGachaItem();
 
-  const form = useForm<{ itemName: string; quantity: number; chanceRate: number }>({
+  const form = useForm<{
+    itemName: string;
+    quantity: number;
+    chanceRate: number;
+  }>({
     mode: 'all',
     defaultValues: { itemName: '', quantity: 1, chanceRate: 0.1 },
-  })
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -32,14 +36,14 @@ function GachaRollCreatePage() {
         weight: data.chanceRate ?? 1,
         stock: data.quantity ?? 1,
         is_limited: false,
-      })
-      toast.success('Item ditambahkan ke roll gacha')
-      navigate({ to: '/gacha-roll' })
+      });
+      toast.success('Item ditambahkan ke roll gacha');
+      navigate({ to: '/gacha-roll' });
     } catch (error) {
-      console.log(error)
-      toast.error('Item gagal ditambahkan ke roll gacha')
+      console.log(error);
+      toast.error('Item gagal ditambahkan ke roll gacha');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -51,7 +55,9 @@ function GachaRollCreatePage() {
           >
             <ArrowLeftOutlined className="text-[20px]" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Tambah Item Roll Gacha</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Tambah Item Roll Gacha
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -110,5 +116,5 @@ function GachaRollCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

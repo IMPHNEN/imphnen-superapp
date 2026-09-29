@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TLoginItem } from '../../types';
+import type { TLoginItem } from '../../types';
 import { SessionToken, SessionUser } from '../../storage';
 
 export enum ESessionStatus {

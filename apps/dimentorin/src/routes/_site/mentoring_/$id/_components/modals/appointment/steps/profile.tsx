@@ -1,8 +1,10 @@
-import { Input } from "@imphnen-frontend-service/ui/atoms"
-import { cn } from "@imphnen-frontend-service/utils"
-import { motion } from "framer-motion"
+import { Input } from '@imphnen-frontend-service/ui/atoms';
+import { cn } from '@imphnen-frontend-service/utils';
+import { motion } from 'framer-motion';
 
-const labelClass = cn('text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]')
+const labelClass = cn(
+  'text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]'
+);
 
 export const ProfileStep = () => {
   return (
@@ -34,5 +36,5 @@ export const ProfileStep = () => {
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

@@ -1,4 +1,10 @@
-import { FC, ReactElement, useState, useEffect, useCallback } from 'react';
+import {
+  type FC,
+  type ReactElement,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -7,7 +13,8 @@ import {
   useMyTeams,
   ETeamVisibility,
   joinTeamSchema,
-  TJoinTeamForm } from '@imphnen-frontend-service/service';
+  type TJoinTeamForm,
+} from '@imphnen-frontend-service/service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CitySelect } from '../../../components/city-select';
@@ -15,7 +22,7 @@ import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/teams/browse')({
   component: BrowseTeamsPage,
-})
+});
 
 const DEFAULT_PER_PAGE = 12;
 const PER_PAGE_OPTIONS = [6, 12, 24, 48];
@@ -23,8 +30,18 @@ const PER_PAGE_OPTIONS = [6, 12, 24, 48];
 const TEAM_FEATURES_DEADLINE = new Date('2025-11-30T16:59:00Z');
 
 const MEMBER_FILTER_OPTIONS = [
-  { label: 'All Teams', value: '', minMembers: undefined, maxMembers: undefined },
-  { label: 'Looking for Members (1-4)', value: 'looking', minMembers: 1, maxMembers: 4 },
+  {
+    label: 'All Teams',
+    value: '',
+    minMembers: undefined,
+    maxMembers: undefined,
+  },
+  {
+    label: 'Looking for Members (1-4)',
+    value: 'looking',
+    minMembers: 1,
+    maxMembers: 4,
+  },
   { label: '1 Member', value: '1', minMembers: 1, maxMembers: 1 },
   { label: '2 Members', value: '2', minMembers: 2, maxMembers: 2 },
   { label: '3 Members', value: '3', minMembers: 3, maxMembers: 3 },
@@ -65,7 +82,10 @@ const TeamCardSkeleton: FC = () => (
 const BrowseTeamsPage: FC = (): ReactElement => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(globalThis.location.search);
-  const setSearchParams = (newParams: URLSearchParams, opts?: { replace?: boolean }) => {
+  const setSearchParams = (
+    newParams: URLSearchParams,
+    opts?: { replace?: boolean }
+  ) => {
     const url = new URL(globalThis.location.href);
     url.search = newParams.toString();
     if (opts?.replace) {
@@ -91,14 +111,17 @@ const BrowseTeamsPage: FC = (): ReactElement => {
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [selectedCity, setSelectedCity] = useState(initialCity);
   const [selectedMembers, setSelectedMembers] = useState(initialMembers);
-  const [selectedSubmission, setSelectedSubmission] = useState(initialSubmission);
+  const [selectedSubmission, setSelectedSubmission] =
+    useState(initialSubmission);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     PER_PAGE_OPTIONS.includes(initialPerPage) ? initialPage : 1
   );
   const [perPage, setPerPage] = useState(
-    PER_PAGE_OPTIONS.includes(initialPerPage) ? initialPerPage : DEFAULT_PER_PAGE
+    PER_PAGE_OPTIONS.includes(initialPerPage)
+      ? initialPerPage
+      : DEFAULT_PER_PAGE
   );
 
   const updateUrlParams = useCallback(
@@ -187,7 +210,12 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     (opt) => opt.value === selectedMembers
   );
 
-  const hasSubmissionFilter = selectedSubmission === 'true' ? true : selectedSubmission === 'false' ? false : undefined;
+  const hasSubmissionFilter =
+    selectedSubmission === 'true'
+      ? true
+      : selectedSubmission === 'false'
+        ? false
+        : undefined;
 
   const {
     data: teamsData,
@@ -416,7 +444,10 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                         <div className="text-sm font-sans text-gray-600 dark:text-gray-400 flex items-center gap-2 mt-1">
                           {team.has_submission && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 shrink-0">
-                              <Icon icon="mdi:check-circle" className="text-sm" />
+                              <Icon
+                                icon="mdi:check-circle"
+                                className="text-sm"
+                              />
                               Submitted
                             </span>
                           )}
@@ -435,14 +466,20 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                       {team.description}
                     </p>
                     <div className="space-y-3 mt-auto">
-                      {(team.member_count || 0) === 1 && !team.has_submission && (
-                        <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                          <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                            <Icon icon="mdi:alert" className="text-sm shrink-0" />
-                            <span>This team needs at least 2 members to submit</span>
-                          </p>
-                        </div>
-                      )}
+                      {(team.member_count || 0) === 1 &&
+                        !team.has_submission && (
+                          <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                            <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                              <Icon
+                                icon="mdi:alert"
+                                className="text-sm shrink-0"
+                              />
+                              <span>
+                                This team needs at least 2 members to submit
+                              </span>
+                            </p>
+                          </div>
+                        )}
                       {isMyTeam(team.id) ? (
                         <Button
                           className="w-full"
@@ -467,7 +504,9 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                           <Button
                             className="w-full"
                             variant="secondary"
-                            onClick={() => navigate({ to: `/teams/${team.id}` })}
+                            onClick={() =>
+                              navigate({ to: `/teams/${team.id}` })
+                            }
                           >
                             View Team
                           </Button>
@@ -548,7 +587,9 @@ const BrowseTeamsPage: FC = (): ReactElement => {
                   )}
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Show:</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Show:
+                    </span>
                     <select
                       value={perPage}
                       onChange={(e) => {
@@ -627,4 +668,3 @@ const BrowseTeamsPage: FC = (): ReactElement => {
     </div>
   );
 };
-

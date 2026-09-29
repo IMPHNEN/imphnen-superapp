@@ -1,7 +1,7 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { SocialMediaModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface SocialLink {
@@ -13,7 +13,11 @@ interface SocialLink {
 interface SocialMediaSectionProps {
   initialSocialLinks: SocialLink[];
   onSave: (newSocialLinks: SocialLink[]) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
 }
 
@@ -24,15 +28,14 @@ export const SocialMediaSection: FC<SocialMediaSectionProps> = ({
   isLoading,
 }) => {
   const [isSocialMediaModalOpen, setIsSocialMediaModalOpen] = useState(false);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinks);
-
+  const [socialLinks, setSocialLinks] =
+    useState<SocialLink[]>(initialSocialLinks);
 
   useEffect(() => {
     setSocialLinks(initialSocialLinks);
   }, [initialSocialLinks]);
 
   const handleSave = async (newSocialLinks: SocialLink[]) => {
-
     await onSave(newSocialLinks);
   };
 
@@ -46,10 +49,17 @@ export const SocialMediaSection: FC<SocialMediaSectionProps> = ({
     >
       <div className="grid grid-cols-2 gap-4">
         {socialLinks.map((link) => (
-          <div key={link.platform} className="border border-gray-200 rounded-md p-4 bg-gray-50">
-            <div className="text-sm font-medium text-gray-700 mb-2">{link.platform}</div>
+          <div
+            key={link.platform}
+            className="border border-gray-200 rounded-md p-4 bg-gray-50"
+          >
+            <div className="text-sm font-medium text-gray-700 mb-2">
+              {link.platform}
+            </div>
             <div className="text-gray-900 text-sm">
-              {link.value || <span className="text-gray-400 italic">{link.placeholder}</span>}
+              {link.value || (
+                <span className="text-gray-400 italic">{link.placeholder}</span>
+              )}
             </div>
           </div>
         ))}
@@ -65,5 +75,3 @@ export const SocialMediaSection: FC<SocialMediaSectionProps> = ({
     </SectionWrapper>
   );
 };
-
-

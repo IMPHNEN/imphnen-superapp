@@ -1,4 +1,4 @@
-import { TRoleDetailItem } from '../roles';
+import type { TRoleDetailItem } from '../roles';
 
 export type TExperienceDto = {
   id: string;

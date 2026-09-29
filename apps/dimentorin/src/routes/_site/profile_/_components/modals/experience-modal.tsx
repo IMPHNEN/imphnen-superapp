@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { ModalButton } from '../buttons/modal-button';
 
 interface Experience {
@@ -15,7 +15,11 @@ interface ExperienceModalProps {
   initialValue: Experience[];
   onSave: (value: Experience[]) => Promise<void>;
   isLoading?: boolean;
-  showNotification?: (type: 'success' | 'error', title: string, message?: string) => void;
+  showNotification?: (
+    type: 'success' | 'error',
+    title: string,
+    message?: string
+  ) => void;
 }
 
 interface ExperienceFormData {
@@ -46,7 +50,13 @@ const MONTH_OPTIONS = [
   'Desember',
 ];
 
-const JOB_TYPE_OPTIONS = ['Full Time', 'Part Time', 'Contract', 'Freelance', 'Internship'];
+const JOB_TYPE_OPTIONS = [
+  'Full Time',
+  'Part Time',
+  'Contract',
+  'Freelance',
+  'Internship',
+];
 
 function buildYearOptions(): string[] {
   const currentYear = new Date().getFullYear();
@@ -104,12 +114,17 @@ function toInitialFormData(source?: Experience): ExperienceFormData {
   };
 }
 
-function normalizeExperienceFromForm(form: ExperienceFormData, existingId?: string): Experience {
-  const endValue = form.isCurrentRole || form.isEndAtCurrentPlace
-    ? 'Sekarang'
-    : [form.endMonth, form.endYear].filter(Boolean).join(' ');
+function normalizeExperienceFromForm(
+  form: ExperienceFormData,
+  existingId?: string
+): Experience {
+  const endValue =
+    form.isCurrentRole || form.isEndAtCurrentPlace
+      ? 'Sekarang'
+      : [form.endMonth, form.endYear].filter(Boolean).join(' ');
 
-  const period = `${[form.startMonth, form.startYear].filter(Boolean).join(' ')} - ${endValue}`.trim();
+  const period =
+    `${[form.startMonth, form.startYear].filter(Boolean).join(' ')} - ${endValue}`.trim();
 
   return {
     id: existingId || Date.now().toString(),
@@ -129,7 +144,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
   showNotification,
 }) => {
   const firstExperience = useMemo(() => initialValue[0], [initialValue]);
-  const [formData, setFormData] = useState<ExperienceFormData>(toInitialFormData(firstExperience));
+  const [formData, setFormData] = useState<ExperienceFormData>(
+    toInitialFormData(firstExperience)
+  );
   const [isSuccessState, setIsSuccessState] = useState(false);
 
   useEffect(() => {
@@ -144,22 +161,37 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
     onClose();
   };
 
-  const handleChange = (field: keyof ExperienceFormData, value: string | boolean) => {
+  const handleChange = (
+    field: keyof ExperienceFormData,
+    value: string | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
-    const hasMissingRequired = !formData.position.trim() || !formData.company.trim() || !formData.jobType
-      || !formData.startMonth || !formData.startYear || (!(formData.isCurrentRole || formData.isEndAtCurrentPlace)
-      && (!formData.endMonth || !formData.endYear));
+    const hasMissingRequired =
+      !formData.position.trim() ||
+      !formData.company.trim() ||
+      !formData.jobType ||
+      !formData.startMonth ||
+      !formData.startYear ||
+      (!(formData.isCurrentRole || formData.isEndAtCurrentPlace) &&
+        (!formData.endMonth || !formData.endYear));
 
     if (hasMissingRequired) {
-      showNotification?.('error', 'Data Tidak Lengkap', 'Mohon lengkapi semua data pengalaman wajib.');
+      showNotification?.(
+        'error',
+        'Data Tidak Lengkap',
+        'Mohon lengkapi semua data pengalaman wajib.'
+      );
       return;
     }
 
     try {
-      const nextExperience = normalizeExperienceFromForm(formData, firstExperience?.id);
+      const nextExperience = normalizeExperienceFromForm(
+        formData,
+        firstExperience?.id
+      );
       const updated = firstExperience
         ? [nextExperience, ...initialValue.slice(1)]
         : [nextExperience, ...initialValue];
@@ -168,7 +200,11 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
       setIsSuccessState(true);
     } catch (error) {
       console.error('Save failed:', error);
-      showNotification?.('error', 'Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan pengalaman.');
+      showNotification?.(
+        'error',
+        'Gagal Menyimpan',
+        'Terjadi kesalahan saat menyimpan pengalaman.'
+      );
     }
   };
 
@@ -190,19 +226,29 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
 
       <div className="relative max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-2xl bg-[#F1F1F1] p-5 sm:p-6">
         <div className="rounded-[6px] bg-[#DFECF7] px-4 py-2">
-          <h2 className="text-xl font-semibold leading-7 text-[#4B4B4B]">Experience</h2>
+          <h2 className="text-xl font-semibold leading-7 text-[#4B4B4B]">
+            Experience
+          </h2>
         </div>
 
         {isSuccessState ? (
           <div className="pt-10 text-center">
             <div className="mx-auto flex h-23 w-23 items-center justify-center rounded-full bg-[#B7F0B1]">
               <div className="flex h-15 w-15 items-center justify-center rounded-full bg-[#2DB84D]">
-                <svg viewBox="0 0 24 24" className="h-8 w-8 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
               </div>
             </div>
-            <p className="mt-5 text-lg font-medium leading-7 text-[#2DB84D]">Pengalaman mu berhasil ditambahkan</p>
+            <p className="mt-5 text-lg font-medium leading-7 text-[#2DB84D]">
+              Pengalaman mu berhasil ditambahkan
+            </p>
             <ModalButton
               variant="primary"
               onClick={finishSuccess}
@@ -213,20 +259,26 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
           </div>
         ) : (
           <div className="space-y-4 pt-8">
-            <h3 className="text-base font-semibold text-[#4B4B4B]">Informasi Pnglaman</h3>
+            <h3 className="text-base font-semibold text-[#4B4B4B]">
+              Informasi Pnglaman
+            </h3>
 
             <label className="flex items-center gap-2 text-sm text-[#757575]">
               <input
                 type="checkbox"
                 checked={formData.isCurrentRole}
-                onChange={(e) => handleChange('isCurrentRole', e.target.checked)}
+                onChange={(e) =>
+                  handleChange('isCurrentRole', e.target.checked)
+                }
                 className="h-4 w-4 rounded border border-[#BDBDBD]"
               />
               Ini adalah role saya saat ini
             </label>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Posisi</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Posisi
+              </label>
               <input
                 value={formData.position}
                 onChange={(e) => handleChange('position', e.target.value)}
@@ -236,7 +288,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Jenis Pekerjaan</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Jenis Pekerjaan
+              </label>
               <select
                 value={formData.jobType}
                 onChange={(e) => handleChange('jobType', e.target.value)}
@@ -244,13 +298,17 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
               >
                 <option value="">Pilih Jenis Pekerjaan</option>
                 {JOB_TYPE_OPTIONS.map((item) => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Perusahaan/Organisasi</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Perusahaan/Organisasi
+              </label>
               <input
                 value={formData.company}
                 onChange={(e) => handleChange('company', e.target.value)}
@@ -259,10 +317,14 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
               />
             </div>
 
-            <h3 className="pt-2 text-base font-semibold text-[#4B4B4B]">Periode Pengalaman</h3>
+            <h3 className="pt-2 text-base font-semibold text-[#4B4B4B]">
+              Periode Pengalaman
+            </h3>
 
             <div>
-              <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">Tanggal Mulai</p>
+              <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">
+                Tanggal Mulai
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <select
                   value={formData.startMonth}
@@ -271,7 +333,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
                 >
                   <option value="">Bulan</option>
                   {MONTH_OPTIONS.map((month) => (
-                    <option key={month} value={month}>{month}</option>
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -281,7 +345,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
                 >
                   <option value="">Tahun</option>
                   {YEAR_OPTIONS.map((year) => (
-                    <option key={year} value={year}>{year}</option>
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -289,7 +355,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
 
             {!(formData.isCurrentRole || formData.isEndAtCurrentPlace) && (
               <div>
-                <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">Tanggal Berakhir</p>
+                <p className="mb-2 text-base font-medium leading-6 text-[#4B4B4B]">
+                  Tanggal Berakhir
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <select
                     value={formData.endMonth}
@@ -298,7 +366,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
                   >
                     <option value="">Bulan</option>
                     {MONTH_OPTIONS.map((month) => (
-                      <option key={month} value={month}>{month}</option>
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -308,7 +378,9 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
                   >
                     <option value="">Tahun</option>
                     {YEAR_OPTIONS.map((year) => (
-                      <option key={year} value={year}>{year}</option>
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -319,14 +391,18 @@ export const ExperienceModal: FC<ExperienceModalProps> = ({
               <input
                 type="checkbox"
                 checked={formData.isEndAtCurrentPlace}
-                onChange={(e) => handleChange('isEndAtCurrentPlace', e.target.checked)}
+                onChange={(e) =>
+                  handleChange('isEndAtCurrentPlace', e.target.checked)
+                }
                 className="h-4 w-4 rounded border border-[#BDBDBD]"
               />
               Akhiri role saya saat ini di {'{Nama Tempat Kerja}'}
             </label>
 
             <div>
-              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">Deskripsi</label>
+              <label className="mb-2 block text-base font-medium leading-6 text-[#4B4B4B]">
+                Deskripsi
+              </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}

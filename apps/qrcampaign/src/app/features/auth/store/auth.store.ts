@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authService, User } from '../api/auth.service';
+import { authService, type User } from '../api/auth.service';
 
 interface AuthState {
   user: User | null;
@@ -22,19 +22,19 @@ export const useAuthStore = create<AuthState>()(
       login: async (email, password) => {
         try {
           const response = await authService.login({ email, password });
-          
+
           const token = response.data.tokens.access_token;
           const refreshToken = response.data.tokens.refresh_token;
-          
+
           localStorage.setItem('token', token);
           localStorage.setItem('refreshToken', refreshToken);
-          
-          set({ 
-            user: response.data.user, 
-            token: token, 
-            isAuthenticated: true 
+
+          set({
+            user: response.data.user,
+            token: token,
+            isAuthenticated: true,
           });
-          
+
           return true;
         } catch (error) {
           console.error('Login failed:', error);
@@ -44,20 +44,24 @@ export const useAuthStore = create<AuthState>()(
 
       register: async (name, email, password) => {
         try {
-          const response = await authService.register({ name, email, password });
-          
+          const response = await authService.register({
+            name,
+            email,
+            password,
+          });
+
           const token = response.data.tokens.access_token;
           const refreshToken = response.data.tokens.refresh_token;
-          
+
           localStorage.setItem('token', token);
           localStorage.setItem('refreshToken', refreshToken);
-          
-          set({ 
-            user: response.data.user, 
-            token: token, 
-            isAuthenticated: true 
+
+          set({
+            user: response.data.user,
+            token: token,
+            isAuthenticated: true,
           });
-          
+
           return true;
         } catch (error) {
           console.error('Registration failed:', error);
@@ -74,10 +78,10 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        token: state.token, 
-        isAuthenticated: state.isAuthenticated 
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

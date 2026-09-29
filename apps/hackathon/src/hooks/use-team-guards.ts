@@ -1,4 +1,9 @@
-import { useTeamById, useTeamMembers, useUserMe, useTeamSubmission } from '@imphnen-frontend-service/service';
+import {
+  useTeamById,
+  useTeamMembers,
+  useUserMe,
+  useTeamSubmission,
+} from '@imphnen-frontend-service/service';
 
 export const useTeamMembership = (teamId: string) => {
   const { data: userData } = useUserMe();
@@ -7,8 +12,8 @@ export const useTeamMembership = (teamId: string) => {
   const currentUser = userData?.data;
   const members = membersData?.data || [];
 
-  const isMember = members.some(m => m.user_id === currentUser?.id);
-  const currentMember = members.find(m => m.user_id === currentUser?.id);
+  const isMember = members.some((m) => m.user_id === currentUser?.id);
+  const currentMember = members.find((m) => m.user_id === currentUser?.id);
 
   return {
     isMember,
@@ -34,7 +39,10 @@ export const useIsTeamLeader = (teamId: string) => {
 };
 
 export const useTeamSubmissionStatus = (teamId: string) => {
-  const { data: submissionData, isLoading } = useTeamSubmission(teamId, !!teamId);
+  const { data: submissionData, isLoading } = useTeamSubmission(
+    teamId,
+    !!teamId
+  );
 
   const hasSubmission = !!submissionData?.data;
   const submission = submissionData?.data;

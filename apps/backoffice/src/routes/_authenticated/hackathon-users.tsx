@@ -6,7 +6,7 @@ import {
   BackofficeWrapper,
   DataTable,
 } from '@imphnen-frontend-service/ui/organisms';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
   AvatarFallback,
@@ -22,7 +22,7 @@ import { cn } from '@imphnen-frontend-service/utils';
 import { useQuery } from '@tanstack/react-query';
 import {
   getAdminUsers,
-  TAdminUserItem,
+  type TAdminUserItem,
 } from '@imphnen-frontend-service/service';
 
 type UserType = TAdminUserItem;
@@ -137,7 +137,10 @@ function HackathonUsersPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-3">
             <Avatar className="size-9">
-              <AvatarImage src={row.original.avatar ?? undefined} alt={row.original.fullname} />
+              <AvatarImage
+                src={row.original.avatar ?? undefined}
+                alt={row.original.fullname}
+              />
               <AvatarFallback>
                 <User className="size-4 text-muted-foreground" />
               </AvatarFallback>
@@ -196,7 +199,9 @@ function HackathonUsersPage() {
             <span
               className={cn(
                 'text-sm font-medium',
-                row.original.is_active ? 'text-success-700' : 'text-muted-foreground'
+                row.original.is_active
+                  ? 'text-success-700'
+                  : 'text-muted-foreground'
               )}
             >
               {row.original.is_active ? 'Active' : 'Inactive'}

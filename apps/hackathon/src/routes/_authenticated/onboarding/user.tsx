@@ -1,15 +1,16 @@
-import { FC, ReactElement, useState, useEffect } from 'react';
+import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
 import {
   userOnboardingSchema,
-  TUserOnboardingForm,
+  type TUserOnboardingForm,
   useUpdateUserMe,
   useUploadAvatar,
   useUserMe,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
@@ -18,7 +19,7 @@ import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/onboarding/user')({
   component: UserOnboardingPage,
-})
+});
 
 const ROLE_OPTIONS = [
   'Frontend Developer',
@@ -269,4 +270,3 @@ const UserOnboardingPage: FC = (): ReactElement => {
     </div>
   );
 };
-

@@ -1,16 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, ReactElement, useState } from 'react'
-import { ControlledInputField, RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
-import { InputField, RegisterMentorStep, SelectField } from '@imphnen-frontend-service/ui/molecules'
+import { createFileRoute } from '@tanstack/react-router';
+import { FC, type ReactElement, useState } from 'react';
+import {
+  ControlledInputField,
+  RegisterResetBanner,
+} from '@imphnen-frontend-service/ui/organisms';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import {
+  InputField,
+  RegisterMentorStep,
+  SelectField,
+} from '@imphnen-frontend-service/ui/molecules';
 
 export const Route = createFileRoute('/_public/auth/register-mentor')({
   component: RegisterMentorPage,
-})
+});
 
 function RegisterMentorPage(): ReactElement {
-  const [ step, setStep ] = useState(1)
+  const [step, setStep] = useState(1);
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen py-[60px] px-[80px]">
@@ -18,10 +25,7 @@ function RegisterMentorPage(): ReactElement {
         <RegisterResetBanner />
         <div className="xl:border-2 xl:border-primary-500/50 xl:w-[726px] rounded-lg py-[32px] px-[48px] flex justify-center">
           <div className="xl:w-[714px]">
-            <Button
-              className='xl:hidden gap-3'
-              variant='secondary'
-            >
+            <Button className="xl:hidden gap-3" variant="secondary">
               <ArrowLeftOutlined />
               Login
             </Button>
@@ -34,7 +38,7 @@ function RegisterMentorPage(): ReactElement {
             </h5>
             <form>
               <div className={`${step !== 1 ? 'hidden' : ''}`}>
-                <div className='mt-7 mb-2'>
+                <div className="mt-7 mb-2">
                   <InputField
                     label="Nama Lengkap"
                     size="lg"
@@ -55,7 +59,7 @@ function RegisterMentorPage(): ReactElement {
                   <option value="laki-laki">Laki - Laki</option>
                   <option value="perempuan">Perempuan</option>
                 </SelectField>
-                <div className='my-2'>
+                <div className="my-2">
                   <InputField
                     label="No Telp/Whatsapp Only"
                     size="lg"
@@ -76,7 +80,7 @@ function RegisterMentorPage(): ReactElement {
                   <option value="aceh">Aceh</option>
                   <option value="jawa-selatan">Jawa Selatan</option>
                 </SelectField>
-                <div className='mt-2'>
+                <div className="mt-2">
                   <SelectField
                     label="Pendidikan Terakhir"
                     defaultValue=""
@@ -94,7 +98,7 @@ function RegisterMentorPage(): ReactElement {
                 </div>
               </div>
               <div className={`${step !== 2 ? 'hidden' : ''}`}>
-                <div className='mt-7 mb-2 gap-2 flex flex-col'>
+                <div className="mt-7 mb-2 gap-2 flex flex-col">
                   <InputField
                     label="Perusahaan Saat Ini"
                     size="lg"
@@ -118,7 +122,9 @@ function RegisterMentorPage(): ReactElement {
                     <option value="" disabled hidden>
                       Apa yang ingin anda ajarkan senpaii
                     </option>
-                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Frontend Developer">
+                      Frontend Developer
+                    </option>
                     <option value="Backend Developer">Backend Developer</option>
                     <option value="Other">Other</option>
                   </SelectField>
@@ -139,7 +145,7 @@ function RegisterMentorPage(): ReactElement {
                 </div>
               </div>
               <div className={`${step !== 3 ? 'hidden' : ''}`}>
-                <div className='mt-7 mb-2 gap-2 flex flex-col'>
+                <div className="mt-7 mb-2 gap-2 flex flex-col">
                   <SelectField
                     label="Durasi Sesi Mentoring"
                     defaultValue=""
@@ -173,33 +179,35 @@ function RegisterMentorPage(): ReactElement {
                     placeholder="Google Drive, Behance, GitHub, Notion, dan lainnya"
                   />
                   <InputField
-                    type='number'
+                    type="number"
                     label="Honorarium yang Diharapkan per Sesi (Online) Durasi rata-rata sesi: 2,5\u20133 jam"
                     size="lg"
                     className="w-full"
                     placeholder="Isi Nominalnya dong senpaiii!!!"
                   />
-                  <h6 className='text-xs'>Silahkan isi dalam angka (Contoh:500.000)</h6>
+                  <h6 className="text-xs">
+                    Silahkan isi dalam angka (Contoh:500.000)
+                  </h6>
                 </div>
               </div>
               <div className={`${step !== 4 ? 'hidden' : ''}`}>
-                <div className='mt-7 mb-2 gap-2 flex flex-col'>
+                <div className="mt-7 mb-2 gap-2 flex flex-col">
                   <InputField
-                    type='email'
+                    type="email"
                     label="Email"
                     size="lg"
                     className="w-full"
                     placeholder="isi emailnya dong senpai!!!"
                   />
                   <InputField
-                    type='password'
+                    type="password"
                     label="Buat Password"
                     size="lg"
                     className="w-full"
                     placeholder="Buat Password"
                   />
                   <InputField
-                    type='password'
+                    type="password"
                     label="Buat Password"
                     size="lg"
                     className="w-full"
@@ -207,29 +215,29 @@ function RegisterMentorPage(): ReactElement {
                   />
                 </div>
               </div>
-              <div className='flex justify-end mt-4 gap-2'>
+              <div className="flex justify-end mt-4 gap-2">
                 <Button
-                  variant='secondary'
+                  variant="secondary"
                   onClick={() => setStep(step - 1)}
-                  type='button'
+                  type="button"
                   className={`${step === 1 ? 'hidden' : ''}`}
                 >
                   <ArrowLeftOutlined />
                   Kembali
                 </Button>
                 <Button
-                  variant='primary'
+                  variant="primary"
                   onClick={() => setStep(step + 1)}
-                  type='button'
+                  type="button"
                   className={`${step === 4 ? 'hidden' : ''}`}
                 >
                   Lanjutkan
                   <ArrowRightOutlined />
                 </Button>
                 <Button
-                  variant='primary'
+                  variant="primary"
                   onClick={() => setStep(step + 1)}
-                  type='button'
+                  type="button"
                   className={`${step === 4 ? '' : 'hidden'}`}
                 >
                   Selesaikan
@@ -241,5 +249,5 @@ function RegisterMentorPage(): ReactElement {
         </div>
       </div>
     </div>
-  )
+  );
 }

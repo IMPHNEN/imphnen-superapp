@@ -11,7 +11,10 @@ export const getAdminUsers = async (params?: {
   search?: string;
   is_admin?: boolean;
 }) => {
-  const response = await api.get<TAdminUsersResponse>('/v1/hackathon/admin/users', { params });
+  const response = await api.get<TAdminUsersResponse>(
+    '/v1/hackathon/admin/users',
+    { params }
+  );
   return response.data;
 };
 
@@ -26,7 +29,10 @@ export const deleteAdminUser = async (userId: string) => {
 };
 
 export const setAdminUser = async (userId: string, is_admin: boolean) => {
-  const response = await api.post(`/v1/hackathon/admin/users/${userId}/set-admin`, { is_admin });
+  const response = await api.post(
+    `/v1/hackathon/admin/users/${userId}/set-admin`,
+    { is_admin }
+  );
   return response.data;
 };
 
@@ -35,7 +41,10 @@ export const getAdminTeams = async (params?: {
   per_page?: number;
   search?: string;
 }) => {
-  const response = await api.get<TAdminTeamsResponse>('/v1/hackathon/admin/teams', { params });
+  const response = await api.get<TAdminTeamsResponse>(
+    '/v1/hackathon/admin/teams',
+    { params }
+  );
   return response.data;
 };
 
@@ -50,7 +59,10 @@ export const getAdminSubmissions = async (params?: {
   search?: string;
   status?: string;
 }) => {
-  const response = await api.get<TAdminSubmissionsResponse>('/v1/hackathon/admin/submissions', { params });
+  const response = await api.get<TAdminSubmissionsResponse>(
+    '/v1/hackathon/admin/submissions',
+    { params }
+  );
   return response.data;
 };
 
@@ -59,7 +71,11 @@ export const getAdminWinners = async () => {
   return response.data;
 };
 
-export const setWinner = async (data: { team_id: string; rank: number; prize?: string }) => {
+export const setWinner = async (data: {
+  team_id: string;
+  rank: number;
+  prize?: string;
+}) => {
   const response = await api.post('/v1/hackathon/admin/winners', data);
   return response.data;
 };

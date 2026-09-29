@@ -1,21 +1,21 @@
 {
-	"name": "imphnen-frontend-service",
-	"version": "1.0.0",
-	"private": true,
-	"packageManager": "pnpm@11.6.0",
-	"type": "module",
-	"scripts": {
-		"build": "moon run :build",
-		"typecheck": "moon run :typecheck",
-		"test": "moon run :test",
-		"check": "moon run :check",
-		"lint": "moon run :lint",
-		"format": "moon run :format"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.5.14",
-		"lefthook": "^2.1.14",
-		"typescript": "catalog:",
-		"wrangler": "^4.40.0"
-	}
+  "name": "imphnen-frontend-service",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.6.0",
+  "type": "module",
+  "scripts": {
+    "build": "moon run :build",
+    "typecheck": "moon run :typecheck",
+    "test": "moon run :test",
+    "check": "moon run :check",
+    "lint": "moon run :lint",
+    "format": "moon run :format"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "lefthook": "^2.1.14",
+    "typescript": "catalog:",
+    "wrangler": "^4.40.0"
+  }
 }

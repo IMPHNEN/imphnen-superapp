@@ -1,36 +1,60 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
 const apps = [
   { name: 'Landing', domain: 'imphnen.dev', type: 'Next.js', color: 'blue' },
   { name: 'WWW', domain: 'www.imphnen.dev', type: 'Redirect', color: 'purple' },
   { name: 'Gacha', domain: 'gacha.imphnen.dev', type: 'Vite', color: 'green' },
-  { name: 'Backoffice', domain: 'backoffice.imphnen.dev', type: 'Vite', color: 'green' },
-  { name: 'Dimentorin', domain: 'dimentorin.imphnen.dev', type: 'Vite', color: 'green' },
-  { name: 'Hackathon', domain: 'hackathon.imphnen.dev', type: 'Vite', color: 'green' },
-  { name: 'QR Campaign', domain: 'qr.imphnen.dev', type: 'Vite', color: 'green' },
+  {
+    name: 'Backoffice',
+    domain: 'backoffice.imphnen.dev',
+    type: 'Vite',
+    color: 'green',
+  },
+  {
+    name: 'Dimentorin',
+    domain: 'dimentorin.imphnen.dev',
+    type: 'Vite',
+    color: 'green',
+  },
+  {
+    name: 'Hackathon',
+    domain: 'hackathon.imphnen.dev',
+    type: 'Vite',
+    color: 'green',
+  },
+  {
+    name: 'QR Campaign',
+    domain: 'qr.imphnen.dev',
+    type: 'Vite',
+    color: 'green',
+  },
   { name: 'Infra', domain: 'infra.imphnen.dev', type: 'Vite', color: 'green' },
-  { name: 'API QR', domain: 'api-qr.imphnen.dev', type: 'Backend', color: 'orange' },
-]
+  {
+    name: 'API QR',
+    domain: 'api-qr.imphnen.dev',
+    type: 'Backend',
+    color: 'orange',
+  },
+];
 
 const techStack = [
   { category: 'OS', items: ['NixOS 25.05'] },
   { category: 'Web Server', items: ['Nginx'] },
-  { category: 'SSL', items: ['Let\'s Encrypt (ACME)'] },
+  { category: 'SSL', items: ["Let's Encrypt (ACME)"] },
   { category: 'Build', items: ['Nix Flakes', 'Nx Monorepo'] },
   { category: 'CI/CD', items: ['GitHub Actions', 'Cachix'] },
   { category: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
   { category: 'Backend', items: ['Go', 'Supabase'] },
   { category: 'Secrets', items: ['sops-nix'] },
-]
+];
 
 export const Route = createFileRoute('/')({
   component: InfraPage,
-})
+});
 
 function InfraPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-
       <header className="border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -38,7 +62,9 @@ function InfraPage() {
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold">
                 I
               </div>
-              <span className="text-xl font-semibold">IMPHNEN Infrastructure</span>
+              <span className="text-xl font-semibold">
+                IMPHNEN Infrastructure
+              </span>
             </div>
             <a
               href="https://github.com/IMPHNEN"
@@ -53,14 +79,13 @@ function InfraPage() {
       </header>
 
       <main className="container mx-auto px-6 py-12">
-
         <section className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Infrastructure Overview
           </h1>
           <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-            Declarative NixOS infrastructure powering IMPHNEN's frontend applications
-            on Hetzner Cloud.
+            Declarative NixOS infrastructure powering IMPHNEN's frontend
+            applications on Hetzner Cloud.
           </p>
         </section>
 
@@ -68,7 +93,6 @@ function InfraPage() {
           <h2 className="text-2xl font-semibold mb-6">Architecture</h2>
           <div className="card bg-[#141414] border-zinc-800 p-8">
             <div className="flex flex-col items-center gap-6">
-
               <div className="flex items-center gap-2 text-zinc-400">
                 <span className="text-2xl">🌐</span>
                 <span>Internet</span>
@@ -77,20 +101,26 @@ function InfraPage() {
 
               <div className="card bg-orange-500/10 border-orange-500/30 px-6 py-3">
                 <span className="badge badge-orange">Cloudflare</span>
-                <p className="text-sm text-zinc-400 mt-1">DNS + CDN + DDoS Protection</p>
+                <p className="text-sm text-zinc-400 mt-1">
+                  DNS + CDN + DDoS Protection
+                </p>
               </div>
               <div className="w-px h-8 bg-zinc-700" />
 
               <div className="card bg-[#1a1a1a] border-zinc-700 w-full max-w-3xl">
                 <div className="text-center mb-4">
                   <span className="badge badge-purple">Hetzner Cloud VPS</span>
-                  <p className="text-sm text-zinc-400 mt-1">NixOS | 167.235.70.37</p>
+                  <p className="text-sm text-zinc-400 mt-1">
+                    NixOS | 167.235.70.37
+                  </p>
                 </div>
 
                 <div className="card bg-green-500/10 border-green-500/30 mb-4">
                   <div className="text-center">
                     <span className="badge badge-green">Nginx</span>
-                    <p className="text-sm text-zinc-400 mt-1">Reverse Proxy + Static Files + SSL Termination</p>
+                    <p className="text-sm text-zinc-400 mt-1">
+                      Reverse Proxy + Static Files + SSL Termination
+                    </p>
                   </div>
                 </div>
 
@@ -142,7 +172,10 @@ function InfraPage() {
           <h2 className="text-2xl font-semibold mb-6">Technology Stack</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {techStack.map((tech) => (
-              <div key={tech.category} className="card bg-[#141414] border-zinc-800">
+              <div
+                key={tech.category}
+                className="card bg-[#141414] border-zinc-800"
+              >
                 <h3 className="text-sm text-zinc-500 uppercase tracking-wider mb-2">
                   {tech.category}
                 </h3>
@@ -240,5 +273,5 @@ function InfraPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

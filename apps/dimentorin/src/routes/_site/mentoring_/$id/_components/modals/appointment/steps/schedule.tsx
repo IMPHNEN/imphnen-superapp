@@ -1,6 +1,10 @@
-import { Input, NativeSelect as Select, Textarea } from "@imphnen-frontend-service/ui/atoms"
-import { cn } from "@imphnen-frontend-service/utils"
-import { motion } from "framer-motion"
+import {
+  Input,
+  NativeSelect as Select,
+  Textarea,
+} from '@imphnen-frontend-service/ui/atoms';
+import { cn } from '@imphnen-frontend-service/utils';
+import { motion } from 'framer-motion';
 
 const placeholder = `Hi [Nama Mentor], Saya [Nama Kamu] & saya berharap dapat memiliki sesi mentoring dengan Anda.
 
@@ -9,20 +13,22 @@ Saat ini, saya tertarik untuk mengejar __. Tujuan saya untuk sesi ini adalah __.
 Saya ingin tahu secara khusus tentang ___.
 1.Pertanyaan Anda
 2. ...
-3. ...`
+3. ...`;
 
-const labelClass = cn('text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]')
+const labelClass = cn(
+  'text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]'
+);
 
 type Props = {
-  scheduledDate: string
-  scheduledTime: string
-  description: string
-  sessionType: string
-  onDateChange: (v: string) => void
-  onTimeChange: (v: string) => void
-  onDescriptionChange: (v: string) => void
-  onSessionTypeChange: (v: string) => void
-}
+  scheduledDate: string;
+  scheduledTime: string;
+  description: string;
+  sessionType: string;
+  onDateChange: (v: string) => void;
+  onTimeChange: (v: string) => void;
+  onDescriptionChange: (v: string) => void;
+  onSessionTypeChange: (v: string) => void;
+};
 
 export const ScheduleStep = ({
   scheduledDate,
@@ -89,5 +95,5 @@ export const ScheduleStep = ({
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

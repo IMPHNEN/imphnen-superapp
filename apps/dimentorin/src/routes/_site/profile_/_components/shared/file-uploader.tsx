@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { type FC, useRef, useState } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { UploadOutlined, LoadingOutlined } from '@ant-design/icons';
 
@@ -15,15 +15,15 @@ interface FileUploaderProps {
 }
 
 export const FileUploader: FC<FileUploaderProps> = ({
-  accept = "*/*",
+  accept = '*/*',
   maxSize = 10 * 1024 * 1024,
   onFileSelect,
   isLoading = false,
-  className = "",
+  className = '',
   children,
   dragAndDrop = false,
-  buttonText = "Choose File",
-  description = "Click to select a file"
+  buttonText = 'Choose File',
+  description = 'Click to select a file',
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -33,13 +33,16 @@ export const FileUploader: FC<FileUploaderProps> = ({
       return `File size must be less than ${Math.round(maxSize / (1024 * 1024))}MB`;
     }
 
-    if (accept !== "*/*" && !accept.split(',').some(type => {
-      const trimmedType = type.trim();
-      if (trimmedType.startsWith('.')) {
-        return file.name.toLowerCase().endsWith(trimmedType.toLowerCase());
-      }
-      return new RegExp(trimmedType.replace('*', '.*')).exec(file.type);
-    })) {
+    if (
+      accept !== '*/*' &&
+      !accept.split(',').some((type) => {
+        const trimmedType = type.trim();
+        if (trimmedType.startsWith('.')) {
+          return file.name.toLowerCase().endsWith(trimmedType.toLowerCase());
+        }
+        return new RegExp(trimmedType.replace('*', '.*')).exec(file.type);
+      })
+    ) {
       return `File type not supported. Accepted types: ${accept}`;
     }
 
@@ -49,7 +52,6 @@ export const FileUploader: FC<FileUploaderProps> = ({
   const handleFileSelect = (file: File) => {
     const error = validateFile(file);
     if (error) {
-
       return;
     }
 
@@ -141,7 +143,8 @@ export const FileUploader: FC<FileUploaderProps> = ({
               <UploadOutlined className="text-2xl text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 mb-1">{description}</p>
               <p className="text-xs text-gray-500">
-                {accept === "*/*" ? "Any file type" : accept} • Max {Math.round(maxSize / (1024 * 1024))}MB
+                {accept === '*/*' ? 'Any file type' : accept} • Max{' '}
+                {Math.round(maxSize / (1024 * 1024))}MB
               </p>
             </>
           )}

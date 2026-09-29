@@ -1,4 +1,4 @@
-import { TPermissionItem } from '../permissions';
+import type { TPermissionItem } from '../permissions';
 
 export type TRolesListItem = {
   id: string;

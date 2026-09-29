@@ -1,5 +1,5 @@
 import { cn } from '@imphnen-frontend-service/utils';
-import { FC, ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 
 type TGachaItem = {
   src: string;

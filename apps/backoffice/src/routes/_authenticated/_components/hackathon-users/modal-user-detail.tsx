@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useMemo, useRef } from 'react';
+import { type FC, useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
@@ -528,8 +528,8 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                   {canSave
                     ? 'Ready to save changes'
                     : hasChanges
-                    ? 'Please fill required fields'
-                    : 'No changes made'}
+                      ? 'Please fill required fields'
+                      : 'No changes made'}
                 </div>
                 {user && (
                   <button

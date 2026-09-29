@@ -1,23 +1,28 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateRoadmap, TRoadmapStatus } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import {
+  useCreateRoadmap,
+  type TRoadmapStatus,
+} from '@imphnen-frontend-service/service';
 
-export const Route = createFileRoute('/_authenticated/roadmap-dimentorin_/create')({
+export const Route = createFileRoute(
+  '/_authenticated/roadmap-dimentorin_/create'
+)({
   component: RoadmapCreatePage,
-})
+});
 
 function RoadmapCreatePage() {
-  const navigate = useNavigate()
-  const createRoadmap = useCreateRoadmap()
+  const navigate = useNavigate();
+  const createRoadmap = useCreateRoadmap();
 
   const form = useForm<{
-    title: string
-    description: string
-    status: TRoadmapStatus
+    title: string;
+    description: string;
+    status: TRoadmapStatus;
   }>({
     mode: 'all',
     defaultValues: {
@@ -25,18 +30,18 @@ function RoadmapCreatePage() {
       description: '',
       status: 'upcoming',
     },
-  })
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createRoadmap.mutateAsync(data)
-      toast.success('Roadmap berhasil ditambahkan')
-      navigate({ to: '/roadmap-dimentorin' })
+      await createRoadmap.mutateAsync(data);
+      toast.success('Roadmap berhasil ditambahkan');
+      navigate({ to: '/roadmap-dimentorin' });
     } catch (error) {
-      console.log(error)
-      toast.error('Gagal menambahkan roadmap')
+      console.log(error);
+      toast.error('Gagal menambahkan roadmap');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -72,7 +77,9 @@ function RoadmapCreatePage() {
               className="w-full"
             />
             <div className="flex flex-col gap-2">
-              <label className="text-p3 font-medium text-neutral-800">Status</label>
+              <label className="text-p3 font-medium text-neutral-800">
+                Status
+              </label>
               <select
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-p3 focus:border-primary-500 focus:outline-none"
                 {...form.register('status')}
@@ -105,5 +112,5 @@ function RoadmapCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

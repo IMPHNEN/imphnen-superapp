@@ -45,8 +45,14 @@ export default function TestimonialSubmitForm() {
     const trimmedRole = role.trim();
     const trimmedContent = content.trim();
 
-    if (!trimmedRole) { setErrorMsg('Role / jabatan tidak boleh kosong.'); return; }
-    if (trimmedContent.length < 20) { setErrorMsg('Testimoni minimal 20 karakter.'); return; }
+    if (!trimmedRole) {
+      setErrorMsg('Role / jabatan tidak boleh kosong.');
+      return;
+    }
+    if (trimmedContent.length < 20) {
+      setErrorMsg('Testimoni minimal 20 karakter.');
+      return;
+    }
 
     setErrorMsg('');
     setSubmitState('loading');
@@ -58,19 +64,24 @@ export default function TestimonialSubmitForm() {
         return;
       }
 
-      const res = await fetch(getApiUrl('/v1/landing/cms/testimonials/create'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role: trimmedRole, content: trimmedContent }),
-      });
+      const res = await fetch(
+        getApiUrl('/v1/landing/cms/testimonials/create'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role: trimmedRole, content: trimmedContent }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || data.error || 'Gagal mengirim testimoni.');
+        throw new Error(
+          data.message || data.error || 'Gagal mengirim testimoni.'
+        );
       }
 
       setSubmitState('success');
@@ -95,13 +106,26 @@ export default function TestimonialSubmitForm() {
     return (
       <div className="max-w-xl mx-auto text-center py-16 px-4">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <svg
+            className="w-10 h-10 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Testimoni Terkirim!</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          Testimoni Terkirim!
+        </h2>
         <p className="text-gray-500 mb-8">
-          Terima kasih telah berbagi ceritamu. Testimonimu akan segera ditampilkan setelah direview.
+          Terima kasih telah berbagi ceritamu. Testimonimu akan segera
+          ditampilkan setelah direview.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
@@ -126,11 +150,17 @@ export default function TestimonialSubmitForm() {
       {/* Header */}
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 16 16">
+          <svg
+            className="w-8 h-8 text-primary"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
             <path d="M0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h.5a.5.5 0 0 1 0 1H4a2 2 0 0 1-2-2V8a3 3 0 0 1 3-3h.5V2H2zM9 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h.5a.5.5 0 0 1 0 1H13a2 2 0 0 1-2-2V8a3 3 0 0 1 3-3h.5V2H11z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Bagikan Pengalamanmu</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Bagikan Pengalamanmu
+        </h1>
         <p className="text-gray-500 text-sm">
           Ceritakan pengalamanmu bergabung di komunitas IMPHNEN
         </p>
@@ -139,10 +169,20 @@ export default function TestimonialSubmitForm() {
       {/* Error Banner */}
       {(submitState === 'error' || errorMsg) && (
         <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-          <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          <svg
+            className="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <p className="text-sm text-red-700">{errorMsg || 'Terjadi kesalahan. Silakan coba lagi.'}</p>
+          <p className="text-sm text-red-700">
+            {errorMsg || 'Terjadi kesalahan. Silakan coba lagi.'}
+          </p>
         </div>
       )}
 
@@ -153,7 +193,10 @@ export default function TestimonialSubmitForm() {
       >
         {/* Role field */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="testimonial-role" className="text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="testimonial-role"
+            className="text-sm font-semibold text-gray-700"
+          >
             Role / Jabatan <span className="text-red-500">*</span>
           </label>
           <input
@@ -163,7 +206,10 @@ export default function TestimonialSubmitForm() {
             maxLength={100}
             placeholder="Contoh: Frontend Developer, Mahasiswa Informatika, dsb."
             value={role}
-            onChange={(e) => { setRole(e.target.value); setErrorMsg(''); }}
+            onChange={(e) => {
+              setRole(e.target.value);
+              setErrorMsg('');
+            }}
             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
           />
           <p className="text-xs text-gray-400">{role.length}/100 karakter</p>
@@ -171,7 +217,10 @@ export default function TestimonialSubmitForm() {
 
         {/* Content field */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="testimonial-content" className="text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="testimonial-content"
+            className="text-sm font-semibold text-gray-700"
+          >
             Testimoni <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -182,12 +231,17 @@ export default function TestimonialSubmitForm() {
             rows={6}
             placeholder="Ceritakan pengalamanmu bergabung di IMPHNEN, apa yang kamu pelajari, dan bagaimana komunitas ini membantumu..."
             value={content}
-            onChange={(e) => { setContent(e.target.value); setErrorMsg(''); }}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setErrorMsg('');
+            }}
             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
           />
           <div className="flex justify-between text-xs text-gray-400">
             <span>Minimal 20 karakter</span>
-            <span className={content.length > 900 ? 'text-orange-500' : ''}>{content.length}/1000</span>
+            <span className={content.length > 900 ? 'text-orange-500' : ''}>
+              {content.length}/1000
+            </span>
           </div>
         </div>
 
@@ -200,16 +254,41 @@ export default function TestimonialSubmitForm() {
           >
             {submitState === 'loading' ? (
               <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="animate-spin w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 Mengirim...
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
                 </svg>
                 Kirim Testimoni
               </>

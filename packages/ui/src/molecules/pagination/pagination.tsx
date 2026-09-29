@@ -1,4 +1,4 @@
-import { Table } from '@tanstack/react-table';
+import type { Table } from '@tanstack/react-table';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../../atoms/button';
 import { cn } from '@imphnen-frontend-service/utils';

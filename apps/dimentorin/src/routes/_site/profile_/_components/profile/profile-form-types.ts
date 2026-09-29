@@ -1,4 +1,7 @@
-import type { MentorUpdateRequestDto, UserUpdateRequestDto } from '@imphnen-frontend-service/service';
+import type {
+  MentorUpdateRequestDto,
+  UserUpdateRequestDto,
+} from '@imphnen-frontend-service/service';
 
 export interface SocialLink {
   platform: string;
@@ -54,7 +57,13 @@ export interface NotificationState {
 }
 
 export interface ProfileFormProps {
-  showNotification: (type: 'success' | 'error', title: string, message?: string) => void;
+  showNotification: (
+    type: 'success' | 'error',
+    title: string,
+    message?: string
+  ) => void;
 }
 
-export type ProfileUpdateData = Partial<MentorUpdateRequestDto | UserUpdateRequestDto>;
+export type ProfileUpdateData = Partial<
+  MentorUpdateRequestDto | UserUpdateRequestDto
+>;

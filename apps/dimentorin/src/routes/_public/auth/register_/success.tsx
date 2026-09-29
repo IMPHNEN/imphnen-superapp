@@ -1,19 +1,19 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, ReactElement, useEffect } from 'react'
-import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ArrowRightOutlined } from '@ant-design/icons'
+import { createFileRoute } from '@tanstack/react-router';
+import { FC, type ReactElement, useEffect } from 'react';
+import { RegisterResetBanner } from '@imphnen-frontend-service/ui/organisms';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ArrowRightOutlined } from '@ant-design/icons';
 
 export const Route = createFileRoute('/_public/auth/register_/success')({
   component: RegisterSuccessPage,
-})
+});
 
 function RegisterSuccessPage(): ReactElement {
   useEffect(() => {
     setTimeout(() => {
-      document.location.href = "/auth/login"
-    }, 10000)
-  }, [])
+      document.location.href = '/auth/login';
+    }, 10000);
+  }, []);
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen py-[60px] px-[80px]">
@@ -62,5 +62,5 @@ function RegisterSuccessPage(): ReactElement {
         </div>
       </div>
     </div>
-  )
+  );
 }

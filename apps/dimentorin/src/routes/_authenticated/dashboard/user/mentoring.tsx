@@ -1,30 +1,46 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
-import { Icon } from '@iconify/react'
-import { Badge, Button, Card, Checkbox, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@imphnen-frontend-service/ui/atoms'
-import { MentorContactModal } from '../_components/modals/mentor-contact-modal'
-import { MentoringFeedbackModal } from '../_components/modals/mentoring-feedback-modal'
-import { MentoringDetailModal } from '../_components/modals/mentoring-detail-modal'
+import { createFileRoute } from '@tanstack/react-router';
+import { useMemo, useState } from 'react';
+import { Icon } from '@iconify/react';
+import {
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@imphnen-frontend-service/ui/atoms';
+import { MentorContactModal } from '../_components/modals/mentor-contact-modal';
+import { MentoringFeedbackModal } from '../_components/modals/mentoring-feedback-modal';
+import { MentoringDetailModal } from '../_components/modals/mentoring-detail-modal';
 
-export const Route = createFileRoute('/_authenticated/dashboard/user/mentoring')({
+export const Route = createFileRoute(
+  '/_authenticated/dashboard/user/mentoring'
+)({
   component: MentoringPage,
-})
+});
 
 function MentoringPage() {
-  const [activeModal, setActiveModal] = useState<null | 'detail' | 'contact' | 'cancel' | 'feedback'>(null)
-  const [selectedRows, setSelectedRows] = useState<number[]>([])
+  const [activeModal, setActiveModal] = useState<
+    null | 'detail' | 'contact' | 'cancel' | 'feedback'
+  >(null);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [selectedMentor, setSelectedMentor] = useState<{
-    name: string
-    title: string
-    topics: string[]
-    image: string
-  } | null>(null)
+    name: string;
+    title: string;
+    topics: string[];
+    image: string;
+  } | null>(null);
   const [selectedSession, setSelectedSession] = useState<{
-    date: string
-    time: string
-    location: string
-    link: string
-  } | null>(null)
+    date: string;
+    time: string;
+    location: string;
+    link: string;
+  } | null>(null);
 
   const mentoringRows = useMemo(
     () =>
@@ -41,8 +57,8 @@ function MentoringPage() {
         link: 'https://zoom.us/j/9876543210',
         status: idx % 3 === 0 ? 'Done' : 'To do',
       })),
-    [],
-  )
+    []
+  );
 
   const handleContactMentor = (row: any) => {
     setSelectedMentor({
@@ -50,9 +66,9 @@ function MentoringPage() {
       title: row.mentorTitle,
       topics: row.topic.split(', '),
       image: '/image/mascot-character.webp',
-    })
-    setActiveModal('contact')
-  }
+    });
+    setActiveModal('contact');
+  };
 
   const handleShowDetail = (row: any) => {
     setSelectedMentor({
@@ -60,15 +76,15 @@ function MentoringPage() {
       title: row.mentorTitle,
       topics: row.topic.split(', '),
       image: '/image/mascot-character.webp',
-    })
+    });
     setSelectedSession({
       date: row.sessionDate,
       time: `${row.startTime} - ${row.endTime}`,
       location: row.location,
       link: row.link,
-    })
-    setActiveModal('detail')
-  }
+    });
+    setActiveModal('detail');
+  };
 
   const handleShowFeedback = (row: any) => {
     setSelectedMentor({
@@ -76,41 +92,54 @@ function MentoringPage() {
       title: row.mentorTitle,
       topics: row.topic.split(', '),
       image: '/image/mascot-character.webp',
-    })
-    setActiveModal('feedback')
-  }
+    });
+    setActiveModal('feedback');
+  };
 
   const toggleSelectRow = (no: number) => {
-    setSelectedRows((prev) => (prev.includes(no) ? prev.filter((id) => id !== no) : [...prev, no]))
-  }
+    setSelectedRows((prev) =>
+      prev.includes(no) ? prev.filter((id) => id !== no) : [...prev, no]
+    );
+  };
 
-  const rowsPerPage = 10
-  const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = Math.max(1, Math.ceil(mentoringRows.length / rowsPerPage))
+  const rowsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(mentoringRows.length / rowsPerPage));
 
   const pagedRows = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage
-    return mentoringRows.slice(start, start + rowsPerPage)
-  }, [currentPage, mentoringRows])
+    const start = (currentPage - 1) * rowsPerPage;
+    return mentoringRows.slice(start, start + rowsPerPage);
+  }, [currentPage, mentoringRows]);
 
   const goToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return
-    setCurrentPage(page)
-  }
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
 
   return (
     <section className="w-243">
       <Card className="w-full p-6">
         <div className="mb-4 relative">
-          <Icon icon="lucide:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-placeholder" width="16" />
-          <Input type="text" size="lg" placeholder="Cari berdasarkan nama item" className="pl-10" />
+          <Icon
+            icon="lucide:search"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-placeholder"
+            width="16"
+          />
+          <Input
+            type="text"
+            size="lg"
+            placeholder="Cari berdasarkan nama item"
+            className="pl-10"
+          />
         </div>
 
         <div className="overflow-hidden rounded-sm border border-border-light">
           <Table>
             <TableHeader className="bg-primary-50">
               <TableRow>
-                <TableHead className="w-10"><Checkbox /></TableHead>
+                <TableHead className="w-10">
+                  <Checkbox />
+                </TableHead>
                 <TableHead>No.</TableHead>
                 <TableHead>Nama Mentor</TableHead>
                 <TableHead>Topik</TableHead>
@@ -121,17 +150,28 @@ function MentoringPage() {
             </TableHeader>
             <TableBody>
               {pagedRows.map((row) => (
-                <TableRow key={row.no} className={row.no % 2 === 0 ? 'bg-primary-50' : 'bg-white'}>
+                <TableRow
+                  key={row.no}
+                  className={row.no % 2 === 0 ? 'bg-primary-50' : 'bg-white'}
+                >
                   <TableCell>
                     <Checkbox
                       checked={selectedRows.includes(row.no)}
                       onCheckedChange={() => toggleSelectRow(row.no)}
                     />
                   </TableCell>
-                  <TableCell className="text-xs text-text-muted">{row.no}.</TableCell>
-                  <TableCell className="text-xs text-text-muted">{row.mentorName}</TableCell>
-                  <TableCell className="text-xs text-text-muted">{row.topic}</TableCell>
-                  <TableCell className="text-xs text-text-muted">{row.sessionTime}</TableCell>
+                  <TableCell className="text-xs text-text-muted">
+                    {row.no}.
+                  </TableCell>
+                  <TableCell className="text-xs text-text-muted">
+                    {row.mentorName}
+                  </TableCell>
+                  <TableCell className="text-xs text-text-muted">
+                    {row.topic}
+                  </TableCell>
+                  <TableCell className="text-xs text-text-muted">
+                    {row.sessionTime}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge variant={row.status === 'Done' ? 'success' : 'info'}>
                       {row.status}
@@ -181,14 +221,19 @@ function MentoringPage() {
 
           <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, idx) => {
-              const page = idx + 1
-              const isActive = page === currentPage
+              const page = idx + 1;
+              const isActive = page === currentPage;
 
               // Logic to show page numbers with ellipsis (simplified for now)
               if (totalPages > 7) {
                 if (page > 4 && page < totalPages - 2 && page !== currentPage) {
-                  if (page === 5) return <span key="ellipsis" className="text-text-muted">...</span>
-                  return null
+                  if (page === 5)
+                    return (
+                      <span key="ellipsis" className="text-text-muted">
+                        ...
+                      </span>
+                    );
+                  return null;
                 }
               }
 
@@ -198,12 +243,14 @@ function MentoringPage() {
                   type="button"
                   onClick={() => goToPage(page)}
                   className={`h-7 min-w-7 px-2 rounded-sm text-[10px] font-semibold cursor-pointer transition-all ${
-                    isActive ? 'bg-primary-accent text-white' : 'bg-primary-100 text-primary-accent hover:bg-primary-100'
+                    isActive
+                      ? 'bg-primary-accent text-white'
+                      : 'bg-primary-100 text-primary-accent hover:bg-primary-100'
                   }`}
                 >
                   {page}
                 </button>
-              )
+              );
             })}
           </div>
 
@@ -220,7 +267,9 @@ function MentoringPage() {
       />
 
       <MentoringDetailModal
-        isOpen={activeModal === 'detail' && !!selectedMentor && !!selectedSession}
+        isOpen={
+          activeModal === 'detail' && !!selectedMentor && !!selectedSession
+        }
         onClose={() => setActiveModal(null)}
         onContactMentor={() => setActiveModal('contact')}
         mentor={selectedMentor!}
@@ -233,5 +282,5 @@ function MentoringPage() {
         mentorName={selectedMentor?.name || ''}
       />
     </section>
-  )
+  );
 }

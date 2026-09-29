@@ -1,7 +1,7 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { SkillsModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface Skill {
@@ -12,7 +12,11 @@ interface Skill {
 interface SkillsSectionProps {
   initialSkills: string[];
   onSave: (newSkills: string[]) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
   isViewOnly?: boolean;
 }
@@ -33,7 +37,7 @@ export const SkillsSection: FC<SkillsSectionProps> = ({
 
   const handleSave = async (newSkills: Skill[]) => {
     if (isViewOnly) return;
-    const stringSkills = newSkills.map(skill => skill.name);
+    const stringSkills = newSkills.map((skill) => skill.name);
 
     await onSave(stringSkills);
   };
@@ -65,7 +69,7 @@ export const SkillsSection: FC<SkillsSectionProps> = ({
       <SkillsModal
         isOpen={isSkillsModalOpen && !isViewOnly}
         onClose={() => setIsSkillsModalOpen(false)}
-        initialValue={skills.map(skill => ({ id: skill, name: skill }))}
+        initialValue={skills.map((skill) => ({ id: skill, name: skill }))}
         onSave={handleSave}
         isLoading={isLoading}
       />

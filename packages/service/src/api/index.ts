@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 
 export * from './auth';
 export * from './gacha';
@@ -64,12 +64,15 @@ export const getBaseURL = () => {
     if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   }
   try {
-    const meta = import.meta as unknown as Record<string, Record<string, string>>;
+    const meta = import.meta as unknown as Record<
+      string,
+      Record<string, string>
+    >;
     if (meta.env?.PUBLIC_API_URL) return meta.env.PUBLIC_API_URL;
     if (meta.env?.NEXT_PUBLIC_API_URL) return meta.env.NEXT_PUBLIC_API_URL;
     if (meta.env?.VITE_API_URL) return meta.env.VITE_API_URL;
     return '';
-  } catch { }
+  } catch {}
   return 'https://api.imphnen.dev';
 };
 

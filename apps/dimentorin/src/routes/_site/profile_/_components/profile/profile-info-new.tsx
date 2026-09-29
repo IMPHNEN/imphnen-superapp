@@ -1,11 +1,14 @@
-import { useState, FC, useEffect } from 'react';
+import { useState, type FC, useEffect } from 'react';
 import { PersonalInfoSection } from '../sections/personal-info-section';
 import { SkillsSection } from '../sections/skills-section';
 import { LanguagesSection } from '../sections/languages-section';
 import { SocialMediaSection } from '../sections/social-media-section';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { useProfile } from '../contexts/profile-context';
-import type { MentorUpdateRequestDto, UserUpdateRequestDto } from '@imphnen-frontend-service/service';
+import type {
+  MentorUpdateRequestDto,
+  UserUpdateRequestDto,
+} from '@imphnen-frontend-service/service';
 
 interface Language {
   name: string;
@@ -19,7 +22,11 @@ interface SocialLink {
 }
 
 interface ProfileInfoProps {
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
 }
 
 export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
@@ -28,21 +35,29 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
   const [contactInfo, setContactInfo] = useState({
     email: '',
     phone: '',
-    location: ''
+    location: '',
   });
 
   const [currentSkills, setCurrentSkills] = useState<string[]>([]);
   const [currentLanguages, setCurrentLanguages] = useState<Language[]>([]);
   const [currentSocialLinks, setCurrentSocialLinks] = useState<SocialLink[]>([
-    { platform: 'LinkedIn', placeholder: 'linkedin.com/in/yourprofile', value: '' },
+    {
+      platform: 'LinkedIn',
+      placeholder: 'linkedin.com/in/yourprofile',
+      value: '',
+    },
     { platform: 'Github', placeholder: 'github.com/yourusername', value: '' },
     { platform: 'Portfolio', placeholder: 'yourportfolio.com', value: '' },
-    { platform: 'Twitter', placeholder: 'twitter.com/yourusername', value: '' }
+    { platform: 'Twitter', placeholder: 'twitter.com/yourusername', value: '' },
   ]);
 
-
-  const extractContactInfo = (profileData: MentorUpdateRequestDto | UserUpdateRequestDto) => {
-    const email = 'email' in profileData && typeof profileData.email === 'string' ? profileData.email || '' : '';
+  const extractContactInfo = (
+    profileData: MentorUpdateRequestDto | UserUpdateRequestDto
+  ) => {
+    const email =
+      'email' in profileData && typeof profileData.email === 'string'
+        ? profileData.email || ''
+        : '';
     let phone = '';
     if ('phone_number' in profileData) {
       phone = profileData.phone_number || '';
@@ -60,7 +75,9 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
     return { email, phone, location };
   };
 
-  const extractSkills = (profileData: MentorUpdateRequestDto | UserUpdateRequestDto) => {
+  const extractSkills = (
+    profileData: MentorUpdateRequestDto | UserUpdateRequestDto
+  ) => {
     if ('skills' in profileData) {
       return profileData.skills || [];
     } else if ('expertise' in profileData) {
@@ -69,31 +86,57 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
     return [];
   };
 
-  const extractLanguages = (profileData: MentorUpdateRequestDto | UserUpdateRequestDto): Language[] => {
+  const extractLanguages = (
+    profileData: MentorUpdateRequestDto | UserUpdateRequestDto
+  ): Language[] => {
     return 'languages' in profileData
-      ? (profileData.languages || []).map((lang: string) => ({ name: lang, level: 'Intermediate' }))
+      ? (profileData.languages || []).map((lang: string) => ({
+          name: lang,
+          level: 'Intermediate',
+        }))
       : [];
   };
 
-  const extractSocialLinks = (profileData: MentorUpdateRequestDto | UserUpdateRequestDto, profileType: string): SocialLink[] => {
-    const linkedinUrl = 'linkedin_url' in profileData ? profileData.linkedin_url || '' : '';
-    const githubUrl = 'github_url' in profileData ? profileData.github_url || '' : '';
+  const extractSocialLinks = (
+    profileData: MentorUpdateRequestDto | UserUpdateRequestDto,
+    profileType: string
+  ): SocialLink[] => {
+    const linkedinUrl =
+      'linkedin_url' in profileData ? profileData.linkedin_url || '' : '';
+    const githubUrl =
+      'github_url' in profileData ? profileData.github_url || '' : '';
     let portfolioUrl = '';
     if (profileType === 'mentor' && 'portfolio_url' in profileData) {
       portfolioUrl = profileData.portfolio_url || '';
     } else if (profileType === 'user' && 'website_url' in profileData) {
       portfolioUrl = profileData.website_url || '';
     }
-    const twitterUrl = 'twitter_url' in profileData ? profileData.twitter_url || '' : '';
+    const twitterUrl =
+      'twitter_url' in profileData ? profileData.twitter_url || '' : '';
 
     return [
-      { platform: 'LinkedIn', placeholder: 'linkedin.com/in/yourprofile', value: linkedinUrl },
-      { platform: 'Github', placeholder: 'github.com/yourusername', value: githubUrl },
-      { platform: 'Portfolio', placeholder: 'yourportfolio.com', value: portfolioUrl },
-      { platform: 'Twitter', placeholder: 'twitter.com/yourusername', value: twitterUrl }
+      {
+        platform: 'LinkedIn',
+        placeholder: 'linkedin.com/in/yourprofile',
+        value: linkedinUrl,
+      },
+      {
+        platform: 'Github',
+        placeholder: 'github.com/yourusername',
+        value: githubUrl,
+      },
+      {
+        platform: 'Portfolio',
+        placeholder: 'yourportfolio.com',
+        value: portfolioUrl,
+      },
+      {
+        platform: 'Twitter',
+        placeholder: 'twitter.com/yourusername',
+        value: twitterUrl,
+      },
     ];
   };
-
 
   useEffect(() => {
     if (profileData) {
@@ -104,14 +147,19 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
     }
   }, [profileData, profileType]);
 
-
-  const handleProfileUpdate = async (updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>) => {
+  const handleProfileUpdate = async (
+    updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>
+  ) => {
     try {
       await updateProfile(updates);
       showNotification('success', 'Perubahan Berhasil Disimpan');
     } catch (err) {
       console.error('Profile update error:', err);
-      showNotification('error', 'Gagal menyimpan perubahan', 'Silakan coba lagi');
+      showNotification(
+        'error',
+        'Gagal menyimpan perubahan',
+        'Silakan coba lagi'
+      );
     }
   };
 
@@ -123,7 +171,7 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
           setContactInfo(newContactInfo);
           await handleProfileUpdate({
             phone_for_verification: newContactInfo.phone,
-            location: newContactInfo.location
+            location: newContactInfo.location,
           });
         }}
         showNotification={showNotification}
@@ -133,21 +181,33 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
         initialSocialLinks={currentSocialLinks}
         onSave={async (newSocialLinks) => {
           setCurrentSocialLinks(newSocialLinks);
-          const linkedIn = newSocialLinks.find(link => link.platform === 'LinkedIn')?.value;
-          const github = newSocialLinks.find(link => link.platform === 'Github')?.value;
-          const portfolio = newSocialLinks.find(link => link.platform === 'Portfolio')?.value;
-          const twitter = newSocialLinks.find(link => link.platform === 'Twitter')?.value;
+          const linkedIn = newSocialLinks.find(
+            (link) => link.platform === 'LinkedIn'
+          )?.value;
+          const github = newSocialLinks.find(
+            (link) => link.platform === 'Github'
+          )?.value;
+          const portfolio = newSocialLinks.find(
+            (link) => link.platform === 'Portfolio'
+          )?.value;
+          const twitter = newSocialLinks.find(
+            (link) => link.platform === 'Twitter'
+          )?.value;
 
-          const updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto> = {
+          const updates: Partial<
+            MentorUpdateRequestDto | UserUpdateRequestDto
+          > = {
             linkedin_url: linkedIn || undefined,
             github_url: github || undefined,
             twitter_url: twitter || undefined,
           };
 
           if (profileType === 'mentor') {
-            (updates as MentorUpdateRequestDto).portfolio_url = portfolio || undefined;
+            (updates as MentorUpdateRequestDto).portfolio_url =
+              portfolio || undefined;
           } else if (profileType === 'user') {
-            (updates as UserUpdateRequestDto).website_url = portfolio || undefined;
+            (updates as UserUpdateRequestDto).website_url =
+              portfolio || undefined;
           }
 
           await handleProfileUpdate(updates);
@@ -159,7 +219,9 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
         initialSkills={currentSkills}
         onSave={async (newSkills) => {
           setCurrentSkills(newSkills);
-          const updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto> = {};
+          const updates: Partial<
+            MentorUpdateRequestDto | UserUpdateRequestDto
+          > = {};
 
           if (profileType === 'user') {
             (updates as UserUpdateRequestDto).skills = newSkills;
@@ -177,7 +239,7 @@ export const ProfileInfo: FC<ProfileInfoProps> = ({ showNotification }) => {
         onSave={async (newLanguages) => {
           setCurrentLanguages(newLanguages);
           await handleProfileUpdate({
-            languages: newLanguages.map(lang => lang.name)
+            languages: newLanguages.map((lang) => lang.name),
           } as MentorUpdateRequestDto | UserUpdateRequestDto);
         }}
         showNotification={showNotification}

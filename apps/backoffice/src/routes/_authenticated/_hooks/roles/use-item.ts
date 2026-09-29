@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 export const useItem = (
   nextStep: () => void,
   initialValues?: any,
-  onDataCapture?: (data: any) => void,
+  onDataCapture?: (data: any) => void
 ) => {
   const form = useForm<any>({
     mode: 'all',

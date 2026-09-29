@@ -22,17 +22,17 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   useTestimonialList,
   useDeleteTestimonial,
-  TTestimonialsListItem,
+  type TTestimonialsListItem,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 
@@ -48,8 +48,7 @@ function CmsTestimonialsPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: testimonialsData, isLoading } = useTestimonialList({
     search,
@@ -103,9 +102,7 @@ function CmsTestimonialsPage() {
       accessorKey: 'content',
       cell: ({ row }) => {
         const content = row.original.content;
-        return content.length > 80
-          ? `${content.substring(0, 80)}…`
-          : content;
+        return content.length > 80 ? `${content.substring(0, 80)}…` : content;
       },
     },
     {

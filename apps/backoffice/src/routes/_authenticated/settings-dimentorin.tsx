@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as React from 'react';
+import type * as React from 'react';
 import {
   Card,
   CardContent,

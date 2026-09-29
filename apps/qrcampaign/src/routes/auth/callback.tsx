@@ -1,102 +1,108 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { FC, ReactElement, useEffect, useState, useRef } from 'react'
-import { useGitHubCallback } from '@imphnen-frontend-service/service'
-import { toast } from 'sonner'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { FC, type ReactElement, useEffect, useState, useRef } from 'react';
+import { useGitHubCallback } from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/auth/callback')({
   component: CallbackPage,
-})
+});
 
 function CallbackPage(): ReactElement {
-  const navigate = useNavigate()
-  const { mutateAsync: exchangeGitHubCode } = useGitHubCallback()
-  const [isProcessing, setIsProcessing] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const hasRunRef = useRef(false)
+  const navigate = useNavigate();
+  const { mutateAsync: exchangeGitHubCode } = useGitHubCallback();
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const hasRunRef = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
       if (hasRunRef.current) {
-        return
+        return;
       }
-      hasRunRef.current = true
+      hasRunRef.current = true;
 
       try {
         const hashParams = new URLSearchParams(
           globalThis.location.hash.substring(1)
-        )
-        const urlParams = new URLSearchParams(globalThis.location.search)
+        );
+        const urlParams = new URLSearchParams(globalThis.location.search);
 
-        const type = hashParams.get('type') || urlParams.get('type')
+        const type = hashParams.get('type') || urlParams.get('type');
         const accessToken =
-          hashParams.get('access_token') || urlParams.get('access_token')
+          hashParams.get('access_token') || urlParams.get('access_token');
 
         console.log('[Callback] Params:', {
           type,
           accessToken: !!accessToken,
           hash: globalThis.location.hash,
           search: globalThis.location.search,
-        })
+        });
 
         if (accessToken) {
-          setIsProcessing(false)
+          setIsProcessing(false);
 
           if (type === 'recovery' || type === 'magiclink') {
-            toast.success('Email verified! Please set your new password.')
-            navigate({ to: '/auth/reset-password', search: { access_token: accessToken } })
-            return
+            toast.success('Email verified! Please set your new password.');
+            navigate({
+              to: '/auth/reset-password',
+              search: { access_token: accessToken },
+            });
+            return;
           }
 
           if (type === 'signup' || type === 'email_confirmation') {
             toast.success(
               'Email verified successfully! Please log in to continue.'
-            )
-            navigate({ to: '/auth/login' })
-            return
+            );
+            navigate({ to: '/auth/login' });
+            return;
           }
 
-          toast.success('Email verified! Please set your new password.')
-          navigate({ to: '/auth/reset-password', search: { access_token: accessToken } })
-          return
+          toast.success('Email verified! Please set your new password.');
+          navigate({
+            to: '/auth/reset-password',
+            search: { access_token: accessToken },
+          });
+          return;
         }
 
-        const code = urlParams.get('code')
+        const code = urlParams.get('code');
 
         if (!code) {
-          throw new Error('No authorization code received')
+          throw new Error('No authorization code received');
         }
 
-        const result = await exchangeGitHubCode({ code })
+        const result = await exchangeGitHubCode({ code });
 
-        toast.success('Login successful!')
-        setIsProcessing(false)
+        toast.success('Login successful!');
+        setIsProcessing(false);
 
         if (result.user.location) {
-          globalThis.location.replace('/dashboard')
+          globalThis.location.replace('/dashboard');
         } else {
-          globalThis.location.replace('/onboarding/user')
+          globalThis.location.replace('/onboarding/user');
         }
       } catch (err) {
-        console.error('[Callback] Error:', err)
-        setError((err as Error).message)
-        setIsProcessing(false)
-        toast.error('An error occurred during login')
+        console.error('[Callback] Error:', err);
+        setError((err as Error).message);
+        setIsProcessing(false);
+        toast.error('An error occurred during login');
 
         setTimeout(() => {
-          navigate({ to: '/auth/login' })
-        }, 3000)
+          navigate({ to: '/auth/login' });
+        }, 3000);
       }
-    }
+    };
 
-    handleCallback()
+    handleCallback();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   if (error) {
     const isPrivateEmailError =
       error.toLowerCase().includes('failed to create user') ||
       error.toLowerCase().includes('email') ||
-      error.toLowerCase().includes('user record')
+      error.toLowerCase().includes('user record');
 
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
@@ -156,7 +162,7 @@ function CallbackPage(): ReactElement {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -169,5 +175,5 @@ function CallbackPage(): ReactElement {
         <p className="text-gray-600">Please wait</p>
       </div>
     </div>
-  )
+  );
 }

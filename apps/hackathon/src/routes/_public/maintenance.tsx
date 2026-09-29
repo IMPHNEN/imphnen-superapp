@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_public/maintenance')({
   component: MaintenancePage,
-})
+});
 
 function MaintenancePage() {
   return (
@@ -15,10 +15,13 @@ function MaintenancePage() {
           <br />
           Thank you for your patience.
         </p>
-        <Link to="/" className="mt-4 inline-block text-primary-600 hover:underline">
+        <Link
+          to="/"
+          className="mt-4 inline-block text-primary-600 hover:underline"
+        >
           Back to Homepage
         </Link>
       </div>
     </div>
-  )
+  );
 }

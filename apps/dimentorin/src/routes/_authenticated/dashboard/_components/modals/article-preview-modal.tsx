@@ -1,19 +1,23 @@
-import { FC } from 'react'
-import { Icon } from '@iconify/react'
+import type { FC } from 'react';
+import { Icon } from '@iconify/react';
 
 interface ArticlePreviewModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
   article: {
-    judul: string
-    materi: string
-    status: string
-    submitDate: string
-  } | null
+    judul: string;
+    materi: string;
+    status: string;
+    submitDate: string;
+  } | null;
 }
 
-export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onClose, article }) => {
-  if (!isOpen || !article) return null
+export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({
+  isOpen,
+  onClose,
+  article,
+}) => {
+  if (!isOpen || !article) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -30,7 +34,9 @@ export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onCl
             <Icon icon="mdi:book-open-page-variant" width="18" />
             Article Preview
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{article.judul}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {article.judul}
+          </h2>
           <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <Icon icon="mdi:calendar-clock" width="16" />
@@ -40,9 +46,13 @@ export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onCl
               <Icon icon="mdi:tag-outline" width="16" />
               {article.materi}
             </div>
-            <div className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-              article.status === 'Done' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-            }`}>
+            <div
+              className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                article.status === 'Done'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-yellow-100 text-yellow-700'
+              }`}
+            >
               {article.status}
             </div>
           </div>
@@ -52,18 +62,28 @@ export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onCl
           <div className="prose dark:prose-invert max-w-none">
             <h3 className="text-xl font-bold mb-4">Introduction</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat.
             </p>
-            
+
             <div className="my-8 aspect-video bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center overflow-hidden">
-               <img src="/image/code-article.webp" alt="Article Cover" className="w-full h-full object-cover" />
+              <img
+                src="/image/code-article.webp"
+                alt="Article Cover"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <h3 className="text-xl font-bold mb-4">Key Concepts</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              Duis aute irure dolor in reprehenderit in voluptate velit esse
+              cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+              cupidatat non proident, sunt in culpa qui officia deserunt mollit
+              anim id est laborum.
             </p>
-            
+
             <ul className="list-disc pl-5 space-y-2 text-gray-600 dark:text-gray-400">
               <li>First major point of discussion</li>
               <li>Second key takeaway for readers</li>
@@ -72,7 +92,9 @@ export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onCl
 
             <h3 className="text-xl font-bold mb-4 mt-8">Conclusion</h3>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-              In conclusion, following these steps will help you achieve the best results. Keep practicing and exploring more advanced topics to further your knowledge.
+              In conclusion, following these steps will help you achieve the
+              best results. Keep practicing and exploring more advanced topics
+              to further your knowledge.
             </p>
           </div>
         </div>
@@ -85,14 +107,12 @@ export const ArticlePreviewModal: FC<ArticlePreviewModalProps> = ({ isOpen, onCl
             Close
           </button>
           {article.status !== 'Done' && (
-            <button
-              className="px-6 py-2 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors cursor-pointer"
-            >
+            <button className="px-6 py-2 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors cursor-pointer">
               Edit Article
             </button>
           )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

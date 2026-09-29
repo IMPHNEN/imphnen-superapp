@@ -1,11 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as React from 'react';
+import type * as React from 'react';
 import { UsersRound, UserCog, ClipboardCheck } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Card,
-  CardContent,
-} from '@imphnen-frontend-service/ui/atoms';
+import { Card, CardContent } from '@imphnen-frontend-service/ui/atoms';
 import { BackofficeWrapper } from '@imphnen-frontend-service/ui/organisms';
 import {
   getAdminUsers,

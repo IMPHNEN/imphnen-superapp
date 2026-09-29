@@ -1,19 +1,25 @@
 import * as React from 'react';
 import {
-  PaginationState,
-  SortingState,
+  type PaginationState,
+  type SortingState,
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
-  ColumnDef,
-  Table as TanstackTable,
-  RowData,
-  TableOptions,
+  type ColumnDef,
+  type Table as TanstackTable,
+  type RowData,
+  type TableOptions,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -168,7 +174,14 @@ export const DataTable = <T extends RowData>({
       pageCount: manualPagination ? pageCount : undefined,
     };
     return config;
-  }, [memoizedData, memoizedColumns, pagination, sorting, manualPagination, pageCount]);
+  }, [
+    memoizedData,
+    memoizedColumns,
+    pagination,
+    sorting,
+    manualPagination,
+    pageCount,
+  ]);
 
   const internalTable = useReactTable(tableConfig);
   const t = table ?? internalTable;
@@ -194,7 +207,8 @@ export const DataTable = <T extends RowData>({
                           : undefined
                       }
                       className={cn(
-                        canSort && 'cursor-pointer select-none hover:bg-neutral-100',
+                        canSort &&
+                          'cursor-pointer select-none hover:bg-neutral-100',
                         header?.column?.columnDef?.meta?.headerClassName
                       )}
                     >
@@ -235,7 +249,10 @@ export const DataTable = <T extends RowData>({
               </TableRow>
             ) : (
               t.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}

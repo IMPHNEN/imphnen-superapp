@@ -6,7 +6,7 @@ import {
   BackofficeWrapper,
   DataTable,
 } from '@imphnen-frontend-service/ui/organisms';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
   Button,
@@ -18,7 +18,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
   getAdminSubmissions,
-  TAdminSubmissionItem,
+  type TAdminSubmissionItem,
 } from '@imphnen-frontend-service/service';
 
 type SubmissionType = TAdminSubmissionItem;

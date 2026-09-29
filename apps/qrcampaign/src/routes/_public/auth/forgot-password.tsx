@@ -1,36 +1,36 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useForgotPassword } from '@imphnen-frontend-service/service'
-import { toast } from 'sonner'
-import { Icon } from '@iconify/react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useForgotPassword } from '@imphnen-frontend-service/service';
+import { toast } from 'sonner';
+import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_public/auth/forgot-password')({
   component: ForgotPasswordPage,
-})
+});
 
 function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
-  const navigate = useNavigate()
-  const forgotPasswordMutation = useForgotPassword()
+  const [email, setEmail] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const navigate = useNavigate();
+  const forgotPasswordMutation = useForgotPassword();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email) {
-      toast.error('Please enter your email')
-      return
+      toast.error('Please enter your email');
+      return;
     }
 
     try {
-      await forgotPasswordMutation.mutateAsync({ email })
+      await forgotPasswordMutation.mutateAsync({ email });
 
-      setEmailSent(true)
-      toast.success('Password reset email sent! Check your inbox.')
+      setEmailSent(true);
+      toast.success('Password reset email sent! Check your inbox.');
     } catch (err) {
-      toast.error((err as Error).message || 'Failed to send reset email')
+      toast.error((err as Error).message || 'Failed to send reset email');
     }
-  }
+  };
 
   if (emailSent) {
     return (
@@ -69,7 +69,7 @@ function ForgotPasswordPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -125,5 +125,5 @@ function ForgotPasswordPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

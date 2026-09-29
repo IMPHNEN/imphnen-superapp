@@ -1,10 +1,13 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { NotificationModal } from '../modals';
 import { ExperiencesSection } from '../sections/experiences-section';
 import { CvResumeSection } from '../sections/cv-resume-section';
 import { DescriptionSection } from '../sections/description-section';
 import { EducationSection } from '../sections/education-section';
-import type { MentorUpdateRequestDto, UserUpdateRequestDto } from '@imphnen-frontend-service/service';
+import type {
+  MentorUpdateRequestDto,
+  UserUpdateRequestDto,
+} from '@imphnen-frontend-service/service';
 import { useProfile } from '../contexts/profile-context';
 
 interface Experience {
@@ -24,11 +27,18 @@ interface Education {
 }
 
 interface ProfileFormProps {
-  showNotification: (type: 'success' | 'error', title: string, message?: string) => void;
+  showNotification: (
+    type: 'success' | 'error',
+    title: string,
+    message?: string
+  ) => void;
   isViewOnly?: boolean;
 }
 
-export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly = false }) => {
+export const ProfileForm: FC<ProfileFormProps> = ({
+  showNotification,
+  isViewOnly = false,
+}) => {
   const { profileData, updateProfile, isUpdating } = useProfile();
 
   const [notification, setNotification] = useState<{
@@ -40,43 +50,41 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
     isOpen: false,
     type: 'success',
     title: '',
-    message: ''
+    message: '',
   });
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
 
-  
   const [personalInfo, setPersonalInfo] = useState({
     fullname: '',
     title: '',
     bio: '',
     birthdate: '',
-    gender: ''
+    gender: '',
   });
 
   const [cvResume, setCvResume] = useState({
     cvUrl: '',
-    resumeUrl: ''
+    resumeUrl: '',
   });
 
-  
   useEffect(() => {
     if (profileData) {
-      const experiences = 'experience' in profileData ? profileData.experience || [] : [];
+      const experiences =
+        'experience' in profileData ? profileData.experience || [] : [];
       setExperiences(experiences);
     }
   }, [profileData]);
 
-  
   useEffect(() => {
     if (profileData) {
-      const education = 'education' in profileData ? profileData.education || [] : [];
+      const education =
+        'education' in profileData ? profileData.education || [] : [];
       setEducation(education);
     }
   }, [profileData]);
 
-  
   useEffect(() => {
     if (profileData) {
       const bio = 'bio' in profileData ? profileData.bio || '' : '';
@@ -88,8 +96,10 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         fullname = profileData.legal_name || '';
       }
 
-      const title = 'current_role' in profileData ? profileData.current_role || '' : '';
-      const birthdate = 'birthdate' in profileData ? profileData.birthdate || '' : '';
+      const title =
+        'current_role' in profileData ? profileData.current_role || '' : '';
+      const birthdate =
+        'birthdate' in profileData ? profileData.birthdate || '' : '';
       const gender = 'gender' in profileData ? profileData.gender || '' : '';
 
       setPersonalInfo({
@@ -97,31 +107,30 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         title,
         bio,
         birthdate,
-        gender
+        gender,
       });
     }
   }, [profileData]);
 
-  
   useEffect(() => {
     if (profileData) {
       const cvUrl = 'cv_url' in profileData ? profileData.cv_url || '' : '';
 
       setCvResume({
         cvUrl,
-        resumeUrl: ''
+        resumeUrl: '',
       });
     }
   }, [profileData]);
 
-  
-  
-  function isErrorWithResponse(err: unknown): err is { response: { data: { message: string } } } {
+  function isErrorWithResponse(
+    err: unknown
+  ): err is { response: { data: { message: string } } } {
     return (
       typeof err === 'object' &&
       err !== null &&
-      
-      typeof (err as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+      typeof (err as { response?: { data?: { message?: unknown } } }).response
+        ?.data?.message === 'string'
     );
   }
 
@@ -160,9 +169,15 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
     return '';
   }
 
-  const handleProfileUpdate = async (updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>) => {
+  const handleProfileUpdate = async (
+    updates: Partial<MentorUpdateRequestDto | UserUpdateRequestDto>
+  ) => {
     if (isViewOnly) {
-      showNotification('error', 'Akses Ditolak', 'Anda tidak memiliki izin untuk mengedit profil ini.');
+      showNotification(
+        'error',
+        'Akses Ditolak',
+        'Anda tidak memiliki izin untuk mengedit profil ini.'
+      );
       return;
     }
     try {
@@ -172,7 +187,11 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
     } catch (err: unknown) {
       console.error('Profile update error:', err);
       const apiMessage = extractApiMessage(err);
-      showNotification('error', 'Gagal menyimpan perubahan', apiMessage || 'Silakan coba lagi');
+      showNotification(
+        'error',
+        'Gagal menyimpan perubahan',
+        apiMessage || 'Silakan coba lagi'
+      );
       throw err;
     }
   };
@@ -184,7 +203,7 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         initialDescription={personalInfo.bio}
         onSave={async (newDescription) => {
           await handleProfileUpdate({
-            bio: newDescription || null
+            bio: newDescription || null,
           });
         }}
         showNotification={showNotification}
@@ -197,7 +216,7 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         fullname={personalInfo.fullname}
         onSave={async (cvData) => {
           await handleProfileUpdate({
-            cv_url: cvData.fileUrl || null
+            cv_url: cvData.fileUrl || null,
           });
         }}
         showNotification={showNotification}
@@ -210,7 +229,7 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         onSave={async (newExperiences) => {
           try {
             await handleProfileUpdate({
-              experience: newExperiences
+              experience: newExperiences,
             });
           } catch (error) {
             console.error('Experience update error:', error);
@@ -227,7 +246,7 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
         onSave={async (newEducations) => {
           try {
             await handleProfileUpdate({
-              education: newEducations
+              education: newEducations,
             });
           } catch (error) {
             console.error('Education update error:', error);
@@ -240,7 +259,7 @@ export const ProfileForm: FC<ProfileFormProps> = ({ showNotification, isViewOnly
 
       <NotificationModal
         isOpen={notification.isOpen}
-        onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setNotification((prev) => ({ ...prev, isOpen: false }))}
         type={notification.type}
         title={notification.title}
         message={notification.message}

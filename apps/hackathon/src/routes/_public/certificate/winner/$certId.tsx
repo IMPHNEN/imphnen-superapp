@@ -1,4 +1,11 @@
-import { FC, ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type FC,
+  type ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Icon } from '@iconify/react';
@@ -8,12 +15,14 @@ import {
   useMyTeams,
   useTeamById,
   useTeamSubmission,
-  useWinners } from '@imphnen-frontend-service/service';
+  useWinners,
+} from '@imphnen-frontend-service/service';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 
 export const Route = createFileRoute('/_public/certificate/winner/$certId')({
-  component: CertificateWinnerPage })
+  component: CertificateWinnerPage,
+});
 
 type WinnerEntry = {
   team_id: string;
@@ -57,7 +66,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
   const {
     data: winnersResponse,
     isLoading: isLoadingWinners,
-    isError: isWinnersError } = useWinners();
+    isError: isWinnersError,
+  } = useWinners();
 
   const [decodedTeamId, setDecodedTeamId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +138,9 @@ const CertificateWinnerPage: FC = (): ReactElement => {
       margin: 1,
       color: {
         dark: '#000000',
-        light: '#ffffff' } })
+        light: '#ffffff',
+      },
+    })
       .then(setQrCodeUrl)
       .catch((err) => console.error('QR Code generation failed:', err));
   }, [certId]);
@@ -155,7 +167,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
           height: CERT_HEIGHT,
           allowTaint: true,
           imageTimeout: 0,
-          removeContainer: true });
+          removeContainer: true,
+        });
 
         const imageUrl = canvas.toDataURL('image/png', 1.0);
         setCertificateImage(imageUrl);
@@ -342,7 +355,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               width: `${CERT_WIDTH}px`,
-              height: `${CERT_HEIGHT}px` }}
+              height: `${CERT_HEIGHT}px`,
+            }}
           >
             <style>{`
               #winner-members li::marker {
@@ -355,7 +369,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                 position: 'absolute',
                 top: '35%',
                 left: '3.5%',
-                width: '55%' }}
+                width: '55%',
+              }}
             >
               <h3
                 style={{
@@ -366,7 +381,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                   fontSize: `${s(28)}px`,
                   lineHeight: '1.2',
                   wordBreak: 'break-word',
-                  margin: 0 }}
+                  margin: 0,
+                }}
               >
                 {team.name}
               </h3>
@@ -377,7 +393,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                 position: 'absolute',
                 top: '40.5%',
                 left: '3.5%',
-                width: '55%' }}
+                width: '55%',
+              }}
             >
               <ul
                 id="winner-members"
@@ -386,7 +403,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                   fontFamily: 'Poppins, sans-serif',
                   fontSize: `${s(18)}px`,
                   lineHeight: '1.35',
-                  color: '#59bef5' }}
+                  color: '#59bef5',
+                }}
               >
                 {(memberNames.length
                   ? memberNames
@@ -402,7 +420,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                 position: 'absolute',
                 top: '60%',
                 left: '3.5%',
-                width: '60%' }}
+                width: '60%',
+              }}
             >
               <p
                 style={{
@@ -410,7 +429,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                   fontFamily: 'Poppins, sans-serif',
                   fontSize: `${s(18)}px`,
                   lineHeight: '1.35',
-                  color: '#6B6B6B' }}
+                  color: '#6B6B6B',
+                }}
               >
                 Diberikan sebagai penghargaan atas pencapaian meraih
                 <br />
@@ -431,7 +451,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                   right: '8.5%',
                   width: `${s(190)}px`,
                   display: 'flex',
-                  justifyContent: 'center' }}
+                  justifyContent: 'center',
+                }}
               >
                 <div
                   style={{
@@ -444,7 +465,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                     fontWeight: 700,
                     color: '#78350F',
                     fontSize: `${s(24)}px`,
-                    lineHeight: '1' }}
+                    lineHeight: '1',
+                  }}
                 >
                   {rankLabel}
                 </div>
@@ -460,7 +482,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                 height: `${s(190)}px`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center' }}
+                justifyContent: 'center',
+              }}
             >
               {qrCodeUrl && (
                 <img
@@ -469,7 +492,8 @@ const CertificateWinnerPage: FC = (): ReactElement => {
                   style={{
                     width: `${s(190)}px`,
                     height: `${s(190)}px`,
-                    display: 'block' }}
+                    display: 'block',
+                  }}
                 />
               )}
             </div>
@@ -570,4 +594,3 @@ const CertificateWinnerPage: FC = (): ReactElement => {
     </div>
   );
 };
-

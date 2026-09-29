@@ -8,7 +8,10 @@ import {
   verifyMentor,
   deleteMentor,
 } from '../../api/mentors';
-import type { MentorDetailResponseDto, MentorUpdateRequestDto } from '../../types/mentors';
+import type {
+  MentorDetailResponseDto,
+  MentorUpdateRequestDto,
+} from '../../types/mentors';
 import type { TPaginationParams } from '../../types/common';
 
 export const useMentorMe = () => {
@@ -59,7 +62,8 @@ export const useVerifyMentor = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => verifyMentor(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mentor-list'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['mentor-list'] }),
   });
 };
 
@@ -67,6 +71,7 @@ export const useDeleteMentor = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteMentor(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mentor-list'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['mentor-list'] }),
   });
 };

@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -50,7 +50,8 @@ export const ModalButton: FC<ModalButtonProps> = ({
   loading = false,
   className = '',
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-[6px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A1EB] disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses =
+    'inline-flex items-center justify-center font-medium rounded-[6px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23A1EB] disabled:opacity-50 disabled:cursor-not-allowed';
   const variantClasses = getVariantClasses(variant);
   const sizeClasses = getSizeClasses(size);
 

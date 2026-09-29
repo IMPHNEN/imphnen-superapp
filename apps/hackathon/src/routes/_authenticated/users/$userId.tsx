@@ -1,13 +1,15 @@
-import { FC, ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import {
   useUserDetailsById,
-  useTeamsByUserId } from '@imphnen-frontend-service/service';
+  useTeamsByUserId,
+} from '@imphnen-frontend-service/service';
 import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/users/$userId')({
-  component: UserProfilePage })
+  component: UserProfilePage,
+});
 
 const UserProfilePage: FC = (): ReactElement => {
   const { userId } = Route.useParams();
@@ -46,7 +48,6 @@ const UserProfilePage: FC = (): ReactElement => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-
       <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
           <div className="flex items-start justify-between">
@@ -93,9 +94,7 @@ const UserProfilePage: FC = (): ReactElement => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         <div className="grid gap-4 md:gap-6 lg:grid-cols-3">
-
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
-
             {user.bio && (
               <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md dark:shadow-gray-950/50 p-4 md:p-6 overflow-hidden">
                 <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
@@ -152,7 +151,10 @@ const UserProfilePage: FC = (): ReactElement => {
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                              <Icon icon="mdi:account-group" className="text-gray-500 dark:text-gray-400 text-xl" />
+                              <Icon
+                                icon="mdi:account-group"
+                                className="text-gray-500 dark:text-gray-400 text-xl"
+                              />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
@@ -162,13 +164,19 @@ const UserProfilePage: FC = (): ReactElement => {
                             <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-3 font-sans mt-1">
                               {team.has_submission && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 shrink-0">
-                                  <Icon icon="mdi:check-circle" className="text-sm" />
+                                  <Icon
+                                    icon="mdi:check-circle"
+                                    className="text-sm"
+                                  />
                                   Submitted
                                 </span>
                               )}
                               {team.city && (
                                 <span className="flex items-center gap-1 truncate">
-                                  <Icon icon="mdi:map-marker" className="shrink-0" />
+                                  <Icon
+                                    icon="mdi:map-marker"
+                                    className="shrink-0"
+                                  />
                                   <span className="truncate">{team.city}</span>
                                 </span>
                               )}
@@ -192,7 +200,10 @@ const UserProfilePage: FC = (): ReactElement => {
                 </h2>
                 <div className="text-center py-8">
                   <div className="text-4xl mb-3">
-                    <Icon icon="mdi:account-group-outline" className="inline-block text-gray-400" />
+                    <Icon
+                      icon="mdi:account-group-outline"
+                      className="inline-block text-gray-400"
+                    />
                   </div>
                   <p className="text-gray-600 dark:text-gray-400">
                     Not in any team yet
@@ -203,7 +214,6 @@ const UserProfilePage: FC = (): ReactElement => {
           </div>
 
           <div className="space-y-4 md:space-y-6">
-
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md dark:shadow-gray-950/50 p-4 md:p-6">
               <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
                 Contact Information
@@ -235,4 +245,3 @@ const UserProfilePage: FC = (): ReactElement => {
     </div>
   );
 };
-

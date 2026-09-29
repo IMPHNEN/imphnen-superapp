@@ -1,58 +1,61 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import {
   useTestimonialList,
   useUpdateTestimonial,
-} from '@imphnen-frontend-service/service'
+} from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/cms-testimonials_/$id')({
   component: CmsTestimonialsEditPage,
-})
+});
 
 function CmsTestimonialsEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updateTestimonial = useUpdateTestimonial()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updateTestimonial = useUpdateTestimonial();
 
-  const { data: testimonialsData, isLoading } = useTestimonialList({ search: '', per_page: 100 })
-  const testimonial = testimonialsData?.data?.find((t) => t.id === id)
+  const { data: testimonialsData, isLoading } = useTestimonialList({
+    search: '',
+    per_page: 100,
+  });
+  const testimonial = testimonialsData?.data?.find((t) => t.id === id);
 
   const form = useForm<{ role: string; content: string }>({
     mode: 'all',
     defaultValues: { role: '', content: '' },
-  })
+  });
 
   useEffect(() => {
     if (testimonial) {
       form.reset({
         role: testimonial.role,
         content: testimonial.content,
-      })
+      });
     }
-  }, [testimonial])
+  }, [testimonial]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateTestimonial.mutateAsync({ id, data })
-      toast.success('Perubahan testimonial berhasil dilakukan')
-      navigate({ to: '/cms-testimonials' })
+      await updateTestimonial.mutateAsync({ id, data });
+      toast.success('Perubahan testimonial berhasil dilakukan');
+      navigate({ to: '/cms-testimonials' });
     } catch (error) {
-      console.log(error)
-      toast.error('Perubahan testimonial gagal dilakukan')
+      console.log(error);
+      toast.error('Perubahan testimonial gagal dilakukan');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -111,5 +114,5 @@ function CmsTestimonialsEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

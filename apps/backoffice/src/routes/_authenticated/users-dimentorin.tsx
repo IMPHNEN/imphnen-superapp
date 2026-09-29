@@ -19,11 +19,11 @@ import {
 } from '@imphnen-frontend-service/ui/organisms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
@@ -31,8 +31,8 @@ import {
   useMentorList,
   useUserList,
   useDeleteMentor,
-  MentorDetailResponseDto,
-  TUsersListItem,
+  type MentorDetailResponseDto,
+  type TUsersListItem,
 } from '@imphnen-frontend-service/service';
 import {
   SelectAllCheckbox,
@@ -51,8 +51,7 @@ function UsersDimentorinPage() {
   );
   const [search, setSearch] = React.useState('');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -117,7 +116,10 @@ function UsersDimentorinPage() {
       cell: ({ row }) => {
         const status = row.original.status ?? '';
         return (
-          <Badge variant={statusVariantMap[status] ?? 'secondary'} className="capitalize">
+          <Badge
+            variant={statusVariantMap[status] ?? 'secondary'}
+            className="capitalize"
+          >
             {status || 'unknown'}
           </Badge>
         );

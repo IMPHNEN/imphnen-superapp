@@ -4,10 +4,12 @@ import { useAuthStore } from '@imphnen-frontend-service/service';
 
 export interface GoogleLoginResponse {
   access_token?: string;
-  token?: string | {
-    access_token: string;
-    refresh_token: string;
-  };
+  token?:
+    | string
+    | {
+        access_token: string;
+        refresh_token: string;
+      };
   accessToken?: string;
   refresh_token?: string;
   refreshToken?: string;
@@ -70,12 +72,19 @@ export const useGoogleLogin = () => {
         if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
           const { payload } = event.data as { payload: GoogleLoginResponse };
 
-          const tokenObj = typeof payload.token === 'object' ? payload.token : null;
+          const tokenObj =
+            typeof payload.token === 'object' ? payload.token : null;
           const accessToken = tokenObj?.access_token || payload.access_token;
           const refreshToken = tokenObj?.refresh_token || payload.refresh_token;
           const user = payload.user;
 
-          if (accessToken && refreshToken && user && typeof accessToken === 'string' && typeof refreshToken === 'string') {
+          if (
+            accessToken &&
+            refreshToken &&
+            user &&
+            typeof accessToken === 'string' &&
+            typeof refreshToken === 'string'
+          ) {
             const convertedUser = {
               id: user.id,
               avatar: user.avatar || '',
@@ -90,8 +99,8 @@ export const useGoogleLogin = () => {
                 name: 'User',
                 created_at: '',
                 updated_at: '',
-                permissions: []
-              }
+                permissions: [],
+              },
             };
 
             setSession({
@@ -122,7 +131,6 @@ export const useGoogleLogin = () => {
         window.removeEventListener('message', handleMessage);
         toast.error('Login timeout. Silakan coba lagi.');
       }, 300000);
-
     } catch (error) {
       console.error('Google login error:', error);
       toast.error('Terjadi kesalahan saat login dengan Google');

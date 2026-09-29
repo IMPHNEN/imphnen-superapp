@@ -1,18 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { FC, ReactElement, useState } from 'react'
-import { ProfileForm, ProfileSidebar, ProfileHeader } from './_components'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { NotificationModal, NotificationType } from './_components/modals/notification-modal'
-import { ProfileProvider, useProfile } from './_components/contexts/profile-context'
-import { EditProfileModal } from './_components/modals/edit-profile-modal'
+import { createFileRoute } from '@tanstack/react-router';
+import { type FC, type ReactElement, useState } from 'react';
+import { ProfileForm, ProfileSidebar, ProfileHeader } from './_components';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import {
+  NotificationModal,
+  type NotificationType,
+} from './_components/modals/notification-modal';
+import {
+  ProfileProvider,
+  useProfile,
+} from './_components/contexts/profile-context';
+import { EditProfileModal } from './_components/modals/edit-profile-modal';
 
 export const Route = createFileRoute('/_site/profile_/$id')({
   component: ProfileByIdPage,
-})
+});
 
 function ProfileByIdPage(): ReactElement {
-  const { id } = Route.useParams()
+  const { id } = Route.useParams();
 
   if (!id) {
     return (
@@ -21,62 +27,66 @@ function ProfileByIdPage(): ReactElement {
           <p className="text-red-600 text-lg">Profile ID not found.</p>
         </div>
       </main>
-    )
+    );
   }
 
   return (
     <ProfileProvider profileId={id} profileType="user">
       <ProfileByIdContent />
     </ProfileProvider>
-  )
+  );
 }
 
 const ProfileByIdContent: FC = (): ReactElement => {
-  const { profileData, isLoading, error, profileType } = useProfile()
+  const { profileData, isLoading, error, profileType } = useProfile();
 
   const [notification, setNotification] = useState<{
-    isOpen: boolean
-    type: 'success' | 'error'
-    title: string
-    message?: string
+    isOpen: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message?: string;
   }>({
     isOpen: false,
     type: 'success',
     title: '',
-    message: ''
-  })
+    message: '',
+  });
 
-  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
 
   const getProfileTitle = () => {
     if (profileData?.fullname) {
-      return `${profileData.fullname}'s Profile`
+      return `${profileData.fullname}'s Profile`;
     }
-    return profileType === 'user' ? 'User Profile' : 'Mentor Profile'
-  }
+    return profileType === 'user' ? 'User Profile' : 'Mentor Profile';
+  };
 
-  const showNotification = (type: NotificationType['type'], title: string, message?: string) => {
+  const showNotification = (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => {
     setNotification({
       isOpen: true,
       type,
       title,
-      message
-    })
-  }
+      message,
+    });
+  };
 
   const hideNotification = () => {
-    setNotification(prev => ({ ...prev, isOpen: false }))
-  }
+    setNotification((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const openEditProfileModal = () => {
-    setIsEditProfileModalOpen(true)
-  }
+    setIsEditProfileModalOpen(true);
+  };
 
   const closeEditProfileModal = () => {
-    setIsEditProfileModalOpen(false)
-  }
+    setIsEditProfileModalOpen(false);
+  };
 
-  const isViewOnly = true
+  const isViewOnly = true;
 
   if (isLoading) {
     return (
@@ -86,7 +96,7 @@ const ProfileByIdContent: FC = (): ReactElement => {
           <p className="mt-4 text-gray-600">Loading profile...</p>
         </div>
       </main>
-    )
+    );
   }
 
   if (error) {
@@ -94,10 +104,12 @@ const ProfileByIdContent: FC = (): ReactElement => {
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 text-lg">Failed to load profile</p>
-          <p className="text-gray-600 mt-2">Profile not found or you don't have permission to view it.</p>
+          <p className="text-gray-600 mt-2">
+            Profile not found or you don't have permission to view it.
+          </p>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -125,7 +137,10 @@ const ProfileByIdContent: FC = (): ReactElement => {
         <div className="max-w-7xl mx-auto">
           <div className="grid gap-8 lg:grid-cols-12">
             <div className="lg:col-span-12">
-              <ProfileHeader onEditProfileClick={openEditProfileModal} isViewOnly={isViewOnly} />
+              <ProfileHeader
+                onEditProfileClick={openEditProfileModal}
+                isViewOnly={isViewOnly}
+              />
             </div>
             <div className="lg:col-span-8 order-1">
               <ProfileForm
@@ -159,5 +174,5 @@ const ProfileByIdContent: FC = (): ReactElement => {
         />
       )}
     </main>
-  )
-}
+  );
+};

@@ -23,17 +23,17 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import {
   useEventList,
   useDeleteEvent,
-  TEventsListItem,
+  type TEventsListItem,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 
@@ -49,8 +49,7 @@ function CmsEventsPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: eventsData, isLoading } = useEventList({
     search,

@@ -1,6 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import * as React from 'react';
-import { Users, UserCog, CalendarClock, Activity, CircleCheck } from 'lucide-react';
+import {
+  Users,
+  UserCog,
+  CalendarClock,
+  Activity,
+  CircleCheck,
+} from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -108,7 +114,9 @@ function DashboardDimentorinPage() {
         <Card className="lg:col-span-5">
           <CardHeader>
             <CardTitle>User Growth</CardTitle>
-            <CardDescription>Pertumbuhan user dari waktu ke waktu</CardDescription>
+            <CardDescription>
+              Pertumbuhan user dari waktu ke waktu
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <UserGrowthChart />
@@ -170,7 +178,9 @@ function DashboardDimentorinPage() {
         <Card>
           <CardHeader>
             <CardTitle>Top Booked Topics</CardTitle>
-            <CardDescription>Topik mentoring paling banyak dibooking</CardDescription>
+            <CardDescription>
+              Topik mentoring paling banyak dibooking
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border border-neutral-200">

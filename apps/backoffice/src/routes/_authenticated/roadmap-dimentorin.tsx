@@ -20,19 +20,19 @@ import {
 } from '@imphnen-frontend-service/ui/organisms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
-  RowSelectionState,
+  type PaginationState,
+  type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import {
   useRoadmapList,
   useDeleteRoadmap,
-  TRoadmapListItem,
-  TRoadmapStatus,
+  type TRoadmapListItem,
+  type TRoadmapStatus,
 } from '@imphnen-frontend-service/service';
 import {
   SelectAllCheckbox,
@@ -49,8 +49,7 @@ function RoadmapDimentorinPage() {
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('all');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -78,14 +77,12 @@ function RoadmapDimentorinPage() {
     }
   };
 
-  const statusVariants: Record<
-    TRoadmapStatus,
-    'warning' | 'info' | 'success'
-  > = {
-    upcoming: 'warning',
-    in_progress: 'info',
-    completed: 'success',
-  };
+  const statusVariants: Record<TRoadmapStatus, 'warning' | 'info' | 'success'> =
+    {
+      upcoming: 'warning',
+      in_progress: 'info',
+      completed: 'success',
+    };
 
   const statusText: Record<TRoadmapStatus, string> = {
     upcoming: 'Upcoming',
@@ -106,7 +103,9 @@ function RoadmapDimentorinPage() {
       header: 'Description',
       accessorKey: 'description',
       cell: ({ row }) => (
-        <span className="line-clamp-2 max-w-md">{row.original.description}</span>
+        <span className="line-clamp-2 max-w-md">
+          {row.original.description}
+        </span>
       ),
     },
     {

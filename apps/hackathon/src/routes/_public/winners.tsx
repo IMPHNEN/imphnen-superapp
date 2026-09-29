@@ -1,10 +1,10 @@
-import { FC, ReactElement } from 'react';
+import type { FC, ReactElement } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useWinners } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_public/winners')({
   component: WinnerPage,
-})
+});
 
 const WinnerPage: FC = (): ReactElement => {
   const navigate = useNavigate();
@@ -100,7 +100,7 @@ const WinnerPage: FC = (): ReactElement => {
               {[1, 2, 3].map((position) => {
                 const winner = sortedWinners[position - 1];
 
-                if(!winner) return null;
+                if (!winner) return null;
 
                 return (
                   <div
@@ -109,8 +109,8 @@ const WinnerPage: FC = (): ReactElement => {
                       getRankColor(winner.rank).includes('yellow')
                         ? 'border-4 border-yellow-400 dark:border-yellow-600'
                         : getRankColor(winner.rank).includes('gray')
-                        ? 'border-4 border-gray-400 dark:border-gray-600'
-                        : 'border-4 border-amber-600 dark:border-amber-500'
+                          ? 'border-4 border-gray-400 dark:border-gray-600'
+                          : 'border-4 border-amber-600 dark:border-amber-500'
                     }}`}
                   >
                     <div className="flex items-center gap-4">
@@ -149,7 +149,7 @@ const WinnerPage: FC = (): ReactElement => {
             <div className="hidden md:flex gap-8 items-end justify-center w-full">
               {[2, 1, 3].map((position) => {
                 const winner = sortedWinners[position - 1];
-                if(!winner) return null;
+                if (!winner) return null;
                 return (
                   <div
                     key={winner.id}
@@ -179,8 +179,8 @@ const WinnerPage: FC = (): ReactElement => {
                         winner.rank === 1
                           ? 'h-42 bg-yellow-500'
                           : winner.rank === 2
-                          ? 'h-32 bg-gray-400'
-                          : 'h-16 bg-amber-600'
+                            ? 'h-32 bg-gray-400'
+                            : 'h-16 bg-amber-600'
                       } w-full flex items-end justify-center rounded-t-lg shadow-lg`}
                     >
                       <div className="text-white font-bold text-3xl pb-4">
@@ -306,4 +306,3 @@ const WinnerPage: FC = (): ReactElement => {
     </div>
   );
 };
-

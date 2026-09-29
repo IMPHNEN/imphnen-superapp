@@ -1,9 +1,11 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_authenticated/dashboard/user/settings')({
-  component: UserSettingsLayout,
-})
+export const Route = createFileRoute('/_authenticated/dashboard/user/settings')(
+  {
+    component: UserSettingsLayout,
+  }
+);
 
 function UserSettingsLayout() {
-  return <Outlet />
+  return <Outlet />;
 }

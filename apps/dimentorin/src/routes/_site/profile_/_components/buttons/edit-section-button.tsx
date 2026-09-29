@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { EditOutlined } from '@ant-design/icons';
 
 interface EditSectionButtonProps {
@@ -6,7 +6,10 @@ interface EditSectionButtonProps {
   disabled?: boolean;
 }
 
-export const EditSectionButton: FC<EditSectionButtonProps> = ({ onClick, disabled = false }) => {
+export const EditSectionButton: FC<EditSectionButtonProps> = ({
+  onClick,
+  disabled = false,
+}) => {
   return (
     <button
       onClick={onClick}

@@ -1,12 +1,12 @@
-import { For } from "@imphnen-frontend-service/utils"
-import { motion } from "framer-motion"
+import { For } from '@imphnen-frontend-service/utils';
+import { motion } from 'framer-motion';
 
 const PAYMENT_STEP = [
   'Buka aplikasi e-wallet atau m-banking kamu',
   'Cari fitur bayar menggunakan QRIS',
   'Scan kode QR di samping',
-  'Konfimasi pembayaran, dan proses selesai.'
-]
+  'Konfimasi pembayaran, dan proses selesai.',
+];
 
 export const QrisPaymentStep = () => {
   return (
@@ -27,7 +27,10 @@ export const QrisPaymentStep = () => {
         <ul className="list-decimal pl-2.5 mb-4 md:mb-7">
           <For data={PAYMENT_STEP}>
             {(step, index) => (
-              <li key={index} className="text-[10px] text-neutral-400 leading-tight font-medium">
+              <li
+                key={index}
+                className="text-[10px] text-neutral-400 leading-tight font-medium"
+              >
                 {step}
               </li>
             )}
@@ -38,7 +41,9 @@ export const QrisPaymentStep = () => {
           <p className="text-[10px] text-neutral-400 mb-1.5 font-medium md:text-xs">
             Biaya yang harus dibayarkan
           </p>
-          <p className="text-xs font-semibold text-neutral-700 md:text-[15px]">Rp. 52.000</p>
+          <p className="text-xs font-semibold text-neutral-700 md:text-[15px]">
+            Rp. 52.000
+          </p>
         </div>
       </div>
 
@@ -47,9 +52,13 @@ export const QrisPaymentStep = () => {
           QR Code Pembayaran
         </p>
         <div className="bg-primary-50 p-2.5 rounded-lg size-[120px] mx-auto md:size-[142px] md:me-0">
-          <img src="/image/sample-qrcode.webp" alt="QR Code" className="w-full" />
+          <img
+            src="/image/sample-qrcode.webp"
+            alt="QR Code"
+            className="w-full"
+          />
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

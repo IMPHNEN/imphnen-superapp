@@ -13,17 +13,17 @@ import {
   BackofficeWrapper,
 } from '@imphnen-frontend-service/ui/organisms';
 import {
-  ColumnDef,
+  type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  PaginationState,
+  type PaginationState,
   useReactTable,
-  RowSelectionState,
+  type RowSelectionState,
 } from '@tanstack/react-table';
 import {
   useGachaItemList,
   useDeleteGachaItem,
-  TGachaItemDto,
+  type TGachaItemDto,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import {
@@ -44,8 +44,7 @@ function GachaRollPage() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [rowSelection, setRowSelection] =
-    React.useState<RowSelectionState>({});
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: itemsData, isLoading } = useGachaItemList({
     search,

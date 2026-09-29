@@ -1,36 +1,39 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import {
   useEventList,
   useUpdateEvent,
-} from '@imphnen-frontend-service/service'
+} from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/cms-events_/$id')({
   component: CmsEventsEditPage,
-})
+});
 
 function CmsEventsEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updateEvent = useUpdateEvent()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updateEvent = useUpdateEvent();
 
-  const { data: eventsData, isLoading } = useEventList({ search: '', per_page: 100 })
-  const event = eventsData?.data?.find((e) => e.id === id)
+  const { data: eventsData, isLoading } = useEventList({
+    search: '',
+    per_page: 100,
+  });
+  const event = eventsData?.data?.find((e) => e.id === id);
 
   const form = useForm<{
-    name: string
-    description: string
-    detail_link: string
-    location: string
-    price: number
-    start_date: string
-    end_date: string
-    is_online: boolean
+    name: string;
+    description: string;
+    detail_link: string;
+    location: string;
+    price: number;
+    start_date: string;
+    end_date: string;
+    is_online: boolean;
   }>({
     mode: 'all',
     defaultValues: {
@@ -43,7 +46,7 @@ function CmsEventsEditPage() {
       end_date: '',
       is_online: false,
     },
-  })
+  });
 
   useEffect(() => {
     if (event) {
@@ -56,27 +59,27 @@ function CmsEventsEditPage() {
         start_date: event.start_date,
         end_date: event.end_date,
         is_online: event.is_online,
-      })
+      });
     }
-  }, [event])
+  }, [event]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateEvent.mutateAsync({ id, data })
-      toast.success('Perubahan event berhasil dilakukan')
-      navigate({ to: '/cms-events' })
+      await updateEvent.mutateAsync({ id, data });
+      toast.success('Perubahan event berhasil dilakukan');
+      navigate({ to: '/cms-events' });
     } catch (error) {
-      console.log(error)
-      toast.error('Perubahan event gagal dilakukan')
+      console.log(error);
+      toast.error('Perubahan event gagal dilakukan');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -164,7 +167,10 @@ function CmsEventsEditPage() {
                 className="rounded"
                 {...form.register('is_online')}
               />
-              <label htmlFor="is_online_update" className="text-p3 font-medium text-neutral-800">
+              <label
+                htmlFor="is_online_update"
+                className="text-p3 font-medium text-neutral-800"
+              >
                 Event Online
               </label>
             </div>
@@ -191,5 +197,5 @@ function CmsEventsEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { Modal } from '@imphnen-frontend-service/ui/molecules';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { UseFormReturn } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 
 interface IModalFormVerifyEmailProps {
   isOpen: boolean;

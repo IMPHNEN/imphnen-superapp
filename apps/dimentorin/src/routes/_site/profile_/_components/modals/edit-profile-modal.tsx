@@ -1,4 +1,5 @@
-import React, { FC, useState, useEffect } from 'react';
+import type React from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { Modal, InputField } from '@imphnen-frontend-service/ui/molecules';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { useProfile } from '../contexts/profile-context';
@@ -8,39 +9,56 @@ import { useUploadAvatar } from '@imphnen-frontend-service/service';
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  showNotification: (type: 'success' | 'error', title: string, message?: string) => void;
+  showNotification: (
+    type: 'success' | 'error',
+    title: string,
+    message?: string
+  ) => void;
 }
 
-export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, showNotification }) => {
+export const EditProfileModal: FC<EditProfileModalProps> = ({
+  isOpen,
+  onClose,
+  showNotification,
+}) => {
   const { profileData, profileType, updateProfile } = useProfile();
   const uploadAvatarMutation = useUploadAvatar();
   const [formData, setFormData] = useState({
     fullname: '',
-    avatar: ''
+    avatar: '',
   });
-  const [previewUrl, setPreviewUrl] = useState<string>('/image/testimonial.webp');
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    '/image/testimonial.webp'
+  );
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (profileData) {
-      const fullname = profileData.fullname ||
-        (profileType === 'mentor' && 'legal_name' in profileData ? profileData.legal_name : '') || '';
+      const fullname =
+        profileData.fullname ||
+        (profileType === 'mentor' && 'legal_name' in profileData
+          ? profileData.legal_name
+          : '') ||
+        '';
 
-      const avatar = (profileType === 'user' && 'avatar' in profileData)
-        ? profileData.avatar || '/image/testimonial.webp'
-        : '/image/testimonial.webp';
+      const avatar =
+        profileType === 'user' && 'avatar' in profileData
+          ? profileData.avatar || '/image/testimonial.webp'
+          : '/image/testimonial.webp';
 
       console.log('Modal - Profile data avatar URL:', avatar);
       console.log('Modal - Profile data:', profileData);
 
       setFormData({
         fullname,
-        avatar: (profileType === 'user' && 'avatar' in profileData) ? profileData.avatar || '' : ''
+        avatar:
+          profileType === 'user' && 'avatar' in profileData
+            ? profileData.avatar || ''
+            : '',
       });
 
       setPreviewUrl(avatar);
     } else {
-
       setPreviewUrl('/image/testimonial.webp');
     }
   }, [profileData, profileType]);
@@ -51,7 +69,7 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, fullname: e.target.value }));
+    setFormData((prev) => ({ ...prev, fullname: e.target.value }));
   };
 
   const handleImageUpload = async (file: File) => {
@@ -73,17 +91,26 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
         url?: string;
       }
 
-      const uploadData = ('data' in uploadResult ? (uploadResult as { data: UploadData }).data : uploadResult as UploadData);
+      const uploadData =
+        'data' in uploadResult
+          ? (uploadResult as { data: UploadData }).data
+          : (uploadResult as UploadData);
 
-      setFormData(prev => ({ ...prev, avatar: uploadData.url || '' }));
+      setFormData((prev) => ({ ...prev, avatar: uploadData.url || '' }));
 
       setPreviewUrl(uploadData.url || '/image/testimonial.webp');
-
     } catch (error) {
       console.error('Avatar upload error:', error);
-      showNotification('error', 'Upload Failed', 'Failed to upload avatar image');
+      showNotification(
+        'error',
+        'Upload Failed',
+        'Failed to upload avatar image'
+      );
 
-      const originalAvatar = (profileType === 'user' && profileData && 'avatar' in profileData) ? profileData.avatar : '';
+      const originalAvatar =
+        profileType === 'user' && profileData && 'avatar' in profileData
+          ? profileData.avatar
+          : '';
       setPreviewUrl(originalAvatar || '/image/testimonial.webp');
     } finally {
       setIsUploading(false);
@@ -102,13 +129,21 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
         }
       }
 
-      if (formData.avatar && formData.avatar !== (profileData && 'avatar' in profileData ? profileData.avatar : '')) {
+      if (
+        formData.avatar &&
+        formData.avatar !==
+          (profileData && 'avatar' in profileData ? profileData.avatar : '')
+      ) {
         updates.avatar = formData.avatar;
       }
 
       if (Object.keys(updates).length > 0) {
         await updateProfile(updates);
-        showNotification('success', 'Profile Updated', 'Your profile has been successfully updated.');
+        showNotification(
+          'success',
+          'Profile Updated',
+          'Your profile has been successfully updated.'
+        );
       }
 
       onClose();
@@ -122,14 +157,17 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
           backendMsg = errObj.response.data.message;
         }
         let msg = '';
-        if ('message' in err && typeof (err as { message?: string }).message === 'string') {
+        if (
+          'message' in err &&
+          typeof (err as { message?: string }).message === 'string'
+        ) {
           msg = (err as { message?: string }).message || '';
 
           if (msg.trim().startsWith('{') && msg.trim().endsWith('}')) {
             try {
               const parsed = JSON.parse(msg);
               if (parsed && typeof parsed.message === 'string') {
-              msg = parsed.message;
+                msg = parsed.message;
               }
             } catch {
               // JSON parse failed, use original message
@@ -144,7 +182,11 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
           apiMessage = msg;
         }
       }
-      showNotification('error', 'Failed to save changes', apiMessage || 'Please try again.');
+      showNotification(
+        'error',
+        'Failed to save changes',
+        apiMessage || 'Please try again.'
+      );
     }
   };
 
@@ -155,7 +197,9 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
       className="max-h-[90vh] max-w-[520px] overflow-y-auto rounded-2xl border-none bg-[#F6F6F6] p-5 sm:p-6"
     >
       <Modal.Header className="rounded-[6px] bg-[#DFECF7] px-4 py-2">
-        <Modal.Title className="text-2xl font-semibold leading-8 text-[#4B4B4B]">Introduction</Modal.Title>
+        <Modal.Title className="text-2xl font-semibold leading-8 text-[#4B4B4B]">
+          Introduction
+        </Modal.Title>
       </Modal.Header>
       <Modal.Content className="pt-8">
         {}
@@ -174,7 +218,10 @@ export const EditProfileModal: FC<EditProfileModalProps> = ({ isOpen, onClose, s
               disabled={isUploading}
             />
 
-            <label htmlFor="avatar-upload" className="cursor-pointer block relative group">
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer block relative group"
+            >
               <img
                 src={previewUrl}
                 alt="Profile"

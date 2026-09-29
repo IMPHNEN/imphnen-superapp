@@ -14,7 +14,13 @@ import type { TUsersDetailItem, TUserUpdateRequest } from '../../types/users';
 export interface CertificatePublicData {
   user: { id: string; fullname: string; email: string; avatar?: string };
   team?: { id: string; name: string; logo?: string; is_leader: boolean };
-  submission?: { id: string; title: string; description: string; repository_url?: string; demo_url?: string };
+  submission?: {
+    id: string;
+    title: string;
+    description: string;
+    repository_url?: string;
+    demo_url?: string;
+  };
   winner?: { rank: number; prize?: string };
 }
 
@@ -66,7 +72,8 @@ export const useUpdateUserMe = () => {
   return useMutation({
     mutationKey: ['update-user-me'],
     mutationFn: (data: TUserUpdateRequest) => {
-      if (!session?.user?.id) throw new Error('You must be logged in to update profile');
+      if (!session?.user?.id)
+        throw new Error('You must be logged in to update profile');
       return updateUserMe(data);
     },
     onSuccess: (result) => {
@@ -93,7 +100,8 @@ export const useUpdateUserById = () => {
 
   return useMutation({
     mutationKey: ['update-user-by-id'],
-    mutationFn: ({ id, data }: { id: string; data: TUserUpdateRequest }) => updateUserById(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TUserUpdateRequest }) =>
+      updateUserById(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['user-by-id', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['user-list'] });

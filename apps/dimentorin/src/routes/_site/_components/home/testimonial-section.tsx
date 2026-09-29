@@ -1,12 +1,12 @@
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { For } from '@imphnen-frontend-service/utils'
-import { FC, useRef } from 'react'
-import { motion, useInView, Variants } from 'framer-motion'
-import { StarFilled } from '@ant-design/icons'
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { For } from '@imphnen-frontend-service/utils';
+import { type FC, useRef } from 'react';
+import { motion, useInView, type Variants } from 'framer-motion';
+import { StarFilled } from '@ant-design/icons';
 
 export const TestimonialSection: FC = () => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -17,7 +17,7 @@ export const TestimonialSection: FC = () => {
         delayChildren: 0.2,
       },
     },
-  }
+  };
 
   const childVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -29,7 +29,7 @@ export const TestimonialSection: FC = () => {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   return (
     <section ref={ref} className="mx-auto py-4 md:py-8 xl:px-20">
@@ -86,9 +86,13 @@ export const TestimonialSection: FC = () => {
                     Riko, Junior Web Developer
                   </h3>
                   <p className="mb-6 text-[10px] text-neutral-500 font-medium md:text-sm lg:text-base">
-                    Rasanya seperti punya AI waifu yang ngajarin ngoding! Mentoringnya juga super insightful. Thanks, Dimentorin!
+                    Rasanya seperti punya AI waifu yang ngajarin ngoding!
+                    Mentoringnya juga super insightful. Thanks, Dimentorin!
                   </p>
-                  <motion.div className="w-max" whileHover={{ scale: 1.1, rotate: -3 }}>
+                  <motion.div
+                    className="w-max"
+                    whileHover={{ scale: 1.1, rotate: -3 }}
+                  >
                     <Button
                       type="button"
                       size="sm"
@@ -97,8 +101,12 @@ export const TestimonialSection: FC = () => {
                     >
                       <StarFilled className="md:text-lg" />
                       <span>
-                        <span className="text-sm font-medium md:text-lg md:font-semibold lg:text-xl">4.8</span>
-                        <span className="text-[10px] text-primary-300 md:text-sm md:font-medium lg:text-base">/5.0</span>
+                        <span className="text-sm font-medium md:text-lg md:font-semibold lg:text-xl">
+                          4.8
+                        </span>
+                        <span className="text-[10px] text-primary-300 md:text-sm md:font-medium lg:text-base">
+                          /5.0
+                        </span>
                       </span>
                     </Button>
                   </motion.div>
@@ -109,5 +117,5 @@ export const TestimonialSection: FC = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};

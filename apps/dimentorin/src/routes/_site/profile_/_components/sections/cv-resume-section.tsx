@@ -1,16 +1,20 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { DownloadOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { CVModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface CvResumeSectionProps {
   initialFileName: string;
   fullname: string;
   onSave: (cvData: { fileName: string; fileUrl?: string }) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
   isViewOnly?: boolean;
 }
@@ -26,7 +30,6 @@ export const CvResumeSection: FC<CvResumeSectionProps> = ({
   const [isCVModalOpen, setIsCVModalOpen] = useState(false);
   const [fileName, setFileName] = useState(initialFileName);
 
-  
   useEffect(() => {
     setFileName(initialFileName);
   }, [initialFileName]);
@@ -44,7 +47,6 @@ export const CvResumeSection: FC<CvResumeSectionProps> = ({
       fileUrl = fileName;
     } else {
       displayFileName = fileName;
-
     }
   }
 

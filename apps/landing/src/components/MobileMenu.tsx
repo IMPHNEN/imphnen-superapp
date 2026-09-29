@@ -57,7 +57,8 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      const token = getTokenFromCookie() || localStorage.getItem('access_token');
+      const token =
+        getTokenFromCookie() || localStorage.getItem('access_token');
       if (token) {
         await fetch(getApiUrl('/v1/iam/auth/logout'), {
           method: 'POST',
@@ -65,7 +66,7 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-        }).catch(() => { });
+        }).catch(() => {});
       }
     } finally {
       clearToken();
@@ -111,10 +112,11 @@ export default function MobileMenu({ navigations, currentPath }: Props) {
               <a
                 key={link}
                 href={link}
-                className={`text-2xl font-medium py-2 px-6 rounded-lg transition-colors ${currentPath === link
+                className={`text-2xl font-medium py-2 px-6 rounded-lg transition-colors ${
+                  currentPath === link
                     ? 'text-primary bg-primary/10'
                     : 'text-foreground hover:bg-muted'
-                  }`}
+                }`}
                 onClick={() => setOpen(false)}
               >
                 {title}

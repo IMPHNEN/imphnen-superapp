@@ -1,16 +1,17 @@
-import { FC, ReactElement, useState, useEffect } from 'react';
+import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
 import {
   teamUpdateSchema,
-  TTeamUpdateForm,
+  type TTeamUpdateForm,
   useUpdateTeam,
   useTeamById,
   ETeamVisibility,
   useUploadFile,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { CitySelect } from '../../../../components/city-select';
@@ -18,7 +19,8 @@ import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/teams/$teamId/edit')({
-  component: EditTeamPage })
+  component: EditTeamPage,
+});
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -45,7 +47,8 @@ const EditTeamPage: FC = (): ReactElement => {
 
   const form = useForm<TTeamUpdateForm>({
     resolver: zodResolver(teamUpdateSchema),
-    mode: 'all' });
+    mode: 'all',
+  });
 
   useEffect(() => {
     if (team) {
@@ -55,7 +58,8 @@ const EditTeamPage: FC = (): ReactElement => {
         city: team.city,
         visibility: team.visibility,
         logo: team.logo,
-        banner: team.banner });
+        banner: team.banner,
+      });
       if (team.logo) setLogoPreview(team.logo);
       if (team.banner) setBannerPreview(team.banner);
     }
@@ -137,7 +141,8 @@ const EditTeamPage: FC = (): ReactElement => {
       await updateTeam({
         ...data,
         logo: logoUrl,
-        banner: bannerUrl });
+        banner: bannerUrl,
+      });
 
       navigate({ to: `/teams/${teamId}` });
     } catch (error) {
@@ -253,7 +258,9 @@ const EditTeamPage: FC = (): ReactElement => {
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Max 2MB</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                    Max 2MB
+                  </p>
                 </div>
               </div>
             </div>
@@ -383,4 +390,3 @@ const EditTeamPage: FC = (): ReactElement => {
     </div>
   );
 };
-

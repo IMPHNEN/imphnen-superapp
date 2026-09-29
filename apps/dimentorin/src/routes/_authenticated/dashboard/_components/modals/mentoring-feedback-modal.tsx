@@ -1,21 +1,25 @@
-import { FC, useState } from 'react'
-import { Icon } from '@iconify/react'
+import { type FC, useState } from 'react';
+import { Icon } from '@iconify/react';
 
 interface MentoringFeedbackModalProps {
-  isOpen: boolean
-  onClose: () => void
-  mentorName: string
+  isOpen: boolean;
+  onClose: () => void;
+  mentorName: string;
 }
 
-export const MentoringFeedbackModal: FC<MentoringFeedbackModalProps> = ({ isOpen, onClose, mentorName }) => {
-  const [step, setStep] = useState(1)
-  const [rating, setRating] = useState(0)
-  const [hoveredRating, setHoveredRating] = useState(0)
+export const MentoringFeedbackModal: FC<MentoringFeedbackModalProps> = ({
+  isOpen,
+  onClose,
+  mentorName,
+}) => {
+  const [step, setStep] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
-  const handleNext = () => setStep(2)
-  const handleBack = () => setStep(1)
+  const handleNext = () => setStep(2);
+  const handleBack = () => setStep(1);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
@@ -28,7 +32,9 @@ export const MentoringFeedbackModal: FC<MentoringFeedbackModalProps> = ({ isOpen
         </button>
 
         <div className="flex flex-col items-center text-center">
-          <h2 className="text-[23px] font-bold text-[#23A1EB] mb-2">Beri Feedback</h2>
+          <h2 className="text-[23px] font-bold text-[#23A1EB] mb-2">
+            Beri Feedback
+          </h2>
           <p className="text-[15px] font-medium text-[#888888] mb-8">
             Bagaimana sesi mentoring kamu bersama {mentorName}?
           </p>
@@ -45,9 +51,17 @@ export const MentoringFeedbackModal: FC<MentoringFeedbackModalProps> = ({ isOpen
                     className="cursor-pointer transition-transform hover:scale-110"
                   >
                     <Icon
-                      icon={s <= (hoveredRating || rating) ? 'mdi:star' : 'mdi:star-outline'}
+                      icon={
+                        s <= (hoveredRating || rating)
+                          ? 'mdi:star'
+                          : 'mdi:star-outline'
+                      }
                       width="48"
-                      className={s <= (hoveredRating || rating) ? 'text-[#FFB810]' : 'text-[#D1D1D1]'}
+                      className={
+                        s <= (hoveredRating || rating)
+                          ? 'text-[#FFB810]'
+                          : 'text-[#D1D1D1]'
+                      }
                     />
                   </button>
                 ))}
@@ -95,5 +109,5 @@ export const MentoringFeedbackModal: FC<MentoringFeedbackModalProps> = ({ isOpen
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

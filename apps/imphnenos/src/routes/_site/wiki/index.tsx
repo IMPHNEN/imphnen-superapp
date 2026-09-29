@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { Book, Search, ArrowRight, Rocket, Disc, Settings, Wrench } from 'lucide-react';
+import {
+  Book,
+  Search,
+  ArrowRight,
+  Rocket,
+  Disc,
+  Settings,
+  Wrench,
+} from 'lucide-react';
 
 export const Route = createFileRoute('/_site/wiki/')({
   component: WikiIndexPage,
@@ -10,13 +18,13 @@ const iconMap: Record<string, any> = {
   rocket: Rocket,
   disc: Disc,
   settings: Settings,
-  wrench: Wrench
+  wrench: Wrench,
 };
 
 function WikiIndexPage() {
   const [manifest, setManifest] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function fetchManifest() {
@@ -45,17 +53,21 @@ function WikiIndexPage() {
   if (!manifest) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-gray-900">Gagal memuat dokumentasi</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Gagal memuat dokumentasi
+        </h2>
       </div>
     );
   }
 
-  const allArticles = manifest.categories.flatMap((c: any) => 
+  const allArticles = manifest.categories.flatMap((c: any) =>
     c.articles.map((a: any) => ({ ...a, category: c.name }))
   );
 
-  const searchResults = searchQuery 
-    ? allArticles.filter((a: any) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  const searchResults = searchQuery
+    ? allArticles.filter((a: any) =>
+        a.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     : [];
 
   return (
@@ -67,9 +79,10 @@ function WikiIndexPage() {
             Wiki & Dokumentasi
           </h1>
           <p className="text-xl text-primary-100 mb-10">
-            Pelajari cara menggunakan ImphnenOS dari instalasi hingga konfigurasi tingkat lanjut.
+            Pelajari cara menggunakan ImphnenOS dari instalasi hingga
+            konfigurasi tingkat lanjut.
           </p>
-          
+
           <div className="relative max-w-2xl mx-auto text-left">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
@@ -81,7 +94,7 @@ function WikiIndexPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-11 pr-4 py-4 bg-white border border-transparent rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-primary-500/30 shadow-lg text-lg"
             />
-            
+
             {/* Search Results Dropdown */}
             {searchQuery && searchResults.length > 0 && (
               <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
@@ -92,8 +105,12 @@ function WikiIndexPage() {
                         to={`/wiki/${article.slug}`}
                         className="block px-4 py-3 hover:bg-gray-50"
                       >
-                        <p className="text-sm font-medium text-gray-900">{article.title}</p>
-                        <p className="text-xs text-gray-500 mt-1">{article.category}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {article.title}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {article.category}
+                        </p>
                       </Link>
                     </li>
                   ))}
@@ -109,19 +126,26 @@ function WikiIndexPage() {
           {manifest.categories.map((category: any, idx: number) => {
             const Icon = iconMap[category.icon] || Settings;
             const firstArticle = category.articles[0];
-            
+
             return (
-              <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div
+                key={idx}
+                className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow"
+              >
                 <div className="w-12 h-12 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center mb-6">
                   <Icon className="w-6 h-6" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{category.name}</h2>
-                <p className="text-gray-500 text-sm mb-6">{category.articles.length} artikel</p>
-                
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {category.name}
+                </h2>
+                <p className="text-gray-500 text-sm mb-6">
+                  {category.articles.length} artikel
+                </p>
+
                 <ul className="space-y-3 mb-8">
                   {category.articles.slice(0, 3).map((article: any) => (
                     <li key={article.slug}>
-                      <Link 
+                      <Link
                         to={`/wiki/${article.slug}`}
                         className="text-gray-600 hover:text-primary-600 transition-colors text-sm flex items-center gap-2"
                       >
@@ -138,7 +162,7 @@ function WikiIndexPage() {
                 </ul>
 
                 {firstArticle && (
-                  <Link 
+                  <Link
                     to={`/wiki/${firstArticle.slug}`}
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors group"
                   >

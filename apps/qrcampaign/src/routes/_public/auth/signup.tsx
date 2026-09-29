@@ -1,13 +1,13 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useGitHubAuth } from '@imphnen-frontend-service/service'
-import { GithubOutlined } from '@ant-design/icons'
-import { toast } from 'sonner'
-import { Icon } from '@iconify/react'
-import { useAuthStore } from '../../../app/features/auth/store/auth.store'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useGitHubAuth } from '@imphnen-frontend-service/service';
+import { GithubOutlined } from '@ant-design/icons';
+import { toast } from 'sonner';
+import { Icon } from '@iconify/react';
+import { useAuthStore } from '../../../app/features/auth/store/auth.store';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 const signupSchema = z
   .object({
@@ -28,24 +28,24 @@ const signupSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
-  })
+  });
 
-type SignupFormData = z.infer<typeof signupSchema>
+type SignupFormData = z.infer<typeof signupSchema>;
 
 export const Route = createFileRoute('/_public/auth/signup')({
   component: SignupPage,
-})
+});
 
 function SignupPage() {
-  const navigate = useNavigate()
-  const registerUser = useAuthStore((state) => state.register)
+  const navigate = useNavigate();
+  const registerUser = useAuthStore((state) => state.register);
 
-  const { signInWithGitHub } = useGitHubAuth()
-  const [isGithubLoading, setIsGithubLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { signInWithGitHub } = useGitHubAuth();
+  const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -54,49 +54,49 @@ function SignupPage() {
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     mode: 'onChange',
-  })
+  });
 
   const onSubmit = async (data: SignupFormData) => {
-    setError(null)
-    setIsSubmitting(true)
+    setError(null);
+    setIsSubmitting(true);
 
     try {
-      await registerUser(data.fullname, data.email, data.password)
-      toast.success('Registration successful! Redirecting...')
-      navigate({ to: '/' })
+      await registerUser(data.fullname, data.email, data.password);
+      toast.success('Registration successful! Redirecting...');
+      navigate({ to: '/' });
     } catch (err: any) {
-      console.error('[Signup] Email signup failed:', err)
+      console.error('[Signup] Email signup failed:', err);
       const errorMessage =
-        err.response?.data?.message || err.message || 'Signup failed'
-      setError(errorMessage)
+        err.response?.data?.message || err.message || 'Signup failed';
+      setError(errorMessage);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleGithubLogin = async () => {
     try {
-      setIsGithubLoading(true)
+      setIsGithubLoading(true);
 
-      const result = await signInWithGitHub()
+      const result = await signInWithGitHub();
 
       if (result?.url) {
-        globalThis.location.href = result.url
+        globalThis.location.href = result.url;
       } else {
-        setIsGithubLoading(false)
-        setError('Failed to get GitHub OAuth URL')
+        setIsGithubLoading(false);
+        setError('Failed to get GitHub OAuth URL');
       }
     } catch (err) {
-      console.error('[Signup] GitHub login failed:', err)
-      setError((err as Error).message || 'GitHub login failed')
-      setIsGithubLoading(false)
+      console.error('[Signup] GitHub login failed:', err);
+      setError((err as Error).message || 'GitHub login failed');
+      setIsGithubLoading(false);
     }
-  }
+  };
 
   const inputBaseClass =
-    'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed'
-  const inputErrorClass = 'border-red-500'
-  const inputNormalClass = 'border-gray-300'
+    'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed';
+  const inputErrorClass = 'border-red-500';
+  const inputNormalClass = 'border-gray-300';
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -304,5 +304,5 @@ function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,55 +1,58 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import {
   usePermissionList,
   useUpdatePermission,
-} from '@imphnen-frontend-service/service'
+} from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/permissions_/$id')({
   component: PermissionsEditPage,
-})
+});
 
 function PermissionsEditPage() {
-  const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const updatePermission = useUpdatePermission()
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const updatePermission = useUpdatePermission();
 
-  const { data: permissionsData, isLoading } = usePermissionList({ search: '', per_page: 100 })
-  const permission = permissionsData?.data?.find((p) => p.id === id)
+  const { data: permissionsData, isLoading } = usePermissionList({
+    search: '',
+    per_page: 100,
+  });
+  const permission = permissionsData?.data?.find((p) => p.id === id);
 
   const form = useForm<{ name: string }>({
     mode: 'all',
     defaultValues: { name: '' },
-  })
+  });
 
   useEffect(() => {
     if (permission) {
-      form.reset({ name: permission.name })
+      form.reset({ name: permission.name });
     }
-  }, [permission])
+  }, [permission]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updatePermission.mutateAsync({ id, data })
-      toast.success('Perubahan permissions berhasil dilakukan')
-      navigate({ to: '/permissions' })
+      await updatePermission.mutateAsync({ id, data });
+      toast.success('Perubahan permissions berhasil dilakukan');
+      navigate({ to: '/permissions' });
     } catch (error) {
-      console.log(error)
-      toast.error('Perubahan permissions gagal dilakukan')
+      console.log(error);
+      toast.error('Perubahan permissions gagal dilakukan');
     }
-  })
+  });
 
   if (isLoading) {
     return (
       <main className="w-full px-[48px] py-[40px]">
         <div className="text-center py-8 text-neutral-400">Loading...</div>
       </main>
-    )
+    );
   }
 
   return (
@@ -99,5 +102,5 @@ function PermissionsEditPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

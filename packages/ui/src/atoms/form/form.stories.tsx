@@ -32,7 +32,9 @@ function ExampleForm() {
               <FormControl>
                 <input placeholder="Enter username" {...field} />
               </FormControl>
-              <FormDescription>This is your public display name.</FormDescription>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

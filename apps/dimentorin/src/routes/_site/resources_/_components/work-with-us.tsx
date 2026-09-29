@@ -1,9 +1,9 @@
-import { FC, useRef } from "react";
-import { motion, useInView, Variants } from "framer-motion";
+import { type FC, useRef } from 'react';
+import { motion, useInView, type Variants } from 'framer-motion';
 
 export const WorkWithUs: FC = () => {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -14,7 +14,7 @@ export const WorkWithUs: FC = () => {
         delayChildren: 0.8,
       },
     },
-  }
+  };
 
   const childVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -26,7 +26,7 @@ export const WorkWithUs: FC = () => {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   return (
     <section ref={ref} className="w-full px-8 md:px-[60px] lg:py-16 lg:px-20">
@@ -45,14 +45,18 @@ export const WorkWithUs: FC = () => {
           className="grid gap-4 md:grid-cols-3 md:gap-5 xl:grid-flow-col xl:grid-cols-2 xl:grid-rows-2 xl:gap-6"
           variants={containerVariants}
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          animate={inView ? 'visible' : 'hidden'}
         >
           <motion.div
             className="px-5 py-6 bg-white rounded-lg shadow md:px-0 md:py-8 xl:row-span-2 xl:px-6 xl:flex xl:flex-col xl:justify-end"
             variants={childVariants}
           >
             <div className="h-[60px] w-full mb-6 xl:h-auto xl:w-full xl:mb-8">
-              <img src="/image/work-with-us/exposure.webp" alt="Exposure" className="h-full w-auto object-scale-down mx-auto" />
+              <img
+                src="/image/work-with-us/exposure.webp"
+                alt="Exposure"
+                className="h-full w-auto object-scale-down mx-auto"
+              />
             </div>
             <div className="text-center md:px-6 xl:text-start xl:px-0">
               <h1 className="text-primary-500 text-[15px] mb-2 font-semibold leading-tight md:text-[19px] md:px-4 xl:px-0">
@@ -69,7 +73,11 @@ export const WorkWithUs: FC = () => {
             variants={childVariants}
           >
             <div className="h-[60px] w-full mb-6 xl:w-auto xl:h-[124px] xl:mb-0">
-              <img src="/image/work-with-us/handshake.webp" alt="Handshake" className="h-full w-auto object-scale-down mx-auto" />
+              <img
+                src="/image/work-with-us/handshake.webp"
+                alt="Handshake"
+                className="h-full w-auto object-scale-down mx-auto"
+              />
             </div>
             <div className="text-center md:px-6 xl:text-start">
               <h1 className="text-primary-500 text-[15px] mb-2 font-semibold leading-tight md:text-[19px]">
@@ -86,7 +94,11 @@ export const WorkWithUs: FC = () => {
             variants={childVariants}
           >
             <div className="h-[60px] w-full mb-6 xl:w-auto xl:h-[124px] xl:mb-0">
-              <img src="/image/work-with-us/networking.webp" alt="Networking" className="h-full w-auto object-scale-down mx-auto" />
+              <img
+                src="/image/work-with-us/networking.webp"
+                alt="Networking"
+                className="h-full w-auto object-scale-down mx-auto"
+              />
             </div>
             <div className="text-center md:px-6 xl:text-start">
               <h1 className="text-primary-500 text-[15px] mb-2 font-semibold leading-tight md:text-[19px] md:px-4 xl:px-0">
@@ -100,5 +112,5 @@ export const WorkWithUs: FC = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};

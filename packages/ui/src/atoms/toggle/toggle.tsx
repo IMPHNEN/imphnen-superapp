@@ -76,7 +76,9 @@ export const ToggleInput: React.FC<ToggleInputProps> = ({
         defaultChecked={defaultChecked}
         onCheckedChange={onChange}
         disabled={disabled}
-        {...(rest as React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>)}
+        {...(rest as React.ComponentPropsWithoutRef<
+          typeof SwitchPrimitive.Root
+        >)}
       />
     </div>
   );

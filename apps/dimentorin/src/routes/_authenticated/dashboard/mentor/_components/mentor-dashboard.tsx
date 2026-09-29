@@ -4,10 +4,13 @@ import { Button, Card } from '@imphnen-frontend-service/ui/atoms';
 
 export function MentorDashboard() {
   const data = getMentorMockDashboardData();
-  const [activeTab, setActiveTab] = useState<'overviews' | 'analytics'>('overviews');
+  const [activeTab, setActiveTab] = useState<'overviews' | 'analytics'>(
+    'overviews'
+  );
 
   const gradientStyle = {
-    background: 'linear-gradient(135deg, #ffffff 30.3%, rgba(255, 255, 255, 0) 100%), #f0f8ff',
+    background:
+      'linear-gradient(135deg, #ffffff 30.3%, rgba(255, 255, 255, 0) 100%), #f0f8ff',
     borderRadius: '8px',
   };
 
@@ -17,11 +20,14 @@ export function MentorDashboard() {
         <div style={gradientStyle} className="absolute inset-0 z-0" />
         <div className="relative z-10 flex flex-col justify-between">
           <div>
-            <h1 className="text-[23px] font-semibold leading-[27.6px] text-primary-accent m-0">Selamat Datang di Dimentorin.dev</h1>
+            <h1 className="text-[23px] font-semibold leading-[27.6px] text-primary-accent m-0">
+              Selamat Datang di Dimentorin.dev
+            </h1>
             <p className="text-base font-normal leading-4.5 text-text-muted mt-2 m-0">
               Senpai~ saatnya kamu bantu para junior menaklukkan dunia IT!
               <br />
-              Pantau jadwal mentoring-mu, cek progress mentee, dan bagikan ilmu terbaikmu lewat sesi 1-on-1 yang impactful~
+              Pantau jadwal mentoring-mu, cek progress mentee, dan bagikan ilmu
+              terbaikmu lewat sesi 1-on-1 yang impactful~
             </p>
           </div>
         </div>
@@ -56,11 +62,13 @@ export function MentorDashboard() {
               { label: 'Your Rating', value: data.rating },
               { label: 'Session Complete', value: data.sessionComplete },
               { label: 'Mentee Impacted', value: data.menteeImpacted },
-              { label: 'Total Feedback', value: data.totalFeedback }
+              { label: 'Total Feedback', value: data.totalFeedback },
             ].map((stat, i) => (
               <Card key={i}>
                 <div className="w-57.75 h-25 p-5 flex flex-col justify-end gap-1">
-                  <div className="text-[19px] font-semibold text-primary-accent">{stat.value}</div>
+                  <div className="text-[19px] font-semibold text-primary-accent">
+                    {stat.value}
+                  </div>
                   <div className="text-base text-text-muted">{stat.label}</div>
                 </div>
               </Card>

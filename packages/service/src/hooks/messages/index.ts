@@ -17,13 +17,18 @@ export const messageKeys = {
   team: (teamId: string) => [...messageKeys.all, 'team', teamId] as const,
 };
 
-interface ApiResp<T> { data: T; message?: string; }
+interface ApiResp<T> {
+  data: T;
+  message?: string;
+}
 
 export const useTeamMessages = (teamId: string) => {
   return useQuery({
     queryKey: messageKeys.team(teamId),
     queryFn: async () => {
-      const response = await api.get<ApiResp<Message[]>>(`/v1/hackathon/chat/teams/${teamId}`);
+      const response = await api.get<ApiResp<Message[]>>(
+        `/v1/hackathon/chat/teams/${teamId}`
+      );
       return response.data.data || [];
     },
     enabled: !!teamId,
@@ -38,11 +43,16 @@ export const useSendMessage = (teamId: string) => {
 
   return useMutation({
     mutationFn: async (message: string) => {
-      if (!session?.user?.id) throw new Error('You must be logged in to send messages');
-      const response = await api.post<ApiResp<Message>>(`/v1/hackathon/chat/teams/${teamId}`, { message });
+      if (!session?.user?.id)
+        throw new Error('You must be logged in to send messages');
+      const response = await api.post<ApiResp<Message>>(
+        `/v1/hackathon/chat/teams/${teamId}`,
+        { message }
+      );
       return response.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: messageKeys.team(teamId) }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: messageKeys.team(teamId) }),
   });
 };
 
@@ -53,6 +63,7 @@ export const useDeleteMessage = (teamId: string) => {
     mutationFn: async (messageId: string) => {
       await api.delete(`/v1/hackathon/chat/messages/${messageId}`);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: messageKeys.team(teamId) }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: messageKeys.team(teamId) }),
   });
 };

@@ -1,13 +1,19 @@
-import { CloudServerOutlined, CodeOutlined, DatabaseOutlined, ProjectOutlined, TabletOutlined } from '@ant-design/icons'
-import { Icon } from '@iconify/react'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { For } from '@imphnen-frontend-service/utils'
-import { FC, ReactElement, useRef } from 'react'
-import { motion, useInView, Variants } from 'framer-motion'
+import {
+  CloudServerOutlined,
+  CodeOutlined,
+  DatabaseOutlined,
+  ProjectOutlined,
+  TabletOutlined,
+} from '@ant-design/icons';
+import { Icon } from '@iconify/react';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { For } from '@imphnen-frontend-service/utils';
+import { type FC, type ReactElement, useRef } from 'react';
+import { motion, useInView, type Variants } from 'framer-motion';
 
 const TOPICS: {
-  name: string
-  icon: React.ReactNode
+  name: string;
+  icon: React.ReactNode;
 }[] = [
   { name: 'UI/UX & Design', icon: <TabletOutlined /> },
   { name: 'Software/Web Dev', icon: <CodeOutlined /> },
@@ -16,12 +22,12 @@ const TOPICS: {
   { name: 'Cybersecurity', icon: <Icon icon="mage:security-shield" /> },
   { name: 'IT & Networking', icon: <Icon icon="carbon:data-structured" /> },
   { name: 'Project Management', icon: <ProjectOutlined /> },
-  { name: 'QA & Testing', icon: <Icon icon="carbon:exam-mode" /> }
-]
+  { name: 'QA & Testing', icon: <Icon icon="carbon:exam-mode" /> },
+];
 
 export const Topics: FC = (): ReactElement => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -33,7 +39,7 @@ export const Topics: FC = (): ReactElement => {
         delay: 0.4,
       },
     },
-  }
+  };
 
   const childVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -45,7 +51,7 @@ export const Topics: FC = (): ReactElement => {
         ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
-  }
+  };
 
   return (
     <div ref={ref}>
@@ -57,8 +63,16 @@ export const Topics: FC = (): ReactElement => {
       >
         <For data={TOPICS}>
           {(topic) => (
-            <motion.div key={topic.name} className="flex flex-col items-center" variants={childVariants}>
-              <Button variant="secondary" size='sm' className="size-7 mb-3 p-0 md:mb-4 md:size-8 md:text-base lg:size-10 lg:text-lg">
+            <motion.div
+              key={topic.name}
+              className="flex flex-col items-center"
+              variants={childVariants}
+            >
+              <Button
+                variant="secondary"
+                size="sm"
+                className="size-7 mb-3 p-0 md:mb-4 md:size-8 md:text-base lg:size-10 lg:text-lg"
+              >
                 {topic.icon}
               </Button>
               <p className="text-[8px] text-neutral-700 text-center break-words md:text-xs md:font-medium lg:text-[15px]">
@@ -69,5 +83,5 @@ export const Topics: FC = (): ReactElement => {
         </For>
       </motion.div>
     </div>
-  )
-}
+  );
+};

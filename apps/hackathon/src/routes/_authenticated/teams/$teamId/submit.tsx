@@ -1,22 +1,24 @@
-import { FC, ReactElement, useState, useEffect } from 'react';
+import { type FC, type ReactElement, useState, useEffect } from 'react';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
 import { Button, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm, Controller } from 'react-hook-form';
 import {
   projectSubmissionSchema,
-  TProjectSubmissionForm,
+  type TProjectSubmissionForm,
   useSubmitProject,
   useTeamById,
   useTeamSubmission,
   useUploadSubmission,
-  useAuthStore } from '@imphnen-frontend-service/service';
+  useAuthStore,
+} from '@imphnen-frontend-service/service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
 export const Route = createFileRoute('/_authenticated/teams/$teamId/submit')({
-  component: SubmitProjectPage })
+  component: SubmitProjectPage,
+});
 
 const MIN_TEAM_MEMBERS = 2;
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -69,7 +71,8 @@ const SubmitProjectPage: FC = (): ReactElement => {
   const { data: submissionData } = useTeamSubmission(teamId || '', !!teamId);
   const { mutateAsync: submitProject, isPending: isSubmitting } =
     useSubmitProject(teamId || '');
-  const { mutateAsync: uploadFile, isPending: isUploading } = useUploadSubmission();
+  const { mutateAsync: uploadFile, isPending: isUploading } =
+    useUploadSubmission();
 
   const team = teamData?.data;
   const currentUserId = session?.user?.id;
@@ -80,7 +83,8 @@ const SubmitProjectPage: FC = (): ReactElement => {
 
   const form = useForm<TProjectSubmissionForm>({
     resolver: zodResolver(projectSubmissionSchema),
-    mode: 'all' });
+    mode: 'all',
+  });
 
   if (!isLeader) {
     return (
@@ -109,7 +113,9 @@ const SubmitProjectPage: FC = (): ReactElement => {
           Your team has already submitted a project
         </p>
         <div className="flex space-x-3">
-          <Button onClick={() => navigate({ to: `/teams/${teamId}/submission` })}>
+          <Button
+            onClick={() => navigate({ to: `/teams/${teamId}/submission` })}
+          >
             View Submission
           </Button>
           <Button
@@ -172,9 +178,13 @@ const SubmitProjectPage: FC = (): ReactElement => {
     const files = e.target.files;
     if (!files) return;
 
-    const oversizedFiles = Array.from(files).filter(file => file.size > MAX_FILE_SIZE);
+    const oversizedFiles = Array.from(files).filter(
+      (file) => file.size > MAX_FILE_SIZE
+    );
     if (oversizedFiles.length > 0) {
-      toast.error(`${oversizedFiles.length} file(s) are too large. Maximum size is 2MB per file.`);
+      toast.error(
+        `${oversizedFiles.length} file(s) are too large. Maximum size is 2MB per file.`
+      );
       e.target.value = '';
       return;
     }
@@ -198,7 +208,8 @@ const SubmitProjectPage: FC = (): ReactElement => {
     try {
       await submitProject({
         ...data,
-        screenshots });
+        screenshots,
+      });
       navigate({ to: `/teams/${teamId}/submission` });
     } catch (error) {
       console.error('Failed to submit project:', error);
@@ -276,9 +287,13 @@ const SubmitProjectPage: FC = (): ReactElement => {
                   Team Members Required
                 </h3>
                 <p className="text-amber-800 dark:text-amber-200 mt-2 text-sm font-sans">
-                  Your team needs at least <strong>{MIN_TEAM_MEMBERS} members</strong> to submit a project.
-                  Currently you have <strong>{memberCount} member{memberCount !== 1 ? 's' : ''}</strong>.
-                  Please invite more members to your team before submitting.
+                  Your team needs at least{' '}
+                  <strong>{MIN_TEAM_MEMBERS} members</strong> to submit a
+                  project. Currently you have{' '}
+                  <strong>
+                    {memberCount} member{memberCount !== 1 ? 's' : ''}
+                  </strong>
+                  . Please invite more members to your team before submitting.
                 </p>
               </div>
             </div>
@@ -326,7 +341,8 @@ const SubmitProjectPage: FC = (): ReactElement => {
                 Project Description <span className="text-red-500">*</span>
               </label>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                Describe your project, its features, and what problem it solves. You can also paste your demo video link here.
+                Describe your project, its features, and what problem it solves.
+                You can also paste your demo video link here.
               </p>
               <Controller
                 control={form.control}
@@ -423,7 +439,9 @@ const SubmitProjectPage: FC = (): ReactElement => {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={!form.formState.isValid || isUploading || !hasEnoughMembers}
+                disabled={
+                  !form.formState.isValid || isUploading || !hasEnoughMembers
+                }
               >
                 Review & Submit
               </Button>
@@ -462,7 +480,11 @@ const SubmitProjectPage: FC = (): ReactElement => {
             </div>
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Type <span className="font-bold text-red-600 dark:text-red-400">SUBMIT</span> to confirm:
+                Type{' '}
+                <span className="font-bold text-red-600 dark:text-red-400">
+                  SUBMIT
+                </span>{' '}
+                to confirm:
               </label>
               <input
                 type="text"
@@ -499,4 +521,3 @@ const SubmitProjectPage: FC = (): ReactElement => {
     </div>
   );
 };
-

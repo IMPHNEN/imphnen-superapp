@@ -1,58 +1,65 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { SessionToken, SessionUser, hackathonApi } from '@imphnen-frontend-service/service'
-import { useState } from 'react'
-import { Sidebar } from '../components/sidebar'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import {
+  SessionToken,
+  SessionUser,
+  hackathonApi,
+} from '@imphnen-frontend-service/service';
+import { useState } from 'react';
+import { Sidebar } from '../components/sidebar';
 
-const onboardingCache = new Map<string, { hasLocation: boolean; timestamp: number }>()
-const CACHE_DURATION = 5000
+const onboardingCache = new Map<
+  string,
+  { hasLocation: boolean; timestamp: number }
+>();
+const CACHE_DURATION = 5000;
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
-    const session = SessionToken.get()
+    const session = SessionToken.get();
     if (!session?.token?.access_token) {
-      throw redirect({ to: '/auth/login' })
+      throw redirect({ to: '/auth/login' });
     }
 
-    const user = SessionUser.get()
-    const pathname = location.pathname
+    const user = SessionUser.get();
+    const pathname = location.pathname;
 
     if (!pathname.startsWith('/onboarding')) {
-      const userId = user?.id
+      const userId = user?.id;
       if (!userId) {
-        throw redirect({ to: '/auth/login' })
+        throw redirect({ to: '/auth/login' });
       }
 
-      const now = Date.now()
-      const cached = onboardingCache.get(userId)
-      let hasLocation = false
+      const now = Date.now();
+      const cached = onboardingCache.get(userId);
+      let hasLocation = false;
 
       if (cached && now - cached.timestamp < CACHE_DURATION) {
-        hasLocation = cached.hasLocation
+        hasLocation = cached.hasLocation;
       } else {
         if (user?.location) {
-          hasLocation = true
+          hasLocation = true;
         } else {
           try {
-            const response = await hackathonApi.get('/users/me')
-            hasLocation = !!response.data?.data?.location
+            const response = await hackathonApi.get('/users/me');
+            hasLocation = !!response.data?.data?.location;
           } catch {
-            hasLocation = !!user?.location
+            hasLocation = !!user?.location;
           }
         }
 
-        onboardingCache.set(userId, { hasLocation, timestamp: now })
+        onboardingCache.set(userId, { hasLocation, timestamp: now });
       }
 
       if (!hasLocation) {
-        throw redirect({ to: '/onboarding/user' })
+        throw redirect({ to: '/onboarding/user' });
       }
     }
   },
   component: AuthenticatedLayout,
-})
+});
 
 function AuthenticatedLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -88,5 +95,5 @@ function AuthenticatedLayout() {
         </main>
       </div>
     </div>
-  )
+  );
 }

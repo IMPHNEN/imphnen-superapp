@@ -36,7 +36,7 @@ function WikiArticlePage() {
           throw new Error('Artikel tidak ditemukan');
         }
         setContent(await contentRes.text());
-        
+
         // Scroll to top on new article load
         window.scrollTo(0, 0);
       } catch (err: any) {
@@ -55,16 +55,19 @@ function WikiArticlePage() {
   let nextArticle = null;
 
   if (manifest) {
-    const allArticles = manifest.categories.flatMap((c: any) => 
+    const allArticles = manifest.categories.flatMap((c: any) =>
       c.articles.map((a: any) => ({ ...a, category: c.name }))
     );
-    
+
     const currentIndex = allArticles.findIndex((a: any) => a.slug === slug);
     if (currentIndex !== -1) {
       currentArticle = allArticles[currentIndex];
       currentCategory = currentArticle.category;
       prevArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
-      nextArticle = currentIndex < allArticles.length - 1 ? allArticles[currentIndex + 1] : null;
+      nextArticle =
+        currentIndex < allArticles.length - 1
+          ? allArticles[currentIndex + 1]
+          : null;
     }
   }
 
@@ -73,7 +76,9 @@ function WikiArticlePage() {
       {/* Top Breadcrumb Header */}
       <div className="sticky top-16 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center text-sm text-gray-500">
-          <Link to="/wiki" className="hover:text-primary-600 transition-colors">Wiki</Link>
+          <Link to="/wiki" className="hover:text-primary-600 transition-colors">
+            Wiki
+          </Link>
           <ChevronRight className="w-4 h-4 mx-1" />
           {currentCategory && (
             <>
@@ -102,9 +107,9 @@ function WikiArticlePage() {
 
         {/* Mobile sidebar is handled within WikiSidebar component via fixed button */}
         {manifest && (
-           <div className="md:hidden">
-             <WikiSidebar categories={manifest.categories} currentSlug={slug} />
-           </div>
+          <div className="md:hidden">
+            <WikiSidebar categories={manifest.categories} currentSlug={slug} />
+          </div>
         )}
 
         {/* Main Content */}
@@ -120,18 +125,25 @@ function WikiArticlePage() {
           ) : error ? (
             <div className="text-center py-20">
               <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Artikel Tidak Ditemukan</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Artikel Tidak Ditemukan
+              </h2>
               <p className="text-gray-600 mb-6">{error}</p>
-              <Link to="/wiki" className="text-primary-600 font-medium hover:underline">
+              <Link
+                to="/wiki"
+                className="text-primary-600 font-medium hover:underline"
+              >
                 Kembali ke beranda Wiki
               </Link>
             </div>
           ) : (
             <>
               {currentArticle && (
-                <h1 className="text-4xl font-bold text-gray-900 mb-8">{currentArticle.title}</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-8">
+                  {currentArticle.title}
+                </h1>
               )}
-              
+
               {/* Markdown Content */}
               <div className="prose prose-primary max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-gray-100 prose-h3:text-xl prose-h3:mt-8 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-primary-600 hover:prose-a:text-primary-700 prose-code:text-primary-700 prose-code:bg-primary-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-xl">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -142,30 +154,38 @@ function WikiArticlePage() {
               {/* Prev/Next Navigation */}
               <div className="mt-16 pt-8 border-t border-gray-100 flex flex-col sm:flex-row justify-between gap-4">
                 {prevArticle ? (
-                  <Link 
+                  <Link
                     to={`/wiki/${prevArticle.slug}`}
                     className="flex-1 flex flex-col items-start p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all group"
                   >
                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 flex items-center gap-1">
-                      <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" /> 
+                      <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
                       Sebelumnya
                     </span>
-                    <span className="font-semibold text-primary-600">{prevArticle.title}</span>
+                    <span className="font-semibold text-primary-600">
+                      {prevArticle.title}
+                    </span>
                   </Link>
-                ) : <div className="flex-1" />}
+                ) : (
+                  <div className="flex-1" />
+                )}
 
                 {nextArticle ? (
-                  <Link 
+                  <Link
                     to={`/wiki/${nextArticle.slug}`}
                     className="flex-1 flex flex-col items-end text-right p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all group"
                   >
                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 flex items-center gap-1">
                       Selanjutnya
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" /> 
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </span>
-                    <span className="font-semibold text-primary-600">{nextArticle.title}</span>
+                    <span className="font-semibold text-primary-600">
+                      {nextArticle.title}
+                    </span>
                   </Link>
-                ) : <div className="flex-1" />}
+                ) : (
+                  <div className="flex-1" />
+                )}
               </div>
             </>
           )}

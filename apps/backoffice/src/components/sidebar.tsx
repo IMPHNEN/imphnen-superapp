@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactElement, useState } from 'react';
+import { type FC, type ReactElement, useState } from 'react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import {
   LayoutDashboard,
@@ -59,21 +59,41 @@ const MENUS: MenuItem[] = [
     label: 'Hackathon',
     icon: BarChart3,
     children: [
-      { label: 'Dashboard', href: '/hackathon-dashboard', icon: LayoutDashboard },
+      {
+        label: 'Dashboard',
+        href: '/hackathon-dashboard',
+        icon: LayoutDashboard,
+      },
       { label: 'Users', href: '/hackathon-users', icon: Users },
       { label: 'Teams', href: '/hackathon-teams', icon: UsersRound },
-      { label: 'Submissions', href: '/hackathon-submissions', icon: ClipboardCheck },
+      {
+        label: 'Submissions',
+        href: '/hackathon-submissions',
+        icon: ClipboardCheck,
+      },
     ],
   },
   {
     label: 'Dimentorin',
     icon: BookOpen,
     children: [
-      { label: 'Dashboard', href: '/dashboard-dimentorin', icon: LayoutDashboard },
+      {
+        label: 'Dashboard',
+        href: '/dashboard-dimentorin',
+        icon: LayoutDashboard,
+      },
       { label: 'Users', href: '/users-dimentorin', icon: UserCog },
       { label: 'Session', href: '/session-dimentorin', icon: CalendarClock },
-      { label: 'Content & Roadmap', href: '/roadmap-dimentorin', icon: BookOpen },
-      { label: 'Feedback & Review', href: '/feedback-review-dimentorin', icon: MessageSquare },
+      {
+        label: 'Content & Roadmap',
+        href: '/roadmap-dimentorin',
+        icon: BookOpen,
+      },
+      {
+        label: 'Feedback & Review',
+        href: '/feedback-review-dimentorin',
+        icon: MessageSquare,
+      },
       { label: 'Settings', href: '/settings-dimentorin', icon: Settings },
     ],
   },
@@ -83,7 +103,11 @@ const MENUS: MenuItem[] = [
     children: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { label: 'Gacha Roll', href: '/gacha-roll', icon: RefreshCcw },
-      { label: 'Validasi Transaksi', href: '/transactions', icon: ClipboardCheck },
+      {
+        label: 'Validasi Transaksi',
+        href: '/transactions',
+        icon: ClipboardCheck,
+      },
       { label: 'Data Pengiriman', href: '/prizes', icon: Inbox },
     ],
   },
@@ -111,7 +135,10 @@ export const BackofficeSidebar: FC = (): ReactElement => {
   const navigate = useNavigate();
 
   const isActive = (path: string) => {
-    if (path === '/dashboard' && location.pathname === '/dashboard-dimentorin') {
+    if (
+      path === '/dashboard' &&
+      location.pathname === '/dashboard-dimentorin'
+    ) {
       return false;
     }
     return location.pathname.includes(path);
@@ -184,12 +211,8 @@ export const BackofficeSidebar: FC = (): ReactElement => {
                               >
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    navigate({ to: child.href })
-                                  }
-                                  className={cn(
-                                    'w-full text-left',
-                                  )}
+                                  onClick={() => navigate({ to: child.href })}
+                                  className={cn('w-full text-left')}
                                 >
                                   <ChildIcon className="size-4" />
                                   <span>{child.label}</span>

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { CloseOutlined } from '@ant-design/icons';
 import { ModalButton } from '../buttons/modal-button';
 
@@ -9,7 +9,7 @@ export type NotificationType = {
   title: string;
   message?: string;
   header: string;
-}
+};
 
 interface NotificationModalProps extends NotificationType {
   isOpen: boolean;
@@ -43,12 +43,13 @@ export const NotificationModal: FC<NotificationModalProps> = ({
       <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
         <div className="p-6 pb-4 border-b border-gray-200">
           <div className="flex">
-            <h2 className="text-xl font-semibold text-gray-900 px-3 py-1 bg-[#23A1EB]/10 rounded-md flex-1">{header}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 px-3 py-1 bg-[#23A1EB]/10 rounded-md flex-1">
+              {header}
+            </h2>
           </div>
         </div>
 
         <div className="p-8 text-center">
-
           <div className="mb-6">
             {isSuccess ? (
               <div className="w-30 h-30 mx-auto mb-4">
@@ -66,11 +67,15 @@ export const NotificationModal: FC<NotificationModalProps> = ({
               </div>
             )}
 
-            <h2 className={`text-lg font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
+            <h2
+              className={`text-lg font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}
+            >
               {title}
             </h2>
             {!isSuccess && message && (
-              <div className="mt-2 text-sm text-red-500 whitespace-pre-line">{message}</div>
+              <div className="mt-2 text-sm text-red-500 whitespace-pre-line">
+                {message}
+              </div>
             )}
           </div>
 
@@ -86,4 +91,3 @@ export const NotificationModal: FC<NotificationModalProps> = ({
     </div>
   );
 };
-

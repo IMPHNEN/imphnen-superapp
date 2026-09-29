@@ -1,62 +1,86 @@
-import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
-import { Icon } from '@iconify/react'
-import { Button, Switch, Badge } from '@imphnen-frontend-service/ui/atoms'
+import { useState } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
+import { Icon } from '@iconify/react';
+import { Button, Switch, Badge } from '@imphnen-frontend-service/ui/atoms';
 
 /**
  * Mentoring setup page route.
  * Renders mentor topics and weekly mentoring session availability.
  */
-export const Route = createFileRoute('/_authenticated/dashboard/mentor/mentoring-setup')({
+export const Route = createFileRoute(
+  '/_authenticated/dashboard/mentor/mentoring-setup'
+)({
   component: MentoringSetupPage,
-})
+});
 
 type MentoringTopic = {
-  id: string
-  label: string
-  icon: string
-}
+  id: string;
+  label: string;
+  icon: string;
+};
 
 type SessionDay = {
-  day: string
-  isActive: boolean
-  slots: string[]
-  helperText?: string
-  canAddSession?: boolean
-}
+  day: string;
+  isActive: boolean;
+  slots: string[];
+  helperText?: string;
+  canAddSession?: boolean;
+};
 
 const mentoringTopics: MentoringTopic[] = [
-  { id: 'career', label: 'Career & Self Development', icon: 'mdi:briefcase-outline' },
-  { id: 'industry', label: 'Industry Insight', icon: 'mdi:office-building-outline' },
-  { id: 'pm', label: 'Project Management & IT Tools', icon: 'mdi:clipboard-text-outline' },
+  {
+    id: 'career',
+    label: 'Career & Self Development',
+    icon: 'mdi:briefcase-outline',
+  },
+  {
+    id: 'industry',
+    label: 'Industry Insight',
+    icon: 'mdi:office-building-outline',
+  },
+  {
+    id: 'pm',
+    label: 'Project Management & IT Tools',
+    icon: 'mdi:clipboard-text-outline',
+  },
   { id: 'basic-it', label: 'Basic IT', icon: 'mdi:laptop' },
   { id: 'programming', label: 'Programming/Software Dev', icon: 'mdi:console' },
   { id: 'database', label: 'Data & Database', icon: 'mdi:database-outline' },
   { id: 'ai', label: 'AI Tips', icon: 'mdi:robot-outline' },
-]
+];
 
 const sessionDays: SessionDay[] = [
-  { day: 'Senin', isActive: true, slots: ['17:00', '19:00'], canAddSession: true },
-  { day: 'Selasa', isActive: false, slots: [], helperText: 'Tidak ada sesi hari ini' },
+  {
+    day: 'Senin',
+    isActive: true,
+    slots: ['17:00', '19:00'],
+    canAddSession: true,
+  },
+  {
+    day: 'Selasa',
+    isActive: false,
+    slots: [],
+    helperText: 'Tidak ada sesi hari ini',
+  },
   { day: 'Rabu', isActive: false, slots: [] },
   { day: 'Kamis', isActive: false, slots: [] },
   { day: "Jum'at", isActive: false, slots: [] },
   { day: 'Sabtu', isActive: false, slots: [] },
   { day: 'Minggu', isActive: false, slots: [] },
-]
+];
 
 /**
  * Mentoring setup page.
  * @returns JSX element for mentor mentoring setup route content.
  */
 export function MentoringSetupPage() {
-  const [days, setDays] = useState<SessionDay[]>(sessionDays)
+  const [days, setDays] = useState<SessionDay[]>(sessionDays);
 
   const toggleDay = (dayName: string) => {
     setDays((prev) =>
       prev.map((d) => (d.day === dayName ? { ...d, isActive: !d.isActive } : d))
-    )
-  }
+    );
+  };
 
   return (
     <section className="w-243">
@@ -67,10 +91,7 @@ export function MentoringSetupPage() {
               <h1 className="text-[35px] font-semibold leading-none text-text-label">
                 Topics
               </h1>
-              <Button
-                variant="primary"
-                size="sm"
-              >
+              <Button variant="primary" size="sm">
                 <Icon icon="mdi:plus" width="14" />
                 Tambah Topik
               </Button>
@@ -79,10 +100,7 @@ export function MentoringSetupPage() {
             <div className="min-h-116 rounded-sm border border-primary-100 bg-primary-50 p-6">
               <div className="flex flex-wrap gap-2">
                 {mentoringTopics.map((topic) => (
-                  <Badge
-                    key={topic.id}
-                    variant="outline"
-                  >
+                  <Badge key={topic.id} variant="outline">
                     <Icon
                       icon={topic.icon}
                       width="14"
@@ -100,10 +118,7 @@ export function MentoringSetupPage() {
               <h2 className="text-[35px] font-semibold leading-none text-text-label">
                 Mentoring Session
               </h2>
-              <Button
-                variant="primary"
-                size="sm"
-              >
+              <Button variant="primary" size="sm">
                 <Icon icon="mdi:plus" width="14" />
                 Tambah Sesi
               </Button>
@@ -126,10 +141,7 @@ export function MentoringSetupPage() {
                           {sessionDay.slots.length > 0 && (
                             <div className="flex flex-wrap items-center gap-2">
                               {sessionDay.slots.map((slot) => (
-                                <Badge
-                                  key={slot}
-                                  variant="outline"
-                                >
+                                <Badge key={slot} variant="outline">
                                   {slot}
                                 </Badge>
                               ))}
@@ -161,5 +173,5 @@ export function MentoringSetupPage() {
         </div>
       </div>
     </section>
-  )
+  );
 }

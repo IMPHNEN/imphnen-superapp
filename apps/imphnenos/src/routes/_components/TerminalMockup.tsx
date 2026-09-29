@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 
 interface TerminalMockupProps {
-  commands?: Array<{ 
-    prompt?: string; 
+  commands?: Array<{
+    prompt?: string;
     output?: string | string[];
     ascii?: string[];
-    info?: Array<{label: string, value: string, isHeader?: boolean, isSeparator?: boolean}>;
+    info?: Array<{
+      label: string;
+      value: string;
+      isHeader?: boolean;
+      isSeparator?: boolean;
+    }>;
   }>;
   className?: string;
 }
@@ -32,7 +37,7 @@ const defaultCommands = [
       '   `/ossssso+/:-        -:/+osssso+-',
       '  `+sso+:-`                 `.-/+oso:',
       ' `++:.                           `-/+/',
-      ' .`                                 `/'
+      ' .`                                 `/',
     ],
     info: [
       { label: 'imphnen@imphnenos', value: '', isHeader: true },
@@ -49,12 +54,15 @@ const defaultCommands = [
       { label: 'Icons', value: 'Imphnen-Icons' },
       { label: 'Terminal', value: 'alacritty' },
       { label: 'CPU', value: 'Developer Mind (12) @ 4.5GHz' },
-      { label: 'Memory', value: '16000MiB / 32000MiB' }
-    ]
-  }
+      { label: 'Memory', value: '16000MiB / 32000MiB' },
+    ],
+  },
 ];
 
-export default function TerminalMockup({ commands = defaultCommands, className = '' }: TerminalMockupProps) {
+export default function TerminalMockup({
+  commands = defaultCommands,
+  className = '',
+}: TerminalMockupProps) {
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [typedChars, setTypedChars] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -69,9 +77,12 @@ export default function TerminalMockup({ commands = defaultCommands, className =
     }
 
     if (typedChars.length < currentCommand.prompt.length) {
-      const timeout = setTimeout(() => {
-        setTypedChars(currentCommand.prompt!.slice(0, typedChars.length + 1));
-      }, 50 + Math.random() * 50);
+      const timeout = setTimeout(
+        () => {
+          setTypedChars(currentCommand.prompt!.slice(0, typedChars.length + 1));
+        },
+        50 + Math.random() * 50
+      );
       return () => clearTimeout(timeout);
     } else {
       const timeout = setTimeout(() => {
@@ -84,7 +95,7 @@ export default function TerminalMockup({ commands = defaultCommands, className =
   useEffect(() => {
     if (!isTyping && currentLineIndex < commands.length - 1) {
       const timeout = setTimeout(() => {
-        setCurrentLineIndex(prev => prev + 1);
+        setCurrentLineIndex((prev) => prev + 1);
         setTypedChars('');
         setIsTyping(true);
       }, 1000);
@@ -93,7 +104,9 @@ export default function TerminalMockup({ commands = defaultCommands, className =
   }, [isTyping, currentLineIndex, commands.length]);
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-2xl bg-[#0f172a] border border-[#1e293b] font-mono text-xs md:text-sm flex flex-col ${className}`}>
+    <div
+      className={`rounded-xl overflow-hidden shadow-2xl bg-[#0f172a] border border-[#1e293b] font-mono text-xs md:text-sm flex flex-col ${className}`}
+    >
       {/* Title bar */}
       <div className="flex items-center px-4 py-3 bg-[#1e293b] border-b border-[#334155] shrink-0">
         <div className="flex space-x-2">
@@ -111,7 +124,7 @@ export default function TerminalMockup({ commands = defaultCommands, className =
         {commands.slice(0, currentLineIndex + 1).map((cmd, i) => {
           const isCurrentCmd = i === currentLineIndex;
           const showOutput = !isCurrentCmd || !isTyping;
-          
+
           return (
             <div key={i} className="mb-4 last:mb-0">
               {cmd.prompt && (
@@ -128,15 +141,12 @@ export default function TerminalMockup({ commands = defaultCommands, className =
               )}
               {showOutput && (
                 <div className="text-cyan-300 mt-1 pl-6">
-                  {cmd.output && (
-                    Array.isArray(cmd.output) ? (
-                      cmd.output.map((line, j) => (
-                        <div key={j}>{line}</div>
-                      ))
+                  {cmd.output &&
+                    (Array.isArray(cmd.output) ? (
+                      cmd.output.map((line, j) => <div key={j}>{line}</div>)
                     ) : (
                       <div>{cmd.output}</div>
-                    )
-                  )}
+                    ))}
                   {cmd.ascii && cmd.info && (
                     <div className="flex gap-4 md:gap-8 mt-2">
                       <div className="text-cyan-400">
@@ -146,11 +156,20 @@ export default function TerminalMockup({ commands = defaultCommands, className =
                       </div>
                       <div className="text-gray-300">
                         {cmd.info.map((info, j) => {
-                          if (info.isHeader) return <div key={j} className="text-cyan-300">{info.label}</div>;
-                          if (info.isSeparator) return <div key={j}>{info.label}</div>;
+                          if (info.isHeader)
+                            return (
+                              <div key={j} className="text-cyan-300">
+                                {info.label}
+                              </div>
+                            );
+                          if (info.isSeparator)
+                            return <div key={j}>{info.label}</div>;
                           return (
                             <div key={j}>
-                              <span className="text-cyan-300">{info.label}:</span> {info.value}
+                              <span className="text-cyan-300">
+                                {info.label}:
+                              </span>{' '}
+                              {info.value}
                             </div>
                           );
                         })}
@@ -163,11 +182,11 @@ export default function TerminalMockup({ commands = defaultCommands, className =
           );
         })}
         {currentLineIndex === commands.length - 1 && !isTyping && (
-           <div className="flex items-start text-emerald-400 mt-4">
-             <span className="mr-2">➜</span>
-             <span className="text-blue-400 mr-2">~</span>
-             <span className="animate-[blink_1s_step-end_infinite] border-r-2 border-gray-400 ml-1" />
-           </div>
+          <div className="flex items-start text-emerald-400 mt-4">
+            <span className="mr-2">➜</span>
+            <span className="text-blue-400 mr-2">~</span>
+            <span className="animate-[blink_1s_step-end_infinite] border-r-2 border-gray-400 ml-1" />
+          </div>
         )}
       </div>
     </div>

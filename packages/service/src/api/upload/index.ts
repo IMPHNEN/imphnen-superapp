@@ -1,4 +1,4 @@
-import { api, ApiResponse } from '../index';
+import { api, type ApiResponse } from '../index';
 
 export interface UploadResponse {
   filename?: string;
@@ -12,7 +12,11 @@ export interface UploadResponse {
   email?: string;
 }
 
-const multipartPost = async (url: string, file: File, fieldName = 'file'): Promise<UploadResponse> => {
+const multipartPost = async (
+  url: string,
+  file: File,
+  fieldName = 'file'
+): Promise<UploadResponse> => {
   const formData = new FormData();
   formData.append(fieldName, file);
   const response = await api.post<ApiResponse<UploadResponse>>(url, formData, {
@@ -21,13 +25,17 @@ const multipartPost = async (url: string, file: File, fieldName = 'file'): Promi
   return response.data.data;
 };
 
-export const uploadHackathonFile = (file: File) => multipartPost('/v1/hackathon/upload', file);
+export const uploadHackathonFile = (file: File) =>
+  multipartPost('/v1/hackathon/upload', file);
 
-export const uploadHackathonAvatar = (file: File) => multipartPost('/v1/hackathon/upload/avatar', file);
+export const uploadHackathonAvatar = (file: File) =>
+  multipartPost('/v1/hackathon/upload/avatar', file);
 
-export const uploadHackathonTeamFile = (file: File) => multipartPost('/v1/hackathon/upload/team', file);
+export const uploadHackathonTeamFile = (file: File) =>
+  multipartPost('/v1/hackathon/upload/team', file);
 
-export const uploadHackathonSubmission = (file: File) => multipartPost('/v1/hackathon/upload/submission', file);
+export const uploadHackathonSubmission = (file: File) =>
+  multipartPost('/v1/hackathon/upload/submission', file);
 
 // Legacy service object for backward compatibility
 export const uploadService = {

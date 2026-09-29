@@ -15,9 +15,11 @@ import type {
 
 export const sessionKeys = {
   all: ['sessions'] as const,
-  mine: (params?: Record<string, unknown>) => [...sessionKeys.all, 'mine', params] as const,
+  mine: (params?: Record<string, unknown>) =>
+    [...sessionKeys.all, 'mine', params] as const,
   mentor: (id: string) => [...sessionKeys.all, 'mentor', id] as const,
-  availability: (id: string) => [...sessionKeys.all, 'availability', id] as const,
+  availability: (id: string) =>
+    [...sessionKeys.all, 'availability', id] as const,
 };
 
 export const useMentorAvailability = (mentorId: string) => {
@@ -39,7 +41,10 @@ export const useBookSession = (mentorId: string) => {
   });
 };
 
-export const useMentorSessions = (mentorId: string, params?: { status?: string }) => {
+export const useMentorSessions = (
+  mentorId: string,
+  params?: { status?: string }
+) => {
   return useQuery({
     queryKey: sessionKeys.mentor(mentorId),
     queryFn: () => getMentorSessions(mentorId, params),
@@ -57,9 +62,15 @@ export const useMySessions = (params?: { status?: string }) => {
 export const useUpdateSessionStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: TUpdateSessionStatusRequest }) =>
-      updateSessionStatus(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: TUpdateSessionStatusRequest;
+    }) => updateSessionStatus(id, data),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
   });
 };
 
@@ -68,6 +79,7 @@ export const useSubmitFeedback = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: TSessionFeedbackRequest }) =>
       submitFeedback(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
   });
 };

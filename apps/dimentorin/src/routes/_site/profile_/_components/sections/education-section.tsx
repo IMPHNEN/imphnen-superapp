@@ -1,7 +1,7 @@
-import { FC, useState, useEffect } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import { EducationModal } from '../modals';
 import { SectionWrapper } from '../shared/section-wrapper';
-import { NotificationType } from '../modals/notification-modal';
+import type { NotificationType } from '../modals/notification-modal';
 import { EditSectionButton } from '../buttons/edit-section-button';
 
 interface Education {
@@ -15,7 +15,11 @@ interface Education {
 interface EducationSectionProps {
   initialEducation: Education[];
   onSave: (newEducation: Education[]) => Promise<void>;
-  showNotification: (type: NotificationType['type'], title: string, message?: string) => void;
+  showNotification: (
+    type: NotificationType['type'],
+    title: string,
+    message?: string
+  ) => void;
   isLoading?: boolean;
   isViewOnly?: boolean;
 }
@@ -30,7 +34,6 @@ export const EducationSection: FC<EducationSectionProps> = ({
   const [isEducationModalOpen, setIsEducationModalOpen] = useState(false);
   const [education, setEducation] = useState<Education[]>(initialEducation);
 
-  
   useEffect(() => {
     setEducation(initialEducation);
   }, [initialEducation]);
@@ -57,7 +60,10 @@ export const EducationSection: FC<EducationSectionProps> = ({
     >
       <div className="space-y-4">
         {education.map((edu) => (
-          <div key={edu.id} className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg">
+          <div
+            key={edu.id}
+            className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg"
+          >
             <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div>
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900">{edu.institution}</h4>

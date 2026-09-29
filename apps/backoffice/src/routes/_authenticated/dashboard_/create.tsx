@@ -1,23 +1,25 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button } from '@imphnen-frontend-service/ui/atoms'
-import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms'
-import { useCreateGachaItem } from '@imphnen-frontend-service/service'
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from '@imphnen-frontend-service/ui/atoms';
+import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { useCreateGachaItem } from '@imphnen-frontend-service/service';
 
 export const Route = createFileRoute('/_authenticated/dashboard_/create')({
   component: DashboardCreatePage,
-})
+});
 
 function DashboardCreatePage() {
-  const navigate = useNavigate()
-  const createItem = useCreateGachaItem()
+  const navigate = useNavigate();
+  const createItem = useCreateGachaItem();
 
-  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>({
-    mode: 'all',
-    defaultValues: { itemName: '', quantity: 1 },
-  })
+  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>(
+    {
+      mode: 'all',
+      defaultValues: { itemName: '', quantity: 1 },
+    }
+  );
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -32,14 +34,14 @@ function DashboardCreatePage() {
         weight: 1,
         stock: data.quantity ?? 1,
         is_limited: false,
-      })
-      toast.success('Item ditambahkan ke gacha item')
-      navigate({ to: '/dashboard' })
+      });
+      toast.success('Item ditambahkan ke gacha item');
+      navigate({ to: '/dashboard' });
     } catch (error) {
-      console.log(error)
-      toast.error('Item gagal ditambahkan ke gacha item')
+      console.log(error);
+      toast.error('Item gagal ditambahkan ke gacha item');
     }
-  })
+  });
 
   return (
     <main className="w-full px-[48px] py-[40px] flex flex-col gap-8">
@@ -51,7 +53,9 @@ function DashboardCreatePage() {
           >
             <ArrowLeftOutlined className="text-[20px]" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Tambah Item Gacha</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Tambah Item Gacha
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -107,5 +111,5 @@ function DashboardCreatePage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

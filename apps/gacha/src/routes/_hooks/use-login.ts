@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import {
   authLoginSchema,
-  TLoginRequest,
+  type TLoginRequest,
   usePostLogin,
   useAuthStore,
 } from '@imphnen-frontend-service/service';

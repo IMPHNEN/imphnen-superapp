@@ -27,7 +27,7 @@ import {
   useUserList,
   useGachaItemList,
   useDeleteGachaItem,
-  TGachaItemDto,
+  type TGachaItemDto,
 } from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
 import { DeleteConfirmDialog } from '../../components/list-helpers';
