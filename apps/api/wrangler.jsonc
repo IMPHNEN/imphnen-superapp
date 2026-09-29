@@ -1,0 +1,28 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "imphnen-api",
+  "main": "src/main.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "routes": [{ "pattern": "api.imphnen.dev", "custom_domain": true }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "imphnen",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "imphnen-storage" }],
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "BETTER_AUTH_URL": "https://api.imphnen.dev",
+    "WEB_ORIGIN": "https://imphnen.dev",
+    "AUTH_TRUSTED_ORIGINS": "https://*.imphnen.dev",
+    "AUTH_COOKIE_DOMAIN": "imphnen.dev",
+    "MAIL_FROM": "IMPHNEN <no-reply@imphnen.dev>",
+    "STORAGE_PUBLIC_URL": "https://cdn.imphnen.dev"
+  }
+}

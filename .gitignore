@@ -86,3 +86,4 @@ docs/quality-gates.json
 docs/todo.md
 docs/workflow-state.json
 docs/adr/**
+.dev.vars

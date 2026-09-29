@@ -1,0 +1,23 @@
+{
+  "name": "@app/contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@app/schemas": "workspace:*",
+    "@orpc/contract": "^1.15.4",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@mobily/ts-belt": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

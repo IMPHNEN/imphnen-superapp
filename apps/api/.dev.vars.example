@@ -1,0 +1,9 @@
+ENVIRONMENT=development
+BETTER_AUTH_URL=http://localhost:8787
+BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
+WEB_ORIGIN=http://localhost:3000
+AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://localhost:3002,http://localhost:3003,http://localhost:3004,http://localhost:3006,http://localhost:3007,http://localhost:3008,http://localhost:4321
+AUTH_COOKIE_DOMAIN=
+STORAGE_PUBLIC_URL=http://localhost:8787/files
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=

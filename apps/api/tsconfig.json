@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.server.json",
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "test-support/**/*.ts",
+    "worker-configuration.d.ts"
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "#/*": ["./src/*"]
+    }
+  }
+}

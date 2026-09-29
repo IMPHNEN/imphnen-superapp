@@ -14,7 +14,7 @@
     "@tanstack/react-query": "catalog:",
     "axios": "catalog:",
     "js-cookie": "^3.0.5",
-    "zod": "catalog:",
+    "zod": "^3.25.76",
     "zustand": "catalog:"
   },
   "devDependencies": {

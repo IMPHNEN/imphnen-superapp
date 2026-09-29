@@ -15,7 +15,9 @@
       "!**/openapi-types.ts",
       "!**/*.astro",
       "!**/*.css",
-      "!**/public"
+      "!**/public",
+      "!**/worker-configuration.d.ts",
+      "!**/drizzle/meta"
     ]
   },
   "formatter": {

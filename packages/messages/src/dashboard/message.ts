@@ -1,0 +1,15 @@
+export const DASHBOARD_MESSAGE = {
+  TITLE: 'Dashboard',
+  TOTAL_USERS: 'Total Users',
+  TOTAL_ROLES: 'Total Roles',
+  RECENT_ACTIVITY: 'Recent Activity',
+  RECENT_ACTIVITY_EMPTY: 'No recent activity.',
+  QUICK_ACTIONS: 'Quick Actions',
+  CREATE_USER: 'New User',
+  SYSTEM_HEALTH: 'System',
+  VIEW_ALL: 'View all',
+  JUST_NOW: 'just now',
+  MINUTES_AGO: 'm ago',
+  HOURS_AGO: 'h ago',
+  DAYS_AGO: 'd ago',
+} as const;

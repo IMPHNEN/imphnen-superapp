@@ -1,0 +1,20 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+layer: "library"
+language: "typescript"
+tags: ["identity"]
+
+tasks:
+  typecheck:
+    command: "pnpm typecheck"
+    inputs:
+      - "src/**/*"
+      - "tsconfig.json"
+      - "package.json"
+
+  test:
+    command: "pnpm test"
+    inputs:
+      - "src/**/*"
+      - "tsconfig.json"
+      - "package.json"

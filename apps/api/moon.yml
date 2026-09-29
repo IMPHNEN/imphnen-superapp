@@ -1,0 +1,71 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'api'
+layer: 'application'
+language: 'typescript'
+tags: ['app']
+stack: 'backend'
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+    - 'scripts/**/*'
+    - 'test-support/**/*'
+
+tasks:
+  dev:
+    command: 'pnpm dev'
+    options:
+      persistent: true
+      runInCI: false
+
+  deploy:
+    command: 'pnpm deploy'
+    deps: ['~:typecheck', '~:test']
+    options:
+      runInCI: false
+
+  arch:
+    command: 'pnpm arch'
+    inputs:
+      - 'src/**/*'
+      - 'scripts/**/*'
+
+  typecheck:
+    command: 'pnpm typecheck'
+    deps: ['~:arch']
+    inputs:
+      - '@group(sources)'
+      - 'worker-configuration.d.ts'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/tsconfig.server.json'
+
+  test:
+    command: 'pnpm test'
+    inputs:
+      - '@group(sources)'
+      - 'vitest.config.ts'
+      - 'package.json'
+
+  types:
+    command: 'pnpm types'
+    inputs:
+      - 'wrangler.jsonc'
+    options:
+      runInCI: false
+
+  db-generate:
+    command: 'pnpm db:generate'
+    options:
+      runInCI: false
+
+  db-migrate-local:
+    command: 'pnpm db:migrate:local'
+    options:
+      runInCI: false
+
+  db-migrate-remote:
+    command: 'pnpm db:migrate:remote'
+    options:
+      runInCI: false

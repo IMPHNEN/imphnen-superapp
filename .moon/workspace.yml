@@ -8,10 +8,13 @@ vcs:
   client: 'git'
   defaultBranch: 'develop'
 
-# ui -> service -> utils, never the reverse. Apps may use all three.
+# infra -> identity (shared API vocabulary: schemas, contract, permissions, messages)
+# ui -> service -> utils on the web side. Apps may use everything.
 constraints:
   tagRelationships:
+    infra: ['infra']
+    identity: ['infra', 'identity']
     utils: ['utils']
-    service: ['utils']
-    ui: ['utils', 'service']
-    app: ['utils', 'service', 'ui']
+    service: ['utils', 'identity', 'infra']
+    ui: ['utils', 'service', 'identity', 'infra']
+    app: ['utils', 'service', 'ui', 'identity', 'infra']
