@@ -38,6 +38,7 @@ tasks:
   typecheck:
     command: 'pnpm typecheck'
     inputs:
+      - '/packages/*/src/**/*'
       - 'src/**/*'
       - 'tsconfig*.json'
       - 'package.json'
