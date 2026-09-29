@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
+    "@app/messages": "workspace:*",
+    "@app/permissions": "workspace:*",
     "@hookform/resolvers": "catalog:",
     "@iconify/react": "catalog:",
     "@imphnen-frontend-service/service": "workspace:*",
@@ -19,19 +21,18 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-table": "catalog:",
-    "axios": "catalog:",
-    "html2canvas": "catalog:",
+    "qrcode": "^1.5.4",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "catalog:",
     "sonner": "catalog:",
-    "zod": "^3.25.76",
-    "zustand": "catalog:"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",
     "@tanstack/router-plugin": "catalog:",
     "@types/node": "catalog:",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

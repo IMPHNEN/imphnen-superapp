@@ -706,6 +706,12 @@ importers:
       '@ant-design/icons':
         specifier: 'catalog:'
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@app/messages':
+        specifier: workspace:*
+        version: link:../../packages/messages
+      '@app/permissions':
+        specifier: workspace:*
+        version: link:../../packages/permissions
       '@hookform/resolvers':
         specifier: 'catalog:'
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.3.0))(zod@3.25.76)
@@ -730,12 +736,9 @@ importers:
       '@tanstack/react-table':
         specifier: 'catalog:'
         version: 8.21.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      axios:
-        specifier: 'catalog:'
-        version: 1.20.0
-      html2canvas:
-        specifier: 'catalog:'
-        version: 1.4.1
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -751,9 +754,6 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
-      zustand:
-        specifier: 'catalog:'
-        version: 5.0.15(@types/react@19.3.0)(immer@11.1.18)(react@19.3.0)(use-sync-external-store@1.7.0(react@19.3.0))
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 'catalog:'
@@ -764,6 +764,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.4
+      '@types/qrcode':
+        specifier: ^1.5.6
+        version: 1.5.6
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
