@@ -3,6 +3,14 @@ export const USER_MESSAGE = {
   EMAIL_TAKEN: 'A user with this email already exists.',
   SELF_ROLE_CHANGE: "You can't change your own role.",
   SELF_DELETE: "You can't delete your own account.",
+  SELF_DEACTIVATE: "You can't deactivate your own account.",
+  ACTIVATED: 'User activated.',
+  DEACTIVATED: 'User deactivated. Their sessions were signed out.',
+  COLUMN_STATUS: 'Status',
+  STATUS_ACTIVE: 'Active',
+  STATUS_INACTIVE: 'Inactive',
+  ACTION_ACTIVATE: 'Activate',
+  ACTION_DEACTIVATE: 'Deactivate',
   SELF_PASSWORD_RESET: 'Change your own password from your account page.',
   PASSWORD_RESET: 'Password reset. Share the new password with the user.',
   EMPTY: 'No users yet.',
@@ -57,5 +65,5 @@ export const USER_MESSAGE = {
   DELETED: 'User deleted.',
   DELETE_CONFIRM_TITLE: 'Delete this user?',
   DELETE_CONFIRM_DESCRIPTION:
-    'The account and everything it owns will be removed permanently.',
+    'The user is signed out and can no longer sign in. Their records are kept.',
 } as const;

@@ -24,6 +24,7 @@ export const ROUTE_PATH = {
   USERS: RESOURCE.USERS,
   USER: `${RESOURCE.USERS}/{id}`,
   USER_PASSWORD: `${RESOURCE.USERS}/{id}/password`,
+  USER_ACTIVE: `${RESOURCE.USERS}/{id}/active`,
   ROLES: RESOURCE.ROLES,
   ROLE: `${RESOURCE.ROLES}/{key}`,
   ...GACHA_ROUTE_PATH,

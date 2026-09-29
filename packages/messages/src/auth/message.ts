@@ -39,4 +39,15 @@ export const AUTH_MESSAGE = {
     'Sign-in succeeded, but the session could not be verified. Please try again.',
   SESSION_UNREACHABLE:
     'Sign-in succeeded, but the server is unreachable. You are still signed in, so try again once the connection is back.',
+  ACCOUNT_INACTIVE:
+    'This account is not active. Contact an administrator if you think this is a mistake.',
+  OTP_SUBJECT_VERIFY: 'Your verification code',
+  OTP_SUBJECT_SIGN_IN: 'Your sign-in code',
+  OTP_SUBJECT_PASSWORD: 'Your password reset code',
+  OTP_SUBJECT_EMAIL_CHANGE: 'Confirm your new email address',
+  OTP_GREETING: 'Hi,',
+  OTP_BODY: 'Enter this code to continue:',
+  OTP_EXPIRY:
+    'The code expires in 5 minutes. If you did not ask for it, you can ignore this email.',
+  OTP_SIGNATURE_PREFIX: '-',
 } as const;

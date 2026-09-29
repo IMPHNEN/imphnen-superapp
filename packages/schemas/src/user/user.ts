@@ -11,6 +11,7 @@ export const userSchema = baseSchema(userIdSchema).extend({
   emailVerified: z.boolean(),
   image: z.string().nullable(),
   role: z.string().min(1),
+  isActive: z.boolean(),
 });
 export type TUser = TEntityOf<z.infer<typeof userSchema>>;
 
@@ -19,6 +20,7 @@ export const userCreateInputSchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(128),
   role: z.string().min(1),
+  isActive: z.boolean().default(true),
 });
 export type TUserCreateInput = z.infer<typeof userCreateInputSchema>;
 
@@ -28,6 +30,12 @@ export const userUpdateInputSchema = z.object({
   role: z.string().min(1).optional(),
 });
 export type TUserUpdateInput = z.infer<typeof userUpdateInputSchema>;
+
+export const userActiveInputSchema = z.object({
+  id: userIdSchema,
+  isActive: z.boolean(),
+});
+export type TUserActiveInput = z.infer<typeof userActiveInputSchema>;
 
 export const userIdInputSchema = z.object({ id: userIdSchema });
 export type TUserIdInput = z.infer<typeof userIdInputSchema>;
@@ -52,6 +60,7 @@ export type TUserSort = (typeof USER_SORT)[keyof typeof USER_SORT];
 export const userListInputSchema = paginationSchema.extend({
   search: searchQuerySchema.optional(),
   role: z.string().optional(),
+  isActive: z.boolean().optional(),
   sortBy: z
     .enum([
       USER_SORT.NAME,

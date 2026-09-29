@@ -1,4 +1,5 @@
 import {
+  userActiveInputSchema,
   userCreateInputSchema,
   userIdInputSchema,
   userListInputSchema,
@@ -31,6 +32,11 @@ export const userContract = {
   update: oc
     .route({ method: HTTP_METHOD.PATCH, path: ROUTE_PATH.USER })
     .input(userUpdateInputSchema)
+    .output(userSchema),
+
+  setActive: oc
+    .route({ method: HTTP_METHOD.PATCH, path: ROUTE_PATH.USER_ACTIVE })
+    .input(userActiveInputSchema)
     .output(userSchema),
 
   remove: oc
