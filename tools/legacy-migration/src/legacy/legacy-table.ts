@@ -1,0 +1,25 @@
+export const LEGACY_TABLE = {
+  APP_USERS: 'app_users',
+  APP_ROLES: 'app_roles',
+  APP_MENTORS: 'app_mentors',
+  SESSIONS: 'sessions',
+  APP_GACHA_ITEMS: 'app_gacha_items',
+  GACHA_ROLLS: 'gacha_rolls',
+  GACHA_CREDITS: 'gacha_credits',
+  APP_GACHA_CLAIMS: 'app_gacha_claims',
+  EVENTS: 'events',
+  TESTIMONIALS: 'testimonials',
+  ROADMAP_ITEMS: 'roadmap_items',
+  QR_CAMPAIGNS: 'qr_campaigns',
+  QR_USERS: 'qr_users',
+  HACKATHON_USERS: 'hackathon_users',
+  HACKATHON_TEAMS: 'hackathon_teams',
+  HACKATHON_TEAM_MEMBERS: 'hackathon_team_members',
+  HACKATHON_TEAM_INVITATIONS: 'hackathon_team_invitations',
+  HACKATHON_TEAM_JOIN_REQUESTS: 'hackathon_team_join_requests',
+  HACKATHON_PROJECT_SUBMISSIONS: 'hackathon_project_submissions',
+  HACKATHON_WINNERS: 'hackathon_winners',
+  HACKATHON_TEAM_MESSAGES: 'hackathon_team_messages',
+} as const;
+
+export type TLegacyTable = (typeof LEGACY_TABLE)[keyof typeof LEGACY_TABLE];
