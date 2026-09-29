@@ -586,3 +586,138 @@ Dead duplicates hard-code `http://localhost:8080/api/v1/...` and are not importe
 22. The two timestamp formats differ within the same API: `+00:00` for CMS and `Z` for QR (0.7). Keep them as-is for compatibility, or unify to `Z`? The frontend parses both with `new Date()`, so unifying is likely safe.
 23. `imphnen-iam` reads `qr_users` (role, provider) for the user profile (`get_handlers.rs:199`). This is a cross-domain dependency the IAM port must keep.
 24. `v2` is an empty placeholder with no routes.
+
+---
+
+## Migration mapping (TS port)
+
+Conventions for every table below: UUID ids are copied as-is (lowercase hyphenated text). Every `timestamptz` becomes an integer of epoch milliseconds (`extract(epoch from col) * 1000`, rounded down). Every `boolean` becomes `0`/`1`. `app_users.id` equals the new better-auth `user.id`, so user references copy unchanged. Rows are inserted in this order: `event`, `testimonial`, `roadmap_item`, `roadmap_vote` (empty), `qr_campaign`.
+
+### `events` -> `event`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | copy |
+| name | name | copy |
+| description | description | copy |
+| detail_link | detail_link | copy (no URL check on migrated rows; new writes require a URL) |
+| price (double precision) | price (integer, whole rupiah) | `round(price)`. Verify first with `SELECT count(*) FROM events WHERE price <> trunc(price)`; expected 0. Negative values: clamp to 0 and report (the new schema requires `price >= 0`) |
+| is_online | is_online | boolean to 0/1 |
+| is_deleted | deleted_at | `CASE WHEN is_deleted THEN updated_at_ms ELSE NULL END` |
+| location | location | copy (nullable) |
+| start_date | start_date | timestamptz to epoch ms |
+| end_date | end_date | timestamptz to epoch ms. Rows with `end_date < start_date` are copied as-is; the check only applies to new writes |
+| created_at | created_at | epoch ms |
+| updated_at | updated_at | epoch ms |
+
+### `testimonials` -> `testimonial`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | copy |
+| user_id | user_id | copy. Rows whose `user_id` has no migrated `user` row are skipped and listed (FK is enforced, `ON DELETE CASCADE`) |
+| role | role | copy (author's job title) |
+| content | content | copy |
+| is_deleted | deleted_at | `CASE WHEN is_deleted THEN updated_at_ms ELSE NULL END` |
+| created_at | created_at | epoch ms |
+| updated_at | updated_at | epoch ms |
+| (new) | status | `'approved'` for every migrated row (they were all public before) |
+| (new) | approved_at | `created_at` epoch ms |
+| (new) | reviewed_by | NULL |
+
+`user_fullname` was never stored (derived from `app_users.first_name/last_name`); it is now read live from `user.name`.
+
+### `roadmap_items` -> `roadmap_item`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | copy |
+| title | title | copy |
+| description | description | copy |
+| status | status | copy when it is `upcoming`, `in_progress` or `completed`; any other value becomes `upcoming` and is listed in the migration report (Rust never validated it) |
+| votes | legacy_votes | copy. These votes have no voter identity; the public count is `legacy_votes + count(roadmap_vote)` |
+| is_deleted | deleted_at | `CASE WHEN is_deleted THEN updated_at_ms ELSE NULL END` |
+| created_at | created_at | epoch ms |
+| updated_at | updated_at | epoch ms |
+
+`roadmap_vote` (item_id, user_id, created_at; primary key (item_id, user_id)) is new and starts empty.
+
+### `qr_campaigns` -> `qr_campaign`
+
+| Old column | New column | Transform |
+|---|---|---|
+| id | id | copy |
+| name | name | copy |
+| url | url | copy |
+| qr_code_data (bytea PNG) | qr_image_key | Upload the bytes to R2 at key `qr/campaign/<id>.png` (content type `image/png`) and store the key. The API returns it as `qrImageUrl`. New campaigns store no image (`qr_image_key` NULL): clients render the QR from `url` |
+| is_active | is_active | 0/1. If more than one row is active, keep only the most recently updated one active (a partial unique index now allows at most one) |
+| created_by | created_by | copy when a `user` row with that id exists, else NULL (FK `ON DELETE SET NULL`) |
+| expires_at | expires_at | epoch ms |
+| created_at (nullable) | created_at | epoch ms; NULL becomes `expires_at - 30 days` |
+| updated_at (nullable) | updated_at | epoch ms; NULL becomes `created_at` |
+
+### `qr_users` -> (no table)
+
+Dropped. The QR app now uses the platform identity (`user` table, better-auth sessions); there is no per-user QR profile because no column carries data beyond identity:
+
+| Old column | Fate |
+|---|---|
+| id | same as `user.id`; nothing to copy |
+| email, name | copies of the JWT `sub` (email) written by auto-provisioning, editable only by the unused `PUT /users/me`; the platform `user.email`/`user.name` are authoritative |
+| role | `'admin'` rows: export the list (`SELECT id, email FROM qr_users WHERE role = 'admin'`) and give each of those users a role that holds `qr-campaign:*` (the fixed `admin` role, or a custom "QR admin" role created in the role editor). `'user'` rows need nothing: any signed-in user can use the watermark tool |
+| provider | identity provider marker (`external`, `google`); belongs to better-auth `account`, owned by the IAM migration |
+| created_at, updated_at | dropped (provisioning timestamps only) |
+
+The IAM port must stop reading `qr_users (role, provider)` (spec 5.23).
+
+## TS port decisions
+
+### Procedures (22)
+
+- event: `list`, `get` (public), `create`, `update`, `remove` (`event:create|update|delete`).
+- testimonial: `list`, `get` (public, approved only), `mine` (`testimonial:create`), `create` (`testimonial:create`), `moderationList`, `moderate` (`testimonial:moderate`), `update`, `remove` (signed-in; rule checked in the use case).
+- roadmap: `list`, `get` (public, with `votedByMe` when a session is present), `vote` (`roadmap:vote`), `create`, `update`, `remove` (`roadmap:create|update|delete`).
+- qr: `campaignList` (`qr-campaign:read`), `campaignCreate` (`qr-campaign:create`), `campaignActivate` (`qr-campaign:update`), `campaignRemove` (`qr-campaign:delete`), `activeCampaign`, `watermark` (any signed-in user).
+
+Public procedures: `event.list`, `event.get`, `testimonial.list`, `testimonial.get`, `roadmap.list`, `roadmap.get`. Session-only: `testimonial.update`, `testimonial.remove`, `qr.activeCampaign`, `qr.watermark`. Both lists were added to `apps/api/src/bootstrap/router.test.ts` (new `PUBLIC_DATA_PROCEDURES` list, excluded from the anonymous and no-permission checks, because public data procedures need a runtime and valid input, which the "answers without a session" test does not provide).
+
+### Fixes
+
+- Testimonials: the public list and detail show only `approved` rows. New submissions are `pending`. Authors (`testimonial:create`) may edit or delete only their own pending testimonials; moderators (`testimonial:moderate`) may edit, delete or set the status (`pending`/`approved`/`rejected`) of any. The ownership and pending check is repeated inside the conditional `UPDATE ... WHERE user_id = ? AND status = 'pending'`, so an approval between the read and the write cannot be overwritten. Fixes "anyone can edit anyone's testimonial" (5.7).
+- Roadmap voting requires sign-in (`roadmap:vote`), one vote per user per item (primary key), toggled with `vote { id, voted }` (insert `ON CONFLICT DO NOTHING` / delete, both idempotent). Counts are derived (`legacy_votes + count(*)`), so there is no lost update (5.8). Missing or deleted items return 404, not 400.
+- QR: admins are users holding `qr-campaign:*` permissions; no auto-provisioned `qr_users`, no free-form role strings (5.16, 5.17, deleted users no longer re-appear).
+- QR `expiresAt` is enforced: the active lookup ignores expired campaigns, activating an expired campaign is refused (400), and a create with an expiry in the past is refused. Default lifetime stays 30 days (`QR_CAMPAIGN_LIFETIME_DAYS`).
+- At most one active campaign is guaranteed by a partial unique index; create and activate run as one D1 batch. Activating a missing id returns 404 and leaves the current active campaign untouched (5.15). Deletes of missing ids return 404.
+- Events accept `startDate`/`endDate` as ISO datetimes with offset or as `YYYY-MM-DD` (5.2). Both fields are datetimes (the landing shows start and end times in WIB); a date-only start means 00:00 WIB and a date-only end means 23:59:59.999 WIB (`EVENT_TIMEZONE_OFFSET = +07:00`). `endDate < startDate` is refused.
+- Search works on its own (no `search_fields`), case-insensitive via `LIKE` on event name, roadmap title, and testimonial content or author name (moderation list only) (5.5).
+- Every mutation writes an activity entry (`event.*`, `testimonial.*`, `roadmap_item.*`, `qr_campaign.*`).
+
+### Behaviour changes vs Rust
+
+- Standard contract shapes: camelCase, `{ items, total, page, pageSize }`, ISO `Z` timestamps, create/update return the entity (not a message), deletes return `{ id }`. Updates are PATCH through oRPC (CORS issue 5.1 no longer applies to the contract client).
+- Soft delete is `deleted_at` instead of `is_deleted`; deleting an already-deleted row returns 404 instead of 200.
+- `price` is an integer number of rupiah.
+- Testimonial `role`/`content` limits are counted in characters (100/1000), not UTF-8 bytes.
+- Roadmap `status` is validated (`upcoming`, `in_progress`, `completed`).
+- QR list endpoints are paginated. QR errors are JSON like the rest of the API.
+- Watermark upload field is `image` (what the frontend sends), accepted types PNG, JPEG, WebP, limit 5 MiB (`QR_IMAGE_MAX_BYTES`) and 12 megapixels (`QR_IMAGE_MAX_PIXELS`). Images whose short side is under 110 px are refused (400) instead of being returned unwatermarked (3.4.7).
+- The QR image is no longer generated or stored at create. `activeCampaign` returns the payload `url` (plus `qrImageUrl` for migrated campaigns) so the client can render the QR itself (the dead `useActiveCampaignQR` + `WatermarkEditor` flow wants exactly this).
+- Watermarking runs in the Worker with `@cf-wasm/photon` (WASM, no native modules) and `uqr` (pure JS QR matrix, error correction M, 4-module quiet zone). The QR is drawn directly at `max(floor(min(w,h)/5), 100)` px with nearest-neighbour module sampling and placed 10 px from the bottom-right corner; output is an RGBA PNG. Same geometry as Rust.
+
+### Deliberate omissions
+
+- QR users endpoints (Q1 to Q5): replaced by platform user and role management (`user.list`, `user.update` role, `user.remove`). The permission `qr-user:manage` is currently unused by this module.
+- Event and roadmap detail pages were unused by the frontends but are kept (`get`) since the rewritten backoffice needs them instead of fetching 100 rows and filtering client-side.
+
+### Dependencies added
+
+- `@cf-wasm/photon@0.4.0` and `uqr@0.1.3` in `apps/api`. The Worker bundle grows by about 630 KiB gzip (photon WASM is 1.6 MiB raw; total upload about 1.3 MiB gzip).
+
+### Open questions for the product owner
+
+1. Watermarking cost: decoding a 12 MP photo needs about 48 MiB of RGBA memory plus the PNG encode, inside the Worker's 128 MiB limit and CPU budget. Should the QR app instead composite client-side (canvas) using `activeCampaign`, and drop `qr.watermark` and the photon dependency?
+2. Should moderators need `testimonial:create` for nothing (current) or should `update`/`remove` become permission-guarded procedures? Today any signed-in user reaches them and the use case decides.
+3. `qr-user:manage`: remove it, or use it for a future "grant QR admin" shortcut screen?
+4. Migrated testimonials are all set to `approved`. Confirm, or should they go through moderation again?
+5. Should the watermark output keep PNG (lossless, large) or re-encode as JPEG/WebP for photos?
+6. Event date-only input is interpreted in WIB (+07:00). Confirm this timezone for all events.
