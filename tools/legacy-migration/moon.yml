@@ -1,0 +1,28 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'legacy-migration'
+layer: 'tool'
+language: 'typescript'
+tags: ['app']
+stack: 'backend'
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+
+tasks:
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - '@group(sources)'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/tsconfig.server.json'
+
+  test:
+    command: 'pnpm test'
+    inputs:
+      - '@group(sources)'
+      - 'vitest.config.ts'
+      - 'package.json'
+      - '/apps/api/drizzle/*.sql'
