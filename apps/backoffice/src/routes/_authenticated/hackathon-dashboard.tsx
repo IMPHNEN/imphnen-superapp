@@ -1,14 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router';
 import type * as React from 'react';
 import { UsersRound, UserCog, ClipboardCheck } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { HACKATHON_SUBMISSION_STATUS } from '@app/schemas';
 import { Card, CardContent } from '@imphnen-frontend-service/ui/atoms';
 import { BackofficeWrapper } from '@imphnen-frontend-service/ui/organisms';
 import {
-  getAdminUsers,
-  getAdminTeams,
-  getAdminSubmissions,
-} from '@imphnen-frontend-service/service';
+  useHackathonParticipantList,
+  useHackathonSubmissionList,
+  useHackathonTeamList,
+} from './_hooks/use-hackathon';
+
+const COUNT_ONLY = { page: 1, pageSize: 1 } as const;
+const EMPTY_STAT = '—';
 
 export const Route = createFileRoute('/_authenticated/hackathon-dashboard')({
   component: HackathonDashboardPage,
@@ -39,22 +42,16 @@ function StatCard({ icon: Icon, label, value }: StatCardProps) {
 }
 
 function HackathonDashboardPage() {
-  const { data: usersData } = useQuery({
-    queryKey: ['admin-users-count'],
-    queryFn: () => getAdminUsers({ page: 1, per_page: 1 }),
-  });
-  const { data: teamsData } = useQuery({
-    queryKey: ['admin-teams-count'],
-    queryFn: () => getAdminTeams({ page: 1, per_page: 1 }),
-  });
-  const { data: submissionsData } = useQuery({
-    queryKey: ['admin-submissions-count'],
-    queryFn: () => getAdminSubmissions({ page: 1, per_page: 1 }),
+  const { data: usersData } = useHackathonParticipantList(COUNT_ONLY);
+  const { data: teamsData } = useHackathonTeamList(COUNT_ONLY);
+  const { data: submissionsData } = useHackathonSubmissionList({
+    ...COUNT_ONLY,
+    status: HACKATHON_SUBMISSION_STATUS.SUBMITTED,
   });
 
-  const totalParticipants = usersData?.meta?.total_data ?? '—';
-  const totalTeams = teamsData?.meta?.total_data ?? '—';
-  const totalSubmissions = submissionsData?.meta?.total_data ?? '—';
+  const totalParticipants = usersData?.total ?? EMPTY_STAT;
+  const totalTeams = teamsData?.total ?? EMPTY_STAT;
+  const totalSubmissions = submissionsData?.total ?? EMPTY_STAT;
 
   return (
     <BackofficeWrapper

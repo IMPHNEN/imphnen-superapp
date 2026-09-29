@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
-import { Search, Plus, Users as TeamIcon, Pencil, X } from 'lucide-react';
+import { Search, Users as TeamIcon, Pencil } from 'lucide-react';
 import ModalTeamDetail from './_components/hackathon-teams/modal-team-detail-new';
 import {
   BackofficeWrapper,
@@ -18,13 +18,18 @@ import {
   CardHeader,
   Input,
 } from '@imphnen-frontend-service/ui/atoms';
-import { useQuery } from '@tanstack/react-query';
 import {
-  getAdminTeams,
-  type TAdminTeamItem,
-} from '@imphnen-frontend-service/service';
+  type THackathonTeam,
+  useHackathonTeamList,
+} from './_hooks/use-hackathon';
 
-type TeamType = TAdminTeamItem;
+type TeamType = THackathonTeam;
+
+const SUBMISSION_VARIANT = {
+  draft: 'secondary',
+  pending: 'warning',
+  submitted: 'success',
+} as const;
 
 export const Route = createFileRoute('/_authenticated/hackathon-teams')({
   component: HackathonTeamsPage,
@@ -43,37 +48,21 @@ function HackathonTeamsPage() {
   const perPage = searchParams.per_page || 10;
 
   const [showDetailModal, setShowDetailModal] = React.useState(false);
-  const [showNewTeamModal, setShowNewTeamModal] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<TeamType | null>(null);
   const [globalFilter, setGlobalFilter] = React.useState(searchQuery);
-  const [visibilityFilter, setVisibilityFilter] = React.useState('all');
-  const [cityFilter, setCityFilter] = React.useState('all');
 
   const {
     data: teamsResponse,
     isLoading,
     isFetching,
-  } = useQuery({
-    queryKey: [
-      'admin-teams',
-      currentPage,
-      perPage,
-      cityFilter,
-      visibilityFilter,
-      searchQuery,
-    ],
-    queryFn: () =>
-      getAdminTeams({
-        page: currentPage,
-        per_page: perPage,
-        search: searchQuery || undefined,
-      }),
-    staleTime: 30000,
-    gcTime: 5 * 60 * 1000,
+  } = useHackathonTeamList({
+    page: currentPage,
+    pageSize: perPage,
+    search: searchQuery || undefined,
   });
 
-  const totalData = teamsResponse?.meta?.total_data || 0;
-  const totalPages = teamsResponse?.meta?.total_page || 1;
+  const totalData = teamsResponse?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalData / perPage));
 
   const handlePageChange = React.useCallback(
     (newPage: number) => {
@@ -109,13 +98,10 @@ function HackathonTeamsPage() {
     });
   }, [globalFilter, navigate, perPage]);
 
-  const filteredData = React.useMemo<TeamType[]>(() => {
-    return (
-      ((teamsResponse?.data as any)?.data as TeamType[]) ??
-      (teamsResponse?.data as TeamType[]) ??
-      []
-    );
-  }, [teamsResponse]);
+  const filteredData = React.useMemo<TeamType[]>(
+    () => [...(teamsResponse?.items ?? [])],
+    [teamsResponse]
+  );
 
   const handleShowDetailModal = React.useCallback((team: TeamType) => {
     setSelectedTeam(team);
@@ -131,7 +117,7 @@ function HackathonTeamsPage() {
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage
-                src={row.original.logo ?? undefined}
+                src={row.original.logoUrl ?? undefined}
                 alt={row.original.name}
               />
               <AvatarFallback>
@@ -174,20 +160,41 @@ function HackathonTeamsPage() {
       },
       {
         id: 'leader',
-        header: 'Leader ID',
+        header: 'Leader',
         cell: ({ row }) => (
-          <div className="font-mono text-xs text-muted-foreground">
-            {row.original.leader_id}
-          </div>
+          <span className="text-sm text-foreground">
+            {row.original.leader.name}
+          </span>
         ),
         enableSorting: false,
       },
       {
-        accessorKey: 'created_at',
+        accessorKey: 'memberCount',
+        header: 'Members',
+        enableSorting: true,
+      },
+      {
+        id: 'submission',
+        header: 'Submission',
+        cell: ({ row }) =>
+          row.original.submissionStatus ? (
+            <Badge
+              variant={SUBMISSION_VARIANT[row.original.submissionStatus]}
+              className="capitalize"
+            >
+              {row.original.submissionStatus}
+            </Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'createdAt',
         header: 'Created',
         cell: ({ row }) => (
           <span className="text-sm text-foreground">
-            {new Date(row.original.created_at).toLocaleDateString('en-UK', {
+            {new Date(row.original.createdAt).toLocaleDateString('en-UK', {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
@@ -216,8 +223,6 @@ function HackathonTeamsPage() {
     [handleShowDetailModal]
   );
 
-  const hasActiveFilters = visibilityFilter !== 'all' || cityFilter !== 'all';
-
   return (
     <BackofficeWrapper
       title="Hackathon Teams"
@@ -230,53 +235,15 @@ function HackathonTeamsPage() {
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Cari nama atau kota…"
+                placeholder="Cari nama team…"
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
-            <Button onClick={() => setShowNewTeamModal(true)} size="md">
-              <Plus className="size-4" />
-              Add Team
-            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Active filters:
-              </span>
-              {visibilityFilter !== 'all' && (
-                <Badge variant="info" className="gap-1">
-                  Visibility: {visibilityFilter}
-                  <button onClick={() => setVisibilityFilter('all')}>
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              {cityFilter !== 'all' && (
-                <Badge variant="success" className="gap-1">
-                  City: {cityFilter}
-                  <button onClick={() => setCityFilter('all')}>
-                    <X className="size-3" />
-                  </button>
-                </Badge>
-              )}
-              <Button
-                variant="text"
-                size="sm"
-                onClick={() => {
-                  setVisibilityFilter('all');
-                  setCityFilter('all');
-                  setGlobalFilter('');
-                }}
-              >
-                Clear All
-              </Button>
-            </div>
-          )}
           {isLoading ? (
             <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
               Memuat data teams…
@@ -315,11 +282,6 @@ function HackathonTeamsPage() {
           setSelectedTeam(null);
         }}
         team={selectedTeam}
-      />
-      <ModalTeamDetail
-        isOpen={showNewTeamModal}
-        onClose={() => setShowNewTeamModal(false)}
-        team={null}
       />
     </BackofficeWrapper>
   );

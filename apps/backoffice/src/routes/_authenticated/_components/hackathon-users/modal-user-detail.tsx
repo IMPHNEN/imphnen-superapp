@@ -1,4 +1,7 @@
-import { type FC, useState, useEffect, useMemo, useRef } from 'react';
+import { type FC, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { PERMISSION } from '@app/permissions';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { cn } from '@imphnen-frontend-service/utils';
 import {
@@ -8,252 +11,139 @@ import {
   SaveOutlined,
   CloseOutlined,
   ExclamationOutlined,
-  CameraOutlined,
-  DeleteOutlined,
-  UploadOutlined,
+  MailOutlined,
+  PhoneOutlined,
 } from '@ant-design/icons';
-
-interface UserType {
-  id: string;
-  avatar?: string | null;
-  fullname: string;
-  bio?: string;
-  location: string | null;
-  is_active: boolean;
-  skills: string[];
-  created_at: string;
-  updated_at: string;
-}
+import { errorMessage } from '../../../../libs/errors';
+import {
+  type THackathonParticipant,
+  useHackathonParticipant,
+} from '../../_hooks/use-hackathon';
+import {
+  useUser,
+  useUserRemove,
+  useUserSetActive,
+  useUserUpdate,
+} from '../../_hooks/use-users';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: UserType | null;
+  user: THackathonParticipant | null;
 }
 
+const formatLongDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
 const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
-  const [formData, setFormData] = useState<UserType | null>(null);
+  const { me, can } = useCurrentUser();
+  const [name, setName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const userId = isOpen && user ? user.userId : undefined;
+  const isSelf = me?.user.id === userId;
+
+  const { data: profile } = useHackathonParticipant(userId);
+  const { data: account } = useUser(
+    can(PERMISSION.USER_READ) ? userId : undefined
+  );
+  const updateUser = useUserUpdate();
+  const setActive = useUserSetActive();
+  const removeUser = useUserRemove();
 
   useEffect(() => {
-    if (isOpen) {
-      if (user) {
-        setFormData({ ...user });
-      } else {
-        setFormData({
-          id: '',
-          fullname: '',
-          bio: '',
-          location: '',
-          is_active: true,
-          skills: [],
-          avatar: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-      }
-    }
+    if (isOpen && user) setName(user.name);
   }, [isOpen, user]);
 
-  const hasChanges = useMemo(() => {
-    if (!formData) return false;
-    if (!user) return true;
-    return (
-      formData.fullname !== user.fullname ||
-      formData.location !== user.location ||
-      formData.is_active !== user.is_active ||
-      formData.avatar !== user.avatar ||
-      JSON.stringify(formData.skills) !== JSON.stringify(user.skills) ||
-      formData.bio !== user.bio
-    );
-  }, [formData, user]);
+  if (!isOpen || !user) return null;
 
-  const isFormValid = useMemo(() => {
-    if (!formData) return false;
-    return formData.fullname?.trim() !== '' && formData.location?.trim() !== '';
-  }, [formData]);
+  const trimmedName = name.trim();
+  const canSave =
+    can(PERMISSION.USER_UPDATE) &&
+    trimmedName !== '' &&
+    trimmedName !== user.name &&
+    !updateUser.isPending;
 
-  const canSave = hasChanges && isFormValid;
-
-  if (!isOpen || !formData) return null;
-
-  const handleInputChange = (
-    field: keyof UserType,
-    value: string | boolean | string[] | undefined
-  ) => {
-    setFormData((prev) => (prev ? { ...prev, [field]: value } : null));
-  };
-
-  const handleSkillsChange = (skills: string[]) => {
-    setFormData((prev) => (prev ? { ...prev, skills } : null));
-  };
-
-  const handleSave = () => {
-    if (!formData) return;
-
-    if (user) {
-      console.log('Update user data:', formData);
-    } else {
-      console.log('Create new user:', formData);
-    }
-    onClose();
-  };
-
-  const handleCancel = () => {
-    if (user) {
-      setFormData({ ...user });
-    }
-    onClose();
-  };
-
-  const handleDeleteAccount = () => {
-    if (!user) return;
-    console.log('Delete user:', user.id);
-    setShowDeleteConfirm(false);
-    onClose();
-  };
-
-  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const avatarUrl = e.target?.result as string;
-        handleInputChange('avatar', avatarUrl);
-        setShowAvatarMenu(false);
-      };
-      reader.readAsDataURL(file);
+  const handleSave = async () => {
+    try {
+      await updateUser.mutateAsync({ id: user.userId, name: trimmedName });
+      toast.success('Nama pengguna diperbarui');
+      onClose();
+    } catch (error) {
+      toast.error(errorMessage(error, 'Perubahan gagal disimpan'));
     }
   };
 
-  const handleRemoveAvatar = () => {
-    handleInputChange('avatar', undefined);
-    setShowAvatarMenu(false);
+  const handleSetActive = async (isActive: boolean) => {
+    if (!account || account.isActive === isActive) return;
+    try {
+      await setActive.mutateAsync({ id: user.userId, isActive });
+      toast.success(isActive ? 'Akun diaktifkan' : 'Akun dinonaktifkan');
+    } catch (error) {
+      toast.error(errorMessage(error, 'Status akun gagal diubah'));
+    }
   };
 
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
+  const handleDeleteAccount = async () => {
+    try {
+      await removeUser.mutateAsync({ id: user.userId });
+      toast.success('Akun dihapus');
+      setShowDeleteConfirm(false);
+      onClose();
+    } catch (error) {
+      toast.error(errorMessage(error, 'Akun gagal dihapus'));
+    }
   };
 
-  const availableSkills = [
-    'Frontend Developer',
-    'Backend Developer',
-    'Full Stack Developer',
-    'DevOps Engineer',
-    'UI/UX Designer',
-    'Product Manager',
-    'Data Scientist',
-    'Mobile Developer',
-  ];
+  const skills = profile?.skills ?? [];
+  const canToggleActive = !!account && can(PERMISSION.USER_ACTIVATE) && !isSelf;
+  const isActive = account?.isActive ?? true;
 
   return (
     <div className="fixed inset-0 z-50">
       <div
         className="fixed inset-0 bg-black/50"
-        onClick={(e) => {
-          setShowAvatarMenu(false);
-          onClose();
-        }}
+        onClick={onClose}
+        aria-hidden="true"
       />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div
-          className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleAvatarUpload}
-            accept="image/*"
-            className="hidden"
-          />
+      <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div className="pointer-events-auto bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="border-b border-neutral-200 px-8 py-6 flex justify-between items-start">
             <div className="flex items-center gap-4">
-              <div className="relative group ">
-                <div className="w-16 h-16 rounded-full bg-neutral-200 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary-300 transition-colors">
-                  {formData.avatar ? (
-                    <img
-                      src={formData.avatar}
-                      alt={formData.fullname}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <UserOutlined className="text-neutral-500 text-2xl" />
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setShowAvatarMenu(!showAvatarMenu)}
-                  className="absolute inset-0 bg-neutral-400 cursor-pointer rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  <CameraOutlined className="text-white text-lg" />
-                </button>
-
-                {showAvatarMenu && (
-                  <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 min-w-[140px] z-10">
-                    <button
-                      onClick={triggerFileUpload}
-                      className="w-full px-4 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 flex items-center gap-2 cursor-pointer"
-                    >
-                      <UploadOutlined className="text-sm" />
-                      {formData.avatar ? 'Change Photo' : 'Upload Photo'}
-                    </button>
-                    {formData.avatar && (
-                      <button
-                        onClick={handleRemoveAvatar}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
-                      >
-                        <DeleteOutlined className="text-sm" />
-                        Remove Photo
-                      </button>
-                    )}
-                  </div>
+              <div className="w-16 h-16 rounded-full bg-neutral-200 flex items-center justify-center overflow-hidden">
+                {user.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <UserOutlined className="text-neutral-500 text-2xl" />
                 )}
               </div>
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-bold text-neutral-900">
-                    {user ? 'Edit User Profile' : 'Create New User'}
-                  </h2>
-                  {user && (
-                    <span className="px-3 py-1 bg-info-100 text-info-700 text-xs font-medium rounded-2xl">
-                      Hover avatar to change
-                    </span>
-                  )}
-                </div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+                  Edit User Profile
+                </h2>
                 <div className="text-sm text-neutral-500">
-                  {user
-                    ? `Make changes to ${
-                        formData.fullname || 'this user'
-                      }'s profile information`
-                    : 'Fill in the information below to create a new user account'}
+                  Profil hackathon diisi oleh peserta; admin dapat mengubah nama
+                  dan status akun.
                 </div>
               </div>
             </div>
             <button
+              type="button"
               className="p-2 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer"
-              onClick={() => {
-                setShowAvatarMenu(false);
-                handleCancel();
-              }}
+              onClick={onClose}
             >
               <CloseOutlined className="text-neutral-400 text-lg" />
             </button>
           </div>
 
-          <div className="p-8" onClick={() => setShowAvatarMenu(false)}>
+          <div className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
@@ -264,259 +154,174 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                     <div className="flex items-center gap-3">
                       <UserOutlined className="text-neutral-400" />
                       <div className="flex-1">
-                        <label className="text-sm text-neutral-500 block mb-1">
+                        <label
+                          htmlFor="participant-name"
+                          className="text-sm text-neutral-500 block mb-1"
+                        >
                           Full Name <span className="text-red-500">*</span>
                         </label>
                         <input
+                          id="participant-name"
                           type="text"
-                          value={formData.fullname}
-                          onChange={(e) =>
-                            handleInputChange('fullname', e.target.value)
-                          }
+                          value={name}
+                          disabled={!can(PERMISSION.USER_UPDATE)}
+                          onChange={(e) => setName(e.target.value)}
                           className={cn(
                             'w-full border rounded-lg px-3 py-2 text-sm focus:border-primary-500 focus:outline-none',
-                            !formData.fullname ||
-                              formData.fullname.trim() === ''
+                            trimmedName === ''
                               ? 'border-red-300 bg-red-50'
                               : 'border-neutral-300'
                           )}
                           placeholder="Enter full name"
                         />
-                        {(!formData.fullname ||
-                          formData.fullname.trim() === '') && (
-                          <p className="text-red-500 text-xs mt-1">
-                            Full name is required
-                          </p>
-                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <MailOutlined className="text-neutral-400" />
+                      <div>
+                        <p className="text-sm text-neutral-500">Email</p>
+                        <p className="font-medium">{user.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <PhoneOutlined className="text-neutral-400" />
+                      <div>
+                        <p className="text-sm text-neutral-500">Phone</p>
+                        <p className="font-medium">{user.phoneNumber ?? '-'}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <EnvironmentOutlined className="text-neutral-400" />
-                      <div className="flex-1">
-                        <label className="text-sm text-neutral-500 block mb-1">
-                          Location <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          value={formData.location || ''}
-                          onChange={(e) =>
-                            handleInputChange('location', e.target.value)
-                          }
-                          className={cn(
-                            'w-full border rounded-lg px-3 py-2 text-sm focus:border-primary-500 focus:outline-none bg-white',
-                            !formData.location ||
-                              formData.location.trim() === ''
-                              ? 'border-red-300 bg-red-50'
-                              : 'border-neutral-300'
-                          )}
-                        >
-                          <option value="">Select location</option>
-                          <option value="Jakarta">Jakarta</option>
-                          <option value="Bandung">Bandung</option>
-                          <option value="Surabaya">Surabaya</option>
-                          <option value="Medan">Medan</option>
-                          <option value="Yogyakarta">Yogyakarta</option>
-                        </select>
-                        {(!formData.location ||
-                          formData.location.trim() === '') && (
-                          <p className="text-red-500 text-xs mt-1">
-                            Location is required
-                          </p>
-                        )}
+                      <div>
+                        <p className="text-sm text-neutral-500">Location</p>
+                        <p className="font-medium">{user.location ?? '-'}</p>
                       </div>
                     </div>
 
-                    {user && (
-                      <div className="flex items-center gap-3">
-                        <CalendarOutlined className="text-neutral-400" />
-                        <div>
-                          <p className="text-sm text-neutral-500">
-                            Joined Date
-                          </p>
-                          <p className="font-medium">
-                            {new Date(formData.created_at).toLocaleDateString(
-                              'en-US',
-                              {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              }
-                            )}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <CalendarOutlined className="text-neutral-400" />
+                      <div>
+                        <p className="text-sm text-neutral-500">Joined Date</p>
+                        <p className="font-medium">
+                          {formatLongDate(user.createdAt)}
+                        </p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-semibold text-neutral-900 mb-3">
-                    Bio{' '}
-                    <span className="text-neutral-400 text-sm font-normal">
-                      (Optional)
-                    </span>
+                    Bio
                   </h3>
-                  <textarea
-                    value={formData.bio || ''}
-                    onChange={(e) =>
-                      handleInputChange('bio', e.target.value || undefined)
-                    }
-                    placeholder="Tell us about yourself..."
-                    rows={4}
-                    className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:border-primary-500 focus:outline-none resize-none"
-                  />
+                  <p className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm text-neutral-700 min-h-24 whitespace-pre-wrap">
+                    {profile?.bio || '-'}
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-                    Account Status
-                  </h3>
-                  <div className="flex bg-neutral-100 p-1 rounded-lg">
-                    <button
-                      onClick={() => handleInputChange('is_active', true)}
-                      className={cn(
-                        'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer',
-                        formData.is_active
-                          ? 'bg-white text-success-700 shadow-sm ring-1 ring-success-200'
-                          : 'text-neutral-600 hover:text-neutral-800'
-                      )}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <div
-                          className={cn(
-                            'w-2 h-2 rounded-full',
-                            formData.is_active
-                              ? 'bg-success-500'
-                              : 'bg-neutral-400'
-                          )}
-                        />
-                        Active
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => handleInputChange('is_active', false)}
-                      className={cn(
-                        'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer',
-                        !formData.is_active
-                          ? 'bg-white text-neutral-700 shadow-sm ring-1 ring-neutral-200'
-                          : 'text-neutral-600 hover:text-neutral-800'
-                      )}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <div
-                          className={cn(
-                            'w-2 h-2 rounded-full',
-                            !formData.is_active
-                              ? 'bg-neutral-500'
-                              : 'bg-neutral-400'
-                          )}
-                        />
-                        Inactive
-                      </div>
-                    </button>
-                  </div>
-                  <p className="text-xs text-neutral-500 mt-2">
-                    {formData.is_active
-                      ? 'User can access their account and participate in activities'
-                      : 'User account is suspended and cannot access services'}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-                    Skills & Expertise{' '}
-                    <span className="text-neutral-400 text-sm font-normal">
-                      (Optional)
-                    </span>
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2 min-h-10 p-3 border border-neutral-300 rounded-lg bg-neutral-50">
-                      {formData.skills.length > 0 ? (
-                        formData.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl text-sm font-medium bg-blue-100 text-blue-800"
-                          >
-                            {skill}
-                            <button
-                              onClick={() =>
-                                handleSkillsChange(
-                                  formData.skills.filter((_, i) => i !== index)
-                                )
-                              }
-                              className="text-blue-600 hover:text-blue-800 ml-1 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-neutral-400 text-sm">
-                          No skills added yet
-                        </span>
-                      )}
-                    </div>
-                    <select
-                      value=""
-                      onChange={(e) => {
-                        if (
-                          e.target.value &&
-                          !formData.skills.includes(e.target.value)
-                        ) {
-                          handleSkillsChange([
-                            ...formData.skills,
-                            e.target.value,
-                          ]);
-                        }
-                      }}
-                      className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:border-primary-500 focus:outline-none bg-white"
-                    >
-                      <option value="">Add a skill...</option>
-                      {availableSkills
-                        .filter((skill) => !formData.skills.includes(skill))
-                        .map((skill) => (
-                          <option key={skill} value={skill}>
-                            {skill}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                </div>
-
-                {user && (
+                {account && (
                   <div>
                     <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-                      Account Details
+                      Account Status
                     </h3>
-                    <div className="space-y-3 bg-neutral-50 p-4 rounded-lg">
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-neutral-600 text-sm">
-                          User ID
-                        </span>
-                        <span className="font-mono text-sm text-neutral-800">
-                          {formData.id}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center py-1">
-                        <span className="text-neutral-600 text-sm">
-                          Last Updated
-                        </span>
-                        <span className="text-sm text-neutral-800">
-                          {new Date(formData.updated_at).toLocaleDateString(
-                            'en-US',
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            }
-                          )}
-                        </span>
-                      </div>
+                    <div className="flex bg-neutral-100 p-1 rounded-lg">
+                      <button
+                        type="button"
+                        disabled={!canToggleActive || setActive.isPending}
+                        onClick={() => handleSetActive(true)}
+                        className={cn(
+                          'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed',
+                          isActive
+                            ? 'bg-white text-success-700 shadow-sm ring-1 ring-success-200'
+                            : 'text-neutral-600 hover:text-neutral-800'
+                        )}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <div
+                            className={cn(
+                              'w-2 h-2 rounded-full',
+                              isActive ? 'bg-success-500' : 'bg-neutral-400'
+                            )}
+                          />
+                          Active
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!canToggleActive || setActive.isPending}
+                        onClick={() => handleSetActive(false)}
+                        className={cn(
+                          'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed',
+                          !isActive
+                            ? 'bg-white text-neutral-700 shadow-sm ring-1 ring-neutral-200'
+                            : 'text-neutral-600 hover:text-neutral-800'
+                        )}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <div
+                            className={cn(
+                              'w-2 h-2 rounded-full',
+                              !isActive ? 'bg-neutral-500' : 'bg-neutral-400'
+                            )}
+                          />
+                          Inactive
+                        </div>
+                      </button>
                     </div>
+                    <p className="text-xs text-neutral-500 mt-2">
+                      {isActive
+                        ? 'User can access their account and participate in activities'
+                        : 'User account is suspended and cannot access services'}
+                    </p>
                   </div>
                 )}
+
+                <div>
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">
+                    Skills & Expertise
+                  </h3>
+                  <div className="flex flex-wrap gap-2 min-h-10 p-3 border border-neutral-300 rounded-lg bg-neutral-50">
+                    {skills.length > 0 ? (
+                      skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl text-sm font-medium bg-blue-100 text-blue-800"
+                        >
+                          {skill}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-neutral-400 text-sm">
+                        No skills added yet
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">
+                    Account Details
+                  </h3>
+                  <div className="space-y-3 bg-neutral-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-neutral-600 text-sm">User ID</span>
+                      <span className="font-mono text-sm text-neutral-800">
+                        {user.userId}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-neutral-600 text-sm">Team</span>
+                      <span className="text-sm text-neutral-800">
+                        {user.team?.name ?? '-'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -524,15 +329,9 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
           <div className="border-t border-neutral-200 px-8 py-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <div className="text-sm text-neutral-500">
-                  {canSave
-                    ? 'Ready to save changes'
-                    : hasChanges
-                      ? 'Please fill required fields'
-                      : 'No changes made'}
-                </div>
-                {user && (
+                {can(PERMISSION.USER_DELETE) && !isSelf && (
                   <button
+                    type="button"
                     onClick={() => setShowDeleteConfirm(true)}
                     className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors cursor-pointer"
                   >
@@ -545,7 +344,7 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={handleCancel}
+                  onClick={onClose}
                   className="px-6"
                 >
                   Cancel
@@ -561,7 +360,7 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                   )}
                 >
                   <SaveOutlined className="text-sm" />
-                  {user ? 'Save Changes' : 'Create User'}
+                  Save Changes
                 </Button>
               </div>
             </div>
@@ -572,9 +371,10 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
               <div
                 className="fixed inset-0 bg-black/50"
                 onClick={() => setShowDeleteConfirm(false)}
+                aria-hidden="true"
               />
-              <div className="fixed inset-0 flex items-center justify-center p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+              <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+                <div className="pointer-events-auto bg-white rounded-xl shadow-2xl w-full max-w-md">
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -585,14 +385,14 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                           Delete Account
                         </h3>
                         <p className="text-sm text-neutral-500">
-                          This action cannot be undone
+                          The account is deactivated and hidden
                         </p>
                       </div>
                     </div>
                     <p className="text-neutral-700 mb-6">
-                      Are you sure you want to permanently delete{' '}
-                      <strong>{formData.fullname}</strong>'s account? This will
-                      remove all their data and cannot be reversed.
+                      Are you sure you want to delete{' '}
+                      <strong>{user.name}</strong>'s account? A team they lead
+                      is deleted with it.
                     </p>
                     <div className="flex gap-3 justify-end">
                       <Button
@@ -604,10 +404,11 @@ const ModalUserDetail: FC<ModalProps> = ({ isOpen, onClose, user }) => {
                         Cancel
                       </Button>
                       <Button
-                        variant="primary"
+                        variant="danger"
                         size="sm"
                         onClick={handleDeleteAccount}
-                        className="px-4 bg-red-600 hover:bg-red-700 border-red-600"
+                        disabled={removeUser.isPending}
+                        className="px-4"
                       >
                         Delete Account
                       </Button>

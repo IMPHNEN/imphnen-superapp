@@ -15,13 +15,19 @@ import {
   CardHeader,
   Input,
 } from '@imphnen-frontend-service/ui/atoms';
-import { useQuery } from '@tanstack/react-query';
+import { HACKATHON_SUBMISSION_STATUS } from '@app/schemas';
 import {
-  getAdminSubmissions,
-  type TAdminSubmissionItem,
-} from '@imphnen-frontend-service/service';
+  type THackathonSubmission,
+  type THackathonSubmissionStatus,
+  useHackathonSubmissionList,
+} from './_hooks/use-hackathon';
 
-type SubmissionType = TAdminSubmissionItem;
+type SubmissionType = THackathonSubmission;
+
+const isSubmissionStatus = (
+  value: string
+): value is THackathonSubmissionStatus =>
+  Object.values<string>(HACKATHON_SUBMISSION_STATUS).includes(value);
 
 export const Route = createFileRoute('/_authenticated/hackathon-submissions')({
   component: HackathonSubmissionsPage,
@@ -50,27 +56,15 @@ function HackathonSubmissionsPage() {
     data: submissionsResponse,
     isLoading,
     isFetching,
-  } = useQuery({
-    queryKey: [
-      'admin-submissions',
-      currentPage,
-      perPage,
-      statusFilter,
-      searchQuery,
-    ],
-    queryFn: () =>
-      getAdminSubmissions({
-        page: currentPage,
-        per_page: perPage,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        search: searchQuery || undefined,
-      }),
-    staleTime: 30000,
-    gcTime: 5 * 60 * 1000,
+  } = useHackathonSubmissionList({
+    page: currentPage,
+    pageSize: perPage,
+    status: isSubmissionStatus(statusFilter) ? statusFilter : undefined,
+    search: searchQuery || undefined,
   });
 
-  const totalData = submissionsResponse?.meta?.total_data || 0;
-  const totalPages = submissionsResponse?.meta?.total_page || 1;
+  const totalData = submissionsResponse?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalData / perPage));
 
   const handlePageChange = React.useCallback(
     (newPage: number) => {
@@ -108,13 +102,10 @@ function HackathonSubmissionsPage() {
     });
   }, [globalFilter, navigate, perPage, statusFilter]);
 
-  const filteredData = React.useMemo<SubmissionType[]>(() => {
-    return (
-      ((submissionsResponse?.data as any)?.data as SubmissionType[]) ??
-      (submissionsResponse?.data as SubmissionType[]) ??
-      []
-    );
-  }, [submissionsResponse]);
+  const filteredData = React.useMemo<SubmissionType[]>(
+    () => [...(submissionsResponse?.items ?? [])],
+    [submissionsResponse]
+  );
 
   const statusVariants: Record<string, 'success' | 'warning' | 'secondary'> = {
     submitted: 'success',
@@ -124,21 +115,21 @@ function HackathonSubmissionsPage() {
   const columns: ColumnDef<SubmissionType>[] = React.useMemo(
     () => [
       {
-        accessorKey: 'project_name',
+        accessorKey: 'projectName',
         header: 'Project Name',
         cell: ({ row }) => (
           <span className="font-medium text-foreground">
-            {row.original.project_name}
+            {row.original.projectName}
           </span>
         ),
         enableSorting: true,
       },
       {
-        accessorKey: 'team_id',
-        header: 'Team ID',
+        id: 'team',
+        header: 'Team',
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.team_id}
+          <span className="text-sm text-foreground">
+            {row.original.team.name}
           </span>
         ),
         enableSorting: false,
@@ -157,15 +148,17 @@ function HackathonSubmissionsPage() {
         enableSorting: true,
       },
       {
-        accessorKey: 'submitted_at',
+        accessorKey: 'submittedAt',
         header: 'Submitted',
         cell: ({ row }) => (
           <span className="text-sm text-foreground">
-            {new Date(row.original.submitted_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
+            {row.original.submittedAt
+              ? new Date(row.original.submittedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : '-'}
           </span>
         ),
         enableSorting: true,
