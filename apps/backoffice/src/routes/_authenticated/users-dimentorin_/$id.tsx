@@ -1,35 +1,52 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Icon } from '@iconify/react';
-import { Button, Input } from '@imphnen-frontend-service/ui/atoms';
+import { MENTOR_DOCUMENT_KIND, MENTOR_REVIEW_DECISION } from '@app/schemas';
+import { PERMISSION } from '@app/permissions';
+import { roleLabel } from '@app/messages';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { Button, Input, Textarea } from '@imphnen-frontend-service/ui/atoms';
 import { cn, For, Show } from '@imphnen-frontend-service/utils';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
+import { DeleteConfirmDialog } from '../../../components/list-helpers';
+import { errorMessage } from '../../../libs/errors';
 import {
-  useMentorById,
-  useUserById,
-  useDeleteMentor,
-  type MentorDetailResponseDto,
-} from '@imphnen-frontend-service/service';
+  DETAIL_KIND,
+  detailKindOf,
+} from '../_components/users-dimentorin/detail-kind';
+import {
+  type TMentorDocumentKind,
+  type TMentorPrivate,
+  useMentorDocumentDownload,
+  useMentorRemove,
+  useMentorReview,
+  useMentorVerify,
+} from '../_hooks/use-mentors';
+import { useUser } from '../_hooks/use-users';
 
 const labelClass = cn(
   'text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]'
 );
 
-const SOCIAL_LINKS = [
+const SOCIAL_LINKS: {
+  icon: ReactNode;
+  key: 'linkedinUrl' | 'githubUrl' | 'portfolioUrl';
+  label: string;
+}[] = [
   {
     icon: <Icon icon="mdi:linkedin" className="text-2xl" />,
-    key: 'linkedin_url',
+    key: 'linkedinUrl',
     label: 'LinkedIn',
   },
   {
     icon: <Icon icon="mdi:github" className="text-2xl" />,
-    key: 'github_url',
+    key: 'githubUrl',
     label: 'Github',
   },
   {
     icon: <Icon icon="mingcute:meta-line" className="text-2xl" />,
-    key: 'portfolio_url',
+    key: 'portfolioUrl',
     label: 'Portfolio',
   },
 ];
@@ -40,35 +57,83 @@ const TABS = {
 } as const;
 type TabType = (typeof TABS)[keyof typeof TABS];
 
+const REVIEWABLE_STATUSES: readonly TMentorPrivate['status'][] = [
+  'pending',
+  'inactive',
+];
+
 export const Route = createFileRoute('/_authenticated/users-dimentorin_/$id')({
   component: UserDetailPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    kind: detailKindOf(search.kind),
+  }),
 });
 
 function UserDetailPage() {
   const { id } = Route.useParams();
+  const { kind } = Route.useSearch();
   const navigate = useNavigate();
+  const { can } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<TabType>(TABS.account);
-  const deleteMentor = useDeleteMentor();
+  const [reviewNote, setReviewNote] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const deleteMentor = useMentorRemove();
+  const verifyMentor = useMentorVerify();
+  const downloadDocument = useMentorDocumentDownload();
 
-  const { data: mentorData, isLoading: mentorLoading } = useMentorById(id);
-  const { data: userData, isLoading: userLoading } = useUserById(id);
+  const isMentor = kind === DETAIL_KIND.MENTOR;
+  const { data: mentor, isLoading: mentorLoading } = useMentorReview(
+    id,
+    isMentor
+  );
+  const { data: user, isLoading: userLoading } = useUser(
+    isMentor ? undefined : id
+  );
 
-  const mentor: MentorDetailResponseDto | undefined = mentorData;
-  const user = userData?.data;
-
-  const isLoading = mentorLoading && userLoading;
-  const displayName = mentor?.fullname ?? user?.fullname ?? '-';
+  const isLoading = isMentor ? mentorLoading : userLoading;
+  const displayName = mentor?.name ?? user?.name ?? '-';
   const email = mentor?.email ?? user?.email ?? '-';
+  const image = mentor?.image ?? user?.image ?? null;
 
   const handleDelete = async () => {
     try {
-      await deleteMentor.mutateAsync(id);
-      toast.success('Akun berhasil dihapus');
+      await deleteMentor.mutateAsync({ id });
+      toast.success('Mentor berhasil dihapus');
       navigate({ to: '/users-dimentorin' });
     } catch (error) {
-      console.log(error);
-      toast.error('Gagal menghapus akun');
+      toast.error(errorMessage(error, 'Gagal menghapus mentor'));
     }
+  };
+
+  const handleReview = async (
+    decision: (typeof MENTOR_REVIEW_DECISION)[keyof typeof MENTOR_REVIEW_DECISION]
+  ) => {
+    try {
+      await verifyMentor.mutateAsync({
+        id,
+        decision,
+        note: reviewNote.trim() || undefined,
+      });
+      setReviewNote('');
+      toast.success(
+        decision === MENTOR_REVIEW_DECISION.APPROVE
+          ? 'Mentor disetujui'
+          : 'Pengajuan mentor ditolak'
+      );
+    } catch (error) {
+      toast.error(errorMessage(error, 'Gagal menyimpan keputusan review'));
+    }
+  };
+
+  const handleDownload = (documentKind: TMentorDocumentKind) => {
+    downloadDocument.mutate(
+      { id, kind: documentKind },
+      {
+        onError: (error): void => {
+          toast.error(errorMessage(error, 'Dokumen gagal diunduh'));
+        },
+      }
+    );
   };
 
   if (isLoading) {
@@ -121,9 +186,9 @@ function UserDetailPage() {
             <div>
               <div className="flex items-center gap-x-8 mb-8">
                 <div className="size-[100px] rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center">
-                  {user?.avatar ? (
+                  {image ? (
                     <img
-                      src={user.avatar}
+                      src={image}
                       alt="Profile"
                       className="w-full object-cover"
                     />
@@ -171,20 +236,24 @@ function UserDetailPage() {
                         className="min-w-full w-full"
                         value={
                           mentor?.status ??
-                          (user?.is_active ? 'active' : 'inactive')
+                          (user?.isActive ? 'active' : 'inactive')
                         }
                         readOnly
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>Gender</label>
+                      <label className={labelClass}>
+                        {isMentor ? 'Gender' : 'Role'}
+                      </label>
                       <Input
                         type="text"
                         className="min-w-full w-full"
                         value={
-                          mentor?.gender ??
-                          user?.profile_extension?.gender ??
-                          '-'
+                          isMentor
+                            ? (mentor?.gender ?? '-')
+                            : user
+                              ? roleLabel(user.role)
+                              : '-'
                         }
                         readOnly
                       />
@@ -192,17 +261,135 @@ function UserDetailPage() {
                   </div>
                 </div>
 
+                {mentor && (
+                  <div className="mb-8">
+                    <h3 className="mb-7 text-p2 font-semibold">Dokumen</h3>
+                    <div className="flex flex-wrap items-center gap-5">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="bordered"
+                        disabled={!mentor.hasCv || downloadDocument.isPending}
+                        onClick={() => handleDownload(MENTOR_DOCUMENT_KIND.CV)}
+                      >
+                        {mentor.hasCv ? 'Unduh CV' : 'CV belum diunggah'}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="bordered"
+                        disabled={
+                          !mentor.hasIdentityDocument ||
+                          downloadDocument.isPending
+                        }
+                        onClick={() =>
+                          handleDownload(MENTOR_DOCUMENT_KIND.IDENTITY)
+                        }
+                      >
+                        {mentor.hasIdentityDocument
+                          ? 'Unduh Dokumen Identitas'
+                          : 'Dokumen identitas belum diunggah'}
+                      </Button>
+                      {mentor.cvLegacyUrl && (
+                        <a
+                          href={mentor.cvLegacyUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-primary-600 underline"
+                        >
+                          CV lama
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {mentor && REVIEWABLE_STATUSES.includes(mentor.status) && (
+                  <div className="mb-8">
+                    <h3 className="mb-7 text-p2 font-semibold">
+                      Review Pengajuan
+                    </h3>
+                    <div className="flex flex-col gap-4">
+                      <Textarea
+                        className="min-w-full w-full"
+                        placeholder="Catatan review (opsional)"
+                        value={reviewNote}
+                        onChange={(e) => setReviewNote(e.target.value)}
+                      />
+                      <div className="flex items-center gap-5">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="success"
+                          disabled={verifyMentor.isPending}
+                          onClick={() =>
+                            handleReview(MENTOR_REVIEW_DECISION.APPROVE)
+                          }
+                        >
+                          Setujui Mentor
+                        </Button>
+                        {mentor.status === 'pending' && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="danger"
+                            disabled={verifyMentor.isPending}
+                            onClick={() =>
+                              handleReview(MENTOR_REVIEW_DECISION.REJECT)
+                            }
+                          >
+                            Tolak Pengajuan
+                          </Button>
+                        )}
+                      </div>
+                      {!mentor.hasIdentityDocument && (
+                        <p className="text-xs text-danger-500">
+                          Persetujuan membutuhkan dokumen identitas.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {mentor?.reviewNote && (
+                  <div className="mb-8">
+                    <h3 className="mb-3 text-p2 font-semibold">
+                      Catatan Review Terakhir
+                    </h3>
+                    <p className="text-p3 text-neutral-600">
+                      {mentor.reviewNote}
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <h3 className="mb-7 text-p2 font-semibold">Status Akun</h3>
                   <div className="flex items-center gap-5">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="danger"
-                      onClick={handleDelete}
-                    >
-                      Delete Akun
-                    </Button>
+                    {mentor && can(PERMISSION.MENTOR_DELETE) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="danger"
+                        onClick={() => setConfirmDelete(true)}
+                      >
+                        Hapus Mentor
+                      </Button>
+                    )}
+                    {user && can(PERMISSION.USER_READ) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() =>
+                          navigate({
+                            to: '/accounts/$id',
+                            params: { id: user.id },
+                          })
+                        }
+                      >
+                        Kelola Akun
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -225,9 +412,9 @@ function UserDetailPage() {
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-x-6">
                     <div className="size-[54px] rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center">
-                      {user?.avatar ? (
+                      {image ? (
                         <img
-                          src={user.avatar}
+                          src={image}
                           alt="Profile"
                           className="w-full object-cover"
                         />
@@ -244,8 +431,10 @@ function UserDetailPage() {
                       </h3>
                       <p className="text-p3 font-medium text-neutral-600">
                         {mentor
-                          ? `${mentor.current_role ?? ``} at ${mentor.current_company ?? ``}`
-                          : (user?.role?.name ?? `-`)}
+                          ? `${mentor.currentRole ?? ''} at ${mentor.currentCompany ?? ''}`
+                          : user
+                            ? roleLabel(user.role)
+                            : '-'}
                       </p>
                     </div>
                   </div>
@@ -254,9 +443,7 @@ function UserDetailPage() {
                 <div className="flex items-center gap-5">
                   <For data={SOCIAL_LINKS}>
                     {({ icon, key, label }) => {
-                      const url = mentor?.[
-                        key as keyof MentorDetailResponseDto
-                      ] as string | undefined;
+                      const url = mentor?.[key];
                       if (!url) return null;
                       return (
                         <a
@@ -286,9 +473,7 @@ function UserDetailPage() {
                     Description
                   </h3>
                   <p className="text-p3 font-medium text-neutral-600">
-                    {mentor?.bio ??
-                      user?.profile_extension?.bio ??
-                      'Tidak ada deskripsi.'}
+                    {mentor?.bio ?? 'Tidak ada deskripsi.'}
                   </p>
                 </div>
                 <div className="px-8 py-10 rounded-lg shadow h-max">
@@ -315,8 +500,8 @@ function UserDetailPage() {
                       </div>
                       <div className="text-p3">
                         <p className="text-neutral-800 font-semibold">
-                          {mentor?.phone_for_verification ??
-                            user?.profile_extension?.phone_number ??
+                          {mentor?.phoneNumber ??
+                            mentor?.phoneForVerification ??
                             '-'}
                         </p>
                         <p className="text-neutral-600 font-medium">
@@ -333,9 +518,7 @@ function UserDetailPage() {
                       </div>
                       <div className="text-p3">
                         <p className="text-neutral-800 font-semibold">
-                          {mentor?.domicile ??
-                            user?.profile_extension?.domicile ??
-                            '-'}
+                          {mentor?.domicile ?? mentor?.location ?? '-'}
                         </p>
                         <p className="text-neutral-600 font-medium">Location</p>
                       </div>
@@ -347,6 +530,14 @@ function UserDetailPage() {
           </Show>
         </div>
       </div>
+
+      <DeleteConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        onConfirm={handleDelete}
+        title="Hapus mentor ini?"
+        description="Profil mentor dihapus dan role pengguna kembali menjadi user. Sesi yang ada tetap tersimpan."
+      />
     </main>
   );
 }

@@ -5,25 +5,14 @@ import {
   NativeSelect as Select,
   Textarea,
 } from '@imphnen-frontend-service/ui/atoms';
-import { cn, For } from '@imphnen-frontend-service/utils';
+import { cn } from '@imphnen-frontend-service/utils';
 import {
-  useMySessions,
-  type TSessionListItem,
-} from '@imphnen-frontend-service/service';
+  SESSION_STATUS_COLOR,
+  SESSION_STATUS_TEXT,
+} from '../_components/session-dimentorin/session-status';
+import { useMentoringSession } from '../_hooks/use-mentoring';
 
-const TOPICS = [
-  { id: 2, icon: '\uD83C\uDFE2', name: 'Industry Insight' },
-  { id: 4, icon: '\uD83D\uDDA5\uFE0F', name: 'Basic IT' },
-];
-
-const placeholder = `Hi [Nama Mentor], Saya [Nama Kamu] & saya berharap dapat memiliki sesi mentoring dengan Anda.
-
-Saat ini, saya tertarik untuk mengejar __. Tujuan saya untuk sesi ini adalah __.
-
-Saya ingin tahu secara khusus tentang ___.
-1.Pertanyaan Anda
-2. ...
-3. ...`;
+const WIB_TIME_ZONE = 'Asia/Jakarta';
 
 const labelClass = cn(
   'text-neutral-800 text-[10px] font-semibold mb-1.5 inline-block md:text-xs md:mb-2 xl:text-[15px]'
@@ -39,18 +28,8 @@ function SessionDetailPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
 
-  const { data: sessionsData, isLoading } = useMySessions();
-  const session: TSessionListItem | undefined = sessionsData?.sessions?.find(
-    (s) => s.id === id
-  );
-
-  const statusColors: Record<string, string> = {
-    pending: 'bg-warning-200 text-warning-700',
-    confirmed: 'bg-primary-200 text-primary-700',
-    ongoing: 'bg-warning-200 text-warning-700',
-    completed: 'bg-success-200 text-success-500',
-    cancelled: 'bg-danger-200 text-danger-500',
-  };
+  const { data: session, isLoading } = useMentoringSession(id);
+  const scheduledAt = session ? new Date(session.scheduledAt) : null;
 
   if (isLoading) {
     return (
@@ -86,7 +65,10 @@ function SessionDetailPage() {
                 </h3>
                 <div>
                   <p className="text-p3 font-semibold mb-2.5">
-                    {session?.mentor_id ?? '-'}
+                    {session?.mentor.name ?? '-'}
+                  </p>
+                  <p className="text-neutral-600">
+                    {session?.mentor.email ?? '-'}
                   </p>
                 </div>
               </div>
@@ -99,10 +81,10 @@ function SessionDetailPage() {
                 </h3>
                 <div>
                   <p className="text-p3 font-semibold mb-2.5">
-                    {session?.mentee_fullname ?? '-'}
+                    {session?.mentee.name ?? '-'}
                   </p>
                   <p className="text-neutral-600">
-                    {session?.mentee_email ?? '-'}
+                    {session?.mentee.email ?? '-'}
                   </p>
                 </div>
               </div>
@@ -111,9 +93,14 @@ function SessionDetailPage() {
                   Status
                 </h3>
                 <div
-                  className={`py-2 px-6 rounded-md text-center capitalize font-semibold ${statusColors[session?.status ?? ``] ?? `bg-neutral-200 text-neutral-700`}`}
+                  className={cn(
+                    'py-2 px-6 rounded-md text-center font-semibold',
+                    session
+                      ? SESSION_STATUS_COLOR[session.status]
+                      : 'bg-neutral-200 text-neutral-700'
+                  )}
                 >
-                  {session?.status ?? '-'}
+                  {session ? SESSION_STATUS_TEXT[session.status] : '-'}
                 </div>
               </div>
             </div>
@@ -122,24 +109,20 @@ function SessionDetailPage() {
           <div>
             <h3 className="text-p3 font-medium mb-2.5">Topics</h3>
             <div className="p-5 bg-primary-50 border border-primary-100 rounded-md flex flex-wrap gap-2.5 mb-8">
-              {session?.topic ? (
-                <div className="px-2.5 py-2 text-neutral-800 bg-white border border-primary-100 rounded-md shadow font-medium">
-                  <span>{session.topic}</span>
-                </div>
-              ) : (
-                <For data={TOPICS}>
-                  {(item, index) => (
-                    <div
-                      key={index}
-                      className="px-2.5 py-2 text-neutral-800 bg-white border border-primary-100 rounded-md shadow font-medium"
-                    >
-                      <span>{item.icon} </span>
-                      <span>{item.name}</span>
-                    </div>
-                  )}
-                </For>
-              )}
+              <div className="px-2.5 py-2 text-neutral-800 bg-white border border-primary-100 rounded-md shadow font-medium">
+                <span>{session?.topic ?? '-'}</span>
+              </div>
             </div>
+            {session?.description && (
+              <div className="mb-8">
+                <label className={labelClass}>Deskripsi</label>
+                <Textarea
+                  className="min-w-full w-full"
+                  value={session.description}
+                  readOnly
+                />
+              </div>
+            )}
 
             <div className="grid gap-2.5 md:grid-cols-2 md:gap-5">
               <div>
@@ -148,10 +131,10 @@ function SessionDetailPage() {
                   type="date"
                   className="min-w-full w-full"
                   value={
-                    session?.scheduled_at
-                      ? new Date(session.scheduled_at)
-                          .toISOString()
-                          .split('T')[0]
+                    scheduledAt
+                      ? scheduledAt.toLocaleDateString('en-CA', {
+                          timeZone: WIB_TIME_ZONE,
+                        })
                       : ''
                   }
                   readOnly
@@ -163,10 +146,12 @@ function SessionDetailPage() {
                   type="time"
                   className="min-w-full w-full"
                   value={
-                    session?.scheduled_at
-                      ? new Date(session.scheduled_at)
-                          .toTimeString()
-                          .slice(0, 5)
+                    scheduledAt
+                      ? scheduledAt.toLocaleTimeString('en-GB', {
+                          timeZone: WIB_TIME_ZONE,
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                       : ''
                   }
                   readOnly
@@ -176,7 +161,7 @@ function SessionDetailPage() {
                 <label className={labelClass}>Tipe Sesi</label>
                 <Select
                   className="min-w-full w-full"
-                  value={session?.session_type ?? 'online'}
+                  value={session?.sessionType ?? 'online'}
                   disabled
                 >
                   <option value="online">Online</option>
@@ -184,11 +169,20 @@ function SessionDetailPage() {
                 </Select>
               </div>
               <div className="md:col-span-full">
+                <label className={labelClass}>Meeting Link</label>
+                <Input
+                  type="text"
+                  className="min-w-full w-full"
+                  value={session?.meetingLink ?? '-'}
+                  readOnly
+                />
+              </div>
+              <div className="md:col-span-full">
                 <label className={labelClass}>Durasi (menit)</label>
                 <Input
                   type="number"
                   className="min-w-full w-full"
-                  value={session?.duration_minutes ?? ''}
+                  value={session?.durationMinutes ?? ''}
                   readOnly
                 />
               </div>

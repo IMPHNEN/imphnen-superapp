@@ -24,11 +24,13 @@ export const useMentorPublicList = (input: TClientInputs['mentor']['list']) =>
   useQuery(orpc.mentor.list.queryOptions({ input }));
 
 export const useMentorReviewList = (
-  input: TClientInputs['mentor']['reviewList']
+  input: TClientInputs['mentor']['reviewList'],
+  enabled = true
 ) =>
   useQuery(
     orpc.mentor.reviewList.queryOptions({
       input,
+      enabled,
       placeholderData: keepPreviousData,
     })
   );

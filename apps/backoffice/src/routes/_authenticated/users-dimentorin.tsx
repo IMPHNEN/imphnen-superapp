@@ -27,13 +27,15 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
+import { ROLE } from '@app/permissions';
+import { errorMessage } from '../../libs/errors';
 import {
-  useMentorList,
-  useUserList,
-  useDeleteMentor,
-  type MentorDetailResponseDto,
-  type TUsersListItem,
-} from '@imphnen-frontend-service/service';
+  type TMentorPrivate,
+  useMentorRemove,
+  useMentorReviewList,
+} from './_hooks/use-mentors';
+import { type TUserItem, useUserList } from './_hooks/use-users';
+import { DETAIL_KIND } from './_components/users-dimentorin/detail-kind';
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -57,73 +59,73 @@ function UsersDimentorinPage() {
     pageSize: 10,
   });
 
-  const { data: mentorData, isLoading: mentorLoading } = useMentorList({
-    search,
+  const listInput = {
+    search: search || undefined,
     page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-  });
+    pageSize: pagination.pageSize,
+  };
+  const { data: mentorData, isLoading: mentorLoading } =
+    useMentorReviewList(listInput);
   const { data: menteeData, isLoading: menteeLoading } = useUserList({
-    search,
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
+    ...listInput,
+    role: ROLE.USER,
   });
-  const deleteMentor = useDeleteMentor();
+  const deleteMentor = useMentorRemove();
 
-  const mentors: MentorDetailResponseDto[] = mentorData?.data ?? [];
-  const mentees: TUsersListItem[] = menteeData?.data ?? [];
-  const mentorTotal = mentorData?.meta?.total ?? mentors.length;
-  const menteeTotal = menteeData?.meta?.total ?? mentees.length;
+  const mentors: TMentorPrivate[] = [...(mentorData?.items ?? [])];
+  const mentees: TUserItem[] = [...(menteeData?.items ?? [])];
+  const mentorTotal = mentorData?.total ?? mentors.length;
+  const menteeTotal = menteeData?.total ?? mentees.length;
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteMentor.mutateAsync(id);
-      toast.success('Akun berhasil dihapus');
+      await deleteMentor.mutateAsync({ id });
+      toast.success('Mentor berhasil dihapus');
       setDeletingId(null);
     } catch (error) {
-      console.log(error);
-      toast.error('Gagal menghapus akun');
+      toast.error(errorMessage(error, 'Gagal menghapus mentor'));
     }
   };
 
   const statusVariantMap: Record<
-    string,
+    TMentorPrivate['status'],
     'success' | 'warning' | 'destructive' | 'secondary'
   > = {
     active: 'success',
     pending: 'warning',
-    inactive: 'destructive',
+    rejected: 'destructive',
+    inactive: 'secondary',
   };
 
-  const mentorColumns: ColumnDef<MentorDetailResponseDto>[] = [
+  const mentorColumns: ColumnDef<TMentorPrivate>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-10') },
       header: ({ table }) => <SelectAllCheckbox table={table} />,
       cell: ({ row }) => <RowSelectCheckbox row={row} />,
     },
-    { id: 'name', header: 'Name', accessorKey: 'fullname' },
+    { id: 'name', header: 'Name', accessorKey: 'name' },
     { id: 'email', header: 'Email', accessorKey: 'email' },
     {
       id: 'rating',
       header: 'Rating',
-      accessorKey: 'rating',
-      cell: ({ row }) => <span>{row.original.rating ?? '-'}</span>,
+      accessorKey: 'ratingAverage',
+      cell: ({ row }) => (
+        <span>{row.original.ratingAverage?.toFixed(1) ?? '-'}</span>
+      ),
     },
     {
       id: 'status',
       header: 'Status',
       accessorKey: 'status',
-      cell: ({ row }) => {
-        const status = row.original.status ?? '';
-        return (
-          <Badge
-            variant={statusVariantMap[status] ?? 'secondary'}
-            className="capitalize"
-          >
-            {status || 'unknown'}
-          </Badge>
-        );
-      },
+      cell: ({ row }) => (
+        <Badge
+          variant={statusVariantMap[row.original.status]}
+          className="capitalize"
+        >
+          {row.original.status}
+        </Badge>
+      ),
     },
     {
       header: 'Action',
@@ -137,6 +139,7 @@ function UsersDimentorinPage() {
               navigate({
                 to: '/users-dimentorin/$id',
                 params: { id: row.original.id },
+                search: { kind: DETAIL_KIND.MENTOR },
               });
             }}
           >
@@ -158,22 +161,22 @@ function UsersDimentorinPage() {
     },
   ];
 
-  const menteeColumns: ColumnDef<TUsersListItem>[] = [
+  const menteeColumns: ColumnDef<TUserItem>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-10') },
       header: ({ table }) => <SelectAllCheckbox table={table} />,
       cell: ({ row }) => <RowSelectCheckbox row={row} />,
     },
-    { id: 'name', header: 'Name', accessorKey: 'fullname' },
+    { id: 'name', header: 'Name', accessorKey: 'name' },
     { id: 'email', header: 'Email', accessorKey: 'email' },
     {
       id: 'status',
       header: 'Status',
-      accessorKey: 'is_active',
+      accessorKey: 'isActive',
       cell: ({ row }) => (
-        <Badge variant={row.original.is_active ? 'success' : 'destructive'}>
-          {row.original.is_active ? 'Active' : 'Inactive'}
+        <Badge variant={row.original.isActive ? 'success' : 'destructive'}>
+          {row.original.isActive ? 'Active' : 'Inactive'}
         </Badge>
       ),
     },
@@ -188,6 +191,7 @@ function UsersDimentorinPage() {
             navigate({
               to: '/users-dimentorin/$id',
               params: { id: row.original.id },
+              search: { kind: DETAIL_KIND.USER },
             });
           }}
         >
@@ -238,7 +242,10 @@ function UsersDimentorinPage() {
                 className="pl-9"
                 placeholder="Cari nama lengkap…"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
               />
             </div>
           </div>
@@ -305,7 +312,8 @@ function UsersDimentorinPage() {
         open={!!deletingId}
         onOpenChange={(o) => !o && setDeletingId(null)}
         onConfirm={() => deletingId && handleDelete(deletingId)}
-        title="Hapus akun mentor ini?"
+        title="Hapus mentor ini?"
+        description="Profil mentor dihapus dan role pengguna kembali menjadi user. Sesi yang ada tetap tersimpan."
       />
     </BackofficeWrapper>
   );

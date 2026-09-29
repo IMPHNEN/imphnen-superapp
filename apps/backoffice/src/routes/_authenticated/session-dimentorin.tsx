@@ -27,10 +27,16 @@ import {
   type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
+import { MENTORING_SESSION_STATUS } from '@app/schemas';
 import {
-  useMySessions,
-  type TSessionListItem,
-} from '@imphnen-frontend-service/service';
+  isSessionStatus,
+  SESSION_STATUS_TEXT,
+  SESSION_STATUS_VARIANT,
+} from './_components/session-dimentorin/session-status';
+import {
+  type TMentoringSession,
+  useMentoringSessionList,
+} from './_hooks/use-mentoring';
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -43,31 +49,26 @@ export const Route = createFileRoute('/_authenticated/session-dimentorin')({
 function SessionDimentorinPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = React.useState('all');
+  const [search, setSearch] = React.useState('');
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const { data: sessionsData, isLoading } = useMySessions(
-    statusFilter !== 'all' ? { status: statusFilter } : undefined
-  );
+  const { data: sessionsData, isLoading } = useMentoringSessionList({
+    search: search || undefined,
+    status: isSessionStatus(statusFilter) ? statusFilter : undefined,
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
+  });
 
-  const sessions: TSessionListItem[] = sessionsData?.sessions ?? [];
+  const sessions: TMentoringSession[] = [...(sessionsData?.items ?? [])];
   const totalItems = sessionsData?.total ?? sessions.length;
 
-  const statusVariants: Record<
-    string,
-    'warning' | 'info' | 'success' | 'destructive' | 'secondary'
-  > = {
-    pending: 'warning',
-    confirmed: 'info',
-    ongoing: 'warning',
-    completed: 'success',
-    cancelled: 'destructive',
-  };
+  const resetPage = () => setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 
-  const columns: ColumnDef<TSessionListItem>[] = [
+  const columns: ColumnDef<TMentoringSession>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-10') },
@@ -75,19 +76,24 @@ function SessionDimentorinPage() {
       cell: ({ row }) => <RowSelectCheckbox row={row} />,
     },
     { id: 'id', header: 'ID Sesi', accessorKey: 'id' },
-    { id: 'mentorId', header: 'Nama Mentor', accessorKey: 'mentor_id' },
+    {
+      id: 'mentorName',
+      header: 'Nama Mentor',
+      cell: ({ row }) => row.original.mentor.name,
+    },
     {
       id: 'menteeName',
       header: 'Nama Mentee',
-      accessorKey: 'mentee_fullname',
+      cell: ({ row }) => row.original.mentee.name,
     },
+    { id: 'topic', header: 'Topik', accessorKey: 'topic' },
     {
       id: 'datetime',
       header: 'Waktu',
-      accessorKey: 'scheduled_at',
+      accessorKey: 'scheduledAt',
       cell: ({ row }) => (
         <span>
-          {new Date(row.original.scheduled_at).toLocaleString('id-ID')}
+          {new Date(row.original.scheduledAt).toLocaleString('id-ID')}
         </span>
       ),
     },
@@ -96,11 +102,8 @@ function SessionDimentorinPage() {
       header: 'Status',
       accessorKey: 'status',
       cell: ({ row }) => (
-        <Badge
-          variant={statusVariants[row.original.status] ?? 'secondary'}
-          className="capitalize"
-        >
-          {row.original.status}
+        <Badge variant={SESSION_STATUS_VARIANT[row.original.status]}>
+          {SESSION_STATUS_TEXT[row.original.status]}
         </Badge>
       ),
     },
@@ -148,19 +151,33 @@ function SessionDimentorinPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input className="pl-9" placeholder="Cari nama lengkap…" />
+              <Input
+                className="pl-9"
+                placeholder="Cari nama, email, atau topik…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  resetPage();
+                }}
+              />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                resetPage();
+              }}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="ongoing">On Going</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                {Object.values(MENTORING_SESSION_STATUS).map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {SESSION_STATUS_TEXT[status]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

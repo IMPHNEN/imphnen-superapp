@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as React from 'react';
+import type * as React from 'react';
 import {
   Users,
   UserCog,
@@ -23,11 +23,15 @@ import {
 import { BackofficeWrapper } from '@imphnen-frontend-service/ui/organisms';
 import { UserGrowthChart } from './_components/dashboard-dimentorin/chart/user-growth';
 import { SessionStatusChart } from './_components/dashboard-dimentorin/chart/session-status';
-import {
-  useMentorList,
-  useUserList,
-  useMySessions,
-} from '@imphnen-frontend-service/service';
+import { PERMISSION } from '@app/permissions';
+import { MENTOR_SORT, MENTORING_SESSION_STATUS } from '@app/schemas';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { useMentorPublicList, useMentorReviewList } from './_hooks/use-mentors';
+import { useMentoringOverview } from './_hooks/use-mentoring';
+import { useUserList } from './_hooks/use-users';
+import { SESSION_STATUS_TEXT } from './_components/session-dimentorin/session-status';
+
+const TOP_MENTOR_COUNT = 5;
 
 export const Route = createFileRoute('/_authenticated/dashboard-dimentorin')({
   component: DashboardDimentorinPage,
@@ -58,32 +62,39 @@ function StatCard({ icon: Icon, label, value }: StatCardProps) {
 }
 
 function DashboardDimentorinPage() {
-  const { data: mentorData } = useMentorList({
-    per_page: 5,
-    sort_by: 'rating',
-    order: 'desc',
+  const { can } = useCurrentUser();
+  const { data: activeMentorData } = useMentorPublicList({
+    page: 1,
+    pageSize: TOP_MENTOR_COUNT,
+    sortBy: MENTOR_SORT.RATING,
+    sortDir: 'desc',
   });
-  const { data: userData } = useUserList({ per_page: 1 });
-  const { data: sessionsData } = useMySessions();
+  const { data: allMentorData } = useMentorReviewList(
+    { page: 1, pageSize: 1 },
+    can(PERMISSION.MENTOR_VERIFY)
+  );
+  const { data: userData } = useUserList(
+    { page: 1, pageSize: 1 },
+    can(PERMISSION.USER_READ)
+  );
+  const { data: overview } = useMentoringOverview();
 
-  const totalMentors = mentorData?.meta?.total ?? 0;
-  const totalUsers = userData?.meta?.total ?? 0;
-  const totalSessions = sessionsData?.total ?? 0;
-  const topMentors = mentorData?.data ?? [];
-  const activeMentors = topMentors.filter((m) => m.status === 'active').length;
+  const totalMentors = allMentorData?.total ?? 0;
+  const totalUsers = userData?.total ?? 0;
+  const totalSessions = overview?.total ?? 0;
+  const topMentors = activeMentorData?.items ?? [];
+  const activeMentors = activeMentorData?.total ?? 0;
+  const byStatus = overview?.byStatus ?? [];
   const completedSessions =
-    sessionsData?.sessions?.filter((s) => s.status === 'completed').length ?? 0;
-
-  const topTopics = React.useMemo(() => {
-    const sessions = sessionsData?.sessions ?? [];
-    const topicCount: Record<string, number> = {};
-    sessions.forEach((s) => {
-      topicCount[s.topic] = (topicCount[s.topic] ?? 0) + 1;
-    });
-    return Object.entries(topicCount)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5);
-  }, [sessionsData]);
+    byStatus.find((item) => item.status === MENTORING_SESSION_STATUS.COMPLETED)
+      ?.count ?? 0;
+  const topTopics = (overview?.topTopics ?? []).map(
+    (item): [string, number] => [item.topic, item.count]
+  );
+  const statusSlices = byStatus.map((item) => ({
+    name: SESSION_STATUS_TEXT[item.status],
+    value: item.count,
+  }));
 
   return (
     <BackofficeWrapper
@@ -128,7 +139,7 @@ function DashboardDimentorinPage() {
             <CardDescription>Distribusi status sesi</CardDescription>
           </CardHeader>
           <CardContent>
-            <SessionStatusChart />
+            <SessionStatusChart data={statusSlices} />
           </CardContent>
         </Card>
       </section>
@@ -160,12 +171,12 @@ function DashboardDimentorinPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    topMentors.slice(0, 5).map((mentor, index) => (
+                    topMentors.map((mentor, index) => (
                       <TableRow key={mentor.id}>
                         <TableCell>{index + 1}</TableCell>
-                        <TableCell>{mentor.fullname ?? '-'}</TableCell>
+                        <TableCell>{mentor.name}</TableCell>
                         <TableCell>
-                          {mentor.rating?.toFixed(1) ?? '-'}
+                          {mentor.ratingAverage?.toFixed(1) ?? '-'}
                         </TableCell>
                       </TableRow>
                     ))

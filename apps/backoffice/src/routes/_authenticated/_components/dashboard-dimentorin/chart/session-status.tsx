@@ -1,16 +1,11 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-type ChartProps = {
+export type TSessionStatusSlice = {
   name: string;
   value: number;
-  color: string;
 };
 
-const chartData: ChartProps[] = [
-  { name: 'Active', value: 49, color: '#23A1EB' },
-  { name: 'Done', value: 24, color: '#81CBF8' },
-  { name: 'Canceled', value: 27, color: '#BCE1FB' },
-];
+const SLICE_COLORS = ['#23A1EB', '#81CBF8', '#BCE1FB', '#0877C1', '#5AB4F0'];
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = (props: any) => {
@@ -37,7 +32,19 @@ const renderCustomizedLabel = (props: any) => {
   );
 };
 
-export const SessionStatusChart = () => {
+type TSessionStatusChartProps = {
+  data: readonly TSessionStatusSlice[];
+};
+
+export const SessionStatusChart = ({ data }: TSessionStatusChartProps) => {
+  const chartData = data.filter((slice) => slice.value > 0);
+  if (chartData.length === 0) {
+    return (
+      <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">
+        Belum ada data
+      </div>
+    );
+  }
   return (
     <ResponsiveContainer width="100%" height={320}>
       <PieChart width={500} height={320}>
@@ -53,7 +60,10 @@ export const SessionStatusChart = () => {
           label={renderCustomizedLabel}
         >
           {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
+            <Cell
+              key={entry.name}
+              fill={SLICE_COLORS[index % SLICE_COLORS.length]}
+            />
           ))}
         </Pie>
         <Tooltip />

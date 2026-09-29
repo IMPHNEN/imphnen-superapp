@@ -7,6 +7,11 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   Input,
   Select,
   SelectContent,
@@ -31,10 +36,26 @@ import {
   type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
+import { MENTORING_LIMIT, MENTORING_SESSION_STATUS } from '@app/schemas';
 import {
-  useMySessions,
-  type TSessionListItem,
-} from '@imphnen-frontend-service/service';
+  type TMentoringSession,
+  useMentoringSessionList,
+} from './_hooks/use-mentoring';
+
+const FILTER_ALL = 'all';
+
+const FEEDBACK_FILTER = {
+  DONE: 'done',
+  TODO: 'todo',
+} as const;
+
+const RATING_OPTIONS = Array.from(
+  { length: MENTORING_LIMIT.RATING_MAX - MENTORING_LIMIT.RATING_MIN + 1 },
+  (_, index) => MENTORING_LIMIT.RATING_MAX - index
+);
+
+const hasFeedbackOf = (value: string): boolean | undefined =>
+  value === FILTER_ALL ? undefined : value === FEEDBACK_FILTER.DONE;
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -50,8 +71,10 @@ function FeedbackReviewDimentorinPage() {
   const [activeTab, setActiveTab] = React.useState<'mentoring' | 'platform'>(
     'mentoring'
   );
-  const [ratingFilter, setRatingFilter] = React.useState<string>('all');
-  const [statusFilter, setStatusFilter] = React.useState<string>('all');
+  const [ratingFilter, setRatingFilter] = React.useState<string>(FILTER_ALL);
+  const [statusFilter, setStatusFilter] = React.useState<string>(FILTER_ALL);
+  const [search, setSearch] = React.useState('');
+  const [viewing, setViewing] = React.useState<TMentoringSession | null>(null);
 
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -59,30 +82,23 @@ function FeedbackReviewDimentorinPage() {
     pageSize: 10,
   });
 
-  const { data: sessionsData, isLoading } = useMySessions(
-    activeTab === 'mentoring' ? { status: 'completed' } : undefined
-  );
+  const { data: sessionsData, isLoading } = useMentoringSessionList({
+    status: MENTORING_SESSION_STATUS.COMPLETED,
+    search: search || undefined,
+    hasFeedback: hasFeedbackOf(statusFilter),
+    rating: ratingFilter === FILTER_ALL ? undefined : Number(ratingFilter),
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
+  });
 
-  const allSessions: TSessionListItem[] =
-    activeTab === 'mentoring' ? (sessionsData?.sessions ?? []) : [];
-
-  const sessions = React.useMemo(() => {
-    return allSessions.filter((s) => {
-      if (statusFilter !== 'all') {
-        const hasRating = !!s.rating;
-        if (statusFilter === 'done' && !hasRating) return false;
-        if (statusFilter === 'todo' && hasRating) return false;
-      }
-      if (ratingFilter !== 'all' && String(s.rating ?? '') !== ratingFilter)
-        return false;
-      return true;
-    });
-  }, [allSessions, statusFilter, ratingFilter]);
-
+  const sessions: TMentoringSession[] =
+    activeTab === 'mentoring' ? [...(sessionsData?.items ?? [])] : [];
   const totalItems =
     activeTab === 'mentoring' ? (sessionsData?.total ?? sessions.length) : 0;
 
-  const columns: ColumnDef<TSessionListItem>[] = [
+  const resetPage = () => setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+
+  const columns: ColumnDef<TMentoringSession>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-10') },
@@ -92,14 +108,17 @@ function FeedbackReviewDimentorinPage() {
     {
       id: 'name',
       header: 'Name',
-      accessorKey: 'mentee_fullname',
-      cell: ({ row }) => <span>{row.original.mentee_fullname ?? '-'}</span>,
+      cell: ({ row }) => <span>{row.original.mentee.name}</span>,
     },
     {
       id: 'email',
       header: 'Email',
-      accessorKey: 'mentee_email',
-      cell: ({ row }) => <span>{row.original.mentee_email ?? '-'}</span>,
+      cell: ({ row }) => <span>{row.original.mentee.email}</span>,
+    },
+    {
+      id: 'mentor',
+      header: 'Mentor',
+      cell: ({ row }) => <span>{row.original.mentor.name}</span>,
     },
     {
       id: 'rating',
@@ -112,7 +131,7 @@ function FeedbackReviewDimentorinPage() {
       header: 'Status',
       accessorKey: 'status',
       cell: ({ row }) => {
-        const hasRating = !!row.original.rating;
+        const hasRating = row.original.feedbackSubmittedAt !== null;
         return (
           <Badge variant={hasRating ? 'success' : 'info'}>
             {hasRating ? 'Done' : 'To Do'}
@@ -122,8 +141,16 @@ function FeedbackReviewDimentorinPage() {
     },
     {
       header: 'Action',
-      cell: () => (
-        <Button variant="secondary" size="sm">
+      cell: ({ row }) => (
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={row.original.feedbackSubmittedAt === null}
+          onClick={(e) => {
+            e.stopPropagation();
+            setViewing(row.original);
+          }}
+        >
           <MessageSquare className="size-3.5" />
           Lihat Feedback
         </Button>
@@ -169,26 +196,46 @@ function FeedbackReviewDimentorinPage() {
                   <Input
                     className="pl-9"
                     placeholder="Cari nama mentor/mentee…"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      resetPage();
+                    }}
                   />
                 </div>
-                <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                <Select
+                  value={ratingFilter}
+                  onValueChange={(value) => {
+                    setRatingFilter(value);
+                    resetPage();
+                  }}
+                >
                   <SelectTrigger className="w-28">
                     <SelectValue placeholder="Rating" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua Rating</SelectItem>
-                    <SelectItem value="4.5">4.5</SelectItem>
-                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value={FILTER_ALL}>Semua Rating</SelectItem>
+                    {RATING_OPTIONS.map((rating) => (
+                      <SelectItem key={rating} value={String(rating)}>
+                        {rating}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) => {
+                    setStatusFilter(value);
+                    resetPage();
+                  }}
+                >
                   <SelectTrigger className="w-28">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua Status</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
-                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value={FILTER_ALL}>Semua Status</SelectItem>
+                    <SelectItem value={FEEDBACK_FILTER.DONE}>Done</SelectItem>
+                    <SelectItem value={FEEDBACK_FILTER.TODO}>To Do</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -221,6 +268,24 @@ function FeedbackReviewDimentorinPage() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={!!viewing}
+        onOpenChange={(open) => !open && setViewing(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Feedback {viewing?.mentee.name}</DialogTitle>
+            <DialogDescription>
+              Sesi "{viewing?.topic}" bersama {viewing?.mentor.name} · Rating{' '}
+              {viewing?.rating ?? '-'}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="whitespace-pre-wrap text-sm text-neutral-700">
+            {viewing?.feedback ?? '-'}
+          </p>
+        </DialogContent>
+      </Dialog>
     </BackofficeWrapper>
   );
 }
