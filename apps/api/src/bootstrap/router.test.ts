@@ -75,7 +75,7 @@ const PUBLIC_DATA_PROCEDURES: readonly string[] = [
 ];
 
 const SESSION: TSession = {
-  user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'viewer' },
+  user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'viewer', image: null },
   permissions: [],
 };
 

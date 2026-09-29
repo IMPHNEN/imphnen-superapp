@@ -68,14 +68,22 @@ export const authServiceLayer = Layer.effect(
     });
 
     const sessionBuild = (
-      user: Pick<TSessionUser, 'id' | 'email' | 'name'>,
+      user: Pick<TSessionUser, 'id' | 'email' | 'name'> & {
+        image?: string | null;
+      },
       role: string
     ): TSessionEffect =>
       permissionsResolve(role).pipe(
         Effect.provideService(CustomRoleRepo, customRoleRepo),
         Effect.map(
           (permissions): TSession => ({
-            user: { id: user.id, email: user.email, name: user.name, role },
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role,
+              image: user.image ?? null,
+            },
             permissions,
           })
         )

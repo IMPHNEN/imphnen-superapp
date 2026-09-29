@@ -14,7 +14,7 @@ import {
 } from '#/shared/session.ts';
 
 const SESSION: TSession = {
-  user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'admin' },
+  user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'admin', image: null },
   permissions: [],
 };
 

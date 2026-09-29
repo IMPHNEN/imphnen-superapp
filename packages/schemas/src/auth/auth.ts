@@ -9,6 +9,7 @@ export const sessionUserSchema = z.object({
   email: z.email(),
   name: z.string(),
   role: z.string().min(1),
+  image: z.string().nullable(),
 });
 export type TSessionUser = z.infer<typeof sessionUserSchema>;
 

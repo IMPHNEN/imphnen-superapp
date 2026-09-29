@@ -5,6 +5,7 @@ export type TSessionUser = {
   email: string;
   name: string;
   role: string;
+  image: string | null;
 };
 
 export type TSession = {

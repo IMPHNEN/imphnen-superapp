@@ -8,6 +8,7 @@ describe('sessionUserSchema', () => {
       email: 'admin@test.app',
       name: 'Admin',
       role: 'admin',
+      image: null,
     });
 
     expect(result.success).toBe(true);
@@ -19,6 +20,7 @@ describe('sessionUserSchema', () => {
       email: 'admin@test.app',
       name: 'Admin',
       role: 'admin',
+      image: null,
     });
 
     expect(result.success).toBe(true);

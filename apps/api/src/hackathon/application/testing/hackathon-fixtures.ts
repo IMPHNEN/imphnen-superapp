@@ -7,6 +7,7 @@ export const LEADER: TSessionUser = {
   email: 'leader@imphnen.test',
   name: 'Leader',
   role: 'user',
+  image: null,
 };
 
 export const OUTSIDER: TSessionUser = {
@@ -14,6 +15,7 @@ export const OUTSIDER: TSessionUser = {
   email: 'outsider@imphnen.test',
   name: 'Outsider',
   role: 'user',
+  image: null,
 };
 
 export const TEAM_ID = '33333333-3333-4333-8333-333333333333';
