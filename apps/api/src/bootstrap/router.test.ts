@@ -68,6 +68,10 @@ const PUBLIC_DATA_PROCEDURES: readonly string[] = [
   'mentor.get',
   'mentor.getByUser',
   'mentoring.availability',
+  'hackathon.team.browse',
+  'hackathon.team.get',
+  'hackathon.winner.list',
+  'hackathon.certificate.get',
 ];
 
 const SESSION: TSession = {
