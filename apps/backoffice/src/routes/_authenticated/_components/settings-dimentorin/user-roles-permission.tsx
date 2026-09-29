@@ -10,13 +10,15 @@ import {
   type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
+import { useNavigate } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
-import {
-  useRoleList,
-  useDeleteRole,
-  type TRolesListItem,
-} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
+import { errorMessage } from '../../../../libs/errors';
+import {
+  type TRoleItem,
+  useRoleList,
+  useRoleRemove,
+} from '../../_hooks/use-roles';
 
 export const UserRolesPermission: FC = () => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -25,25 +27,23 @@ export const UserRolesPermission: FC = () => {
     pageSize: 9,
   });
 
-  const { data: rolesData, isLoading } = useRoleList({
-    page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
-  });
-  const deleteRole = useDeleteRole();
+  const navigate = useNavigate();
+  const { data: rolesData, isLoading } = useRoleList();
+  const deleteRole = useRoleRemove();
 
-  const roles: TRolesListItem[] = rolesData?.data ?? [];
-  const totalItems = rolesData?.meta?.total ?? roles.length;
+  const roles: TRoleItem[] = [...(rolesData?.items ?? [])];
+  const totalItems = roles.length;
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (key: string) => {
     try {
-      await deleteRole.mutateAsync(id);
+      await deleteRole.mutateAsync({ key });
       toast.success('Role berhasil dihapus');
-    } catch {
-      toast.error('Role gagal dihapus');
+    } catch (error) {
+      toast.error(errorMessage(error, 'Role gagal dihapus'));
     }
   };
 
-  const columns: ColumnDef<TRolesListItem>[] = [
+  const columns: ColumnDef<TRoleItem>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-20') },
@@ -67,12 +67,12 @@ export const UserRolesPermission: FC = () => {
     {
       id: 'role',
       header: 'Role',
-      accessorKey: 'name',
+      accessorKey: 'label',
     },
     {
       id: 'totalUser',
       header: 'Total Permissions',
-      accessorKey: 'permissions_count',
+      cell: ({ row }) => row.original.permissions.length,
     },
     {
       header: 'Action',
@@ -84,6 +84,7 @@ export const UserRolesPermission: FC = () => {
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
+              navigate({ to: '/roles/$id', params: { id: row.original.key } });
             }}
             className="flex items-center gap-2 w-max"
           >
@@ -92,9 +93,10 @@ export const UserRolesPermission: FC = () => {
           <Button
             variant="danger"
             size="sm"
+            disabled={row.original.fixed || row.original.memberCount > 0}
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(row.original.id);
+              handleDelete(row.original.key);
             }}
             className="flex items-center gap-2 w-max"
           >
@@ -118,7 +120,7 @@ export const UserRolesPermission: FC = () => {
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     pageCount: Math.ceil(totalItems / pagination.pageSize),
-    manualPagination: true,
+    manualPagination: false,
   });
 
   return (
@@ -127,7 +129,9 @@ export const UserRolesPermission: FC = () => {
         <h1 className="text-p2 font-semibold text-neutral-700">
           User Roles & Permissions
         </h1>
-        <Button type="button">Add Role</Button>
+        <Button type="button" onClick={() => navigate({ to: '/roles/create' })}>
+          Add Role
+        </Button>
       </div>
 
       <div className="bg-white shadow p-8 rounded-lg">

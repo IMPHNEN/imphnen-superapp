@@ -32,6 +32,7 @@ import { Route as AuthenticatedSettingsDimentorinRouteImport } from './routes/_a
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedUsersDimentorinRouteImport } from './routes/_authenticated/users-dimentorin'
 import { Route as AuthenticatedAccountsIdRouteImport } from './routes/_authenticated/accounts_/$id'
+import { Route as AuthenticatedAccountsCreateRouteImport } from './routes/_authenticated/accounts_/create'
 import { Route as AuthenticatedCmsEventsIdRouteImport } from './routes/_authenticated/cms-events_/$id'
 import { Route as AuthenticatedCmsEventsCreateRouteImport } from './routes/_authenticated/cms-events_/create'
 import { Route as AuthenticatedCmsTestimonialsIdRouteImport } from './routes/_authenticated/cms-testimonials_/$id'
@@ -40,8 +41,6 @@ import { Route as AuthenticatedDashboardIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedDashboardCreateRouteImport } from './routes/_authenticated/dashboard_/create'
 import { Route as AuthenticatedGachaRollIdRouteImport } from './routes/_authenticated/gacha-roll_/$id'
 import { Route as AuthenticatedGachaRollCreateRouteImport } from './routes/_authenticated/gacha-roll_/create'
-import { Route as AuthenticatedPermissionsIdRouteImport } from './routes/_authenticated/permissions_/$id'
-import { Route as AuthenticatedPermissionsCreateRouteImport } from './routes/_authenticated/permissions_/create'
 import { Route as AuthenticatedRoadmapDimentorinIdRouteImport } from './routes/_authenticated/roadmap-dimentorin_/$id'
 import { Route as AuthenticatedRoadmapDimentorinCreateRouteImport } from './routes/_authenticated/roadmap-dimentorin_/create'
 import { Route as AuthenticatedRolesIdRouteImport } from './routes/_authenticated/roles_/$id'
@@ -176,6 +175,12 @@ const AuthenticatedAccountsIdRoute = AuthenticatedAccountsIdRouteImport.update({
   path: '/accounts/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAccountsCreateRoute =
+  AuthenticatedAccountsCreateRouteImport.update({
+    id: '/accounts_/create',
+    path: '/accounts/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCmsEventsIdRoute =
   AuthenticatedCmsEventsIdRouteImport.update({
     id: '/cms-events_/$id',
@@ -222,18 +227,6 @@ const AuthenticatedGachaRollCreateRoute =
   AuthenticatedGachaRollCreateRouteImport.update({
     id: '/gacha-roll_/create',
     path: '/gacha-roll/create',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPermissionsIdRoute =
-  AuthenticatedPermissionsIdRouteImport.update({
-    id: '/permissions_/$id',
-    path: '/permissions/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedPermissionsCreateRoute =
-  AuthenticatedPermissionsCreateRouteImport.update({
-    id: '/permissions_/create',
-    path: '/permissions/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedRoadmapDimentorinIdRoute =
@@ -299,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/users-dimentorin': typeof AuthenticatedUsersDimentorinRoute
   '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/accounts/create': typeof AuthenticatedAccountsCreateRoute
   '/cms-events/$id': typeof AuthenticatedCmsEventsIdRoute
   '/cms-events/create': typeof AuthenticatedCmsEventsCreateRoute
   '/cms-testimonials/$id': typeof AuthenticatedCmsTestimonialsIdRoute
@@ -307,8 +301,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/create': typeof AuthenticatedDashboardCreateRoute
   '/gacha-roll/$id': typeof AuthenticatedGachaRollIdRoute
   '/gacha-roll/create': typeof AuthenticatedGachaRollCreateRoute
-  '/permissions/$id': typeof AuthenticatedPermissionsIdRoute
-  '/permissions/create': typeof AuthenticatedPermissionsCreateRoute
   '/roadmap-dimentorin/$id': typeof AuthenticatedRoadmapDimentorinIdRoute
   '/roadmap-dimentorin/create': typeof AuthenticatedRoadmapDimentorinCreateRoute
   '/roles/$id': typeof AuthenticatedRolesIdRoute
@@ -339,6 +331,7 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/users-dimentorin': typeof AuthenticatedUsersDimentorinRoute
   '/accounts/$id': typeof AuthenticatedAccountsIdRoute
+  '/accounts/create': typeof AuthenticatedAccountsCreateRoute
   '/cms-events/$id': typeof AuthenticatedCmsEventsIdRoute
   '/cms-events/create': typeof AuthenticatedCmsEventsCreateRoute
   '/cms-testimonials/$id': typeof AuthenticatedCmsTestimonialsIdRoute
@@ -347,8 +340,6 @@ export interface FileRoutesByTo {
   '/dashboard/create': typeof AuthenticatedDashboardCreateRoute
   '/gacha-roll/$id': typeof AuthenticatedGachaRollIdRoute
   '/gacha-roll/create': typeof AuthenticatedGachaRollCreateRoute
-  '/permissions/$id': typeof AuthenticatedPermissionsIdRoute
-  '/permissions/create': typeof AuthenticatedPermissionsCreateRoute
   '/roadmap-dimentorin/$id': typeof AuthenticatedRoadmapDimentorinIdRoute
   '/roadmap-dimentorin/create': typeof AuthenticatedRoadmapDimentorinCreateRoute
   '/roles/$id': typeof AuthenticatedRolesIdRoute
@@ -382,6 +373,7 @@ export interface FileRoutesById {
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/users-dimentorin': typeof AuthenticatedUsersDimentorinRoute
   '/_authenticated/accounts_/$id': typeof AuthenticatedAccountsIdRoute
+  '/_authenticated/accounts_/create': typeof AuthenticatedAccountsCreateRoute
   '/_authenticated/cms-events_/$id': typeof AuthenticatedCmsEventsIdRoute
   '/_authenticated/cms-events_/create': typeof AuthenticatedCmsEventsCreateRoute
   '/_authenticated/cms-testimonials_/$id': typeof AuthenticatedCmsTestimonialsIdRoute
@@ -390,8 +382,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard_/create': typeof AuthenticatedDashboardCreateRoute
   '/_authenticated/gacha-roll_/$id': typeof AuthenticatedGachaRollIdRoute
   '/_authenticated/gacha-roll_/create': typeof AuthenticatedGachaRollCreateRoute
-  '/_authenticated/permissions_/$id': typeof AuthenticatedPermissionsIdRoute
-  '/_authenticated/permissions_/create': typeof AuthenticatedPermissionsCreateRoute
   '/_authenticated/roadmap-dimentorin_/$id': typeof AuthenticatedRoadmapDimentorinIdRoute
   '/_authenticated/roadmap-dimentorin_/create': typeof AuthenticatedRoadmapDimentorinCreateRoute
   '/_authenticated/roles_/$id': typeof AuthenticatedRolesIdRoute
@@ -424,6 +414,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/users-dimentorin'
     | '/accounts/$id'
+    | '/accounts/create'
     | '/cms-events/$id'
     | '/cms-events/create'
     | '/cms-testimonials/$id'
@@ -432,8 +423,6 @@ export interface FileRouteTypes {
     | '/dashboard/create'
     | '/gacha-roll/$id'
     | '/gacha-roll/create'
-    | '/permissions/$id'
-    | '/permissions/create'
     | '/roadmap-dimentorin/$id'
     | '/roadmap-dimentorin/create'
     | '/roles/$id'
@@ -464,6 +453,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/users-dimentorin'
     | '/accounts/$id'
+    | '/accounts/create'
     | '/cms-events/$id'
     | '/cms-events/create'
     | '/cms-testimonials/$id'
@@ -472,8 +462,6 @@ export interface FileRouteTypes {
     | '/dashboard/create'
     | '/gacha-roll/$id'
     | '/gacha-roll/create'
-    | '/permissions/$id'
-    | '/permissions/create'
     | '/roadmap-dimentorin/$id'
     | '/roadmap-dimentorin/create'
     | '/roles/$id'
@@ -506,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/transactions'
     | '/_authenticated/users-dimentorin'
     | '/_authenticated/accounts_/$id'
+    | '/_authenticated/accounts_/create'
     | '/_authenticated/cms-events_/$id'
     | '/_authenticated/cms-events_/create'
     | '/_authenticated/cms-testimonials_/$id'
@@ -514,8 +503,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard_/create'
     | '/_authenticated/gacha-roll_/$id'
     | '/_authenticated/gacha-roll_/create'
-    | '/_authenticated/permissions_/$id'
-    | '/_authenticated/permissions_/create'
     | '/_authenticated/roadmap-dimentorin_/$id'
     | '/_authenticated/roadmap-dimentorin_/create'
     | '/_authenticated/roles_/$id'
@@ -694,6 +681,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/accounts_/create': {
+      id: '/_authenticated/accounts_/create'
+      path: '/accounts/create'
+      fullPath: '/accounts/create'
+      preLoaderRoute: typeof AuthenticatedAccountsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/cms-events_/$id': {
       id: '/_authenticated/cms-events_/$id'
       path: '/cms-events/$id'
@@ -748,20 +742,6 @@ declare module '@tanstack/react-router' {
       path: '/gacha-roll/create'
       fullPath: '/gacha-roll/create'
       preLoaderRoute: typeof AuthenticatedGachaRollCreateRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/permissions_/$id': {
-      id: '/_authenticated/permissions_/$id'
-      path: '/permissions/$id'
-      fullPath: '/permissions/$id'
-      preLoaderRoute: typeof AuthenticatedPermissionsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/permissions_/create': {
-      id: '/_authenticated/permissions_/create'
-      path: '/permissions/create'
-      fullPath: '/permissions/create'
-      preLoaderRoute: typeof AuthenticatedPermissionsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/roadmap-dimentorin_/$id': {
@@ -837,6 +817,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedUsersDimentorinRoute: typeof AuthenticatedUsersDimentorinRoute
   AuthenticatedAccountsIdRoute: typeof AuthenticatedAccountsIdRoute
+  AuthenticatedAccountsCreateRoute: typeof AuthenticatedAccountsCreateRoute
   AuthenticatedCmsEventsIdRoute: typeof AuthenticatedCmsEventsIdRoute
   AuthenticatedCmsEventsCreateRoute: typeof AuthenticatedCmsEventsCreateRoute
   AuthenticatedCmsTestimonialsIdRoute: typeof AuthenticatedCmsTestimonialsIdRoute
@@ -845,8 +826,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardCreateRoute: typeof AuthenticatedDashboardCreateRoute
   AuthenticatedGachaRollIdRoute: typeof AuthenticatedGachaRollIdRoute
   AuthenticatedGachaRollCreateRoute: typeof AuthenticatedGachaRollCreateRoute
-  AuthenticatedPermissionsIdRoute: typeof AuthenticatedPermissionsIdRoute
-  AuthenticatedPermissionsCreateRoute: typeof AuthenticatedPermissionsCreateRoute
   AuthenticatedRoadmapDimentorinIdRoute: typeof AuthenticatedRoadmapDimentorinIdRoute
   AuthenticatedRoadmapDimentorinCreateRoute: typeof AuthenticatedRoadmapDimentorinCreateRoute
   AuthenticatedRolesIdRoute: typeof AuthenticatedRolesIdRoute
@@ -878,6 +857,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedUsersDimentorinRoute: AuthenticatedUsersDimentorinRoute,
   AuthenticatedAccountsIdRoute: AuthenticatedAccountsIdRoute,
+  AuthenticatedAccountsCreateRoute: AuthenticatedAccountsCreateRoute,
   AuthenticatedCmsEventsIdRoute: AuthenticatedCmsEventsIdRoute,
   AuthenticatedCmsEventsCreateRoute: AuthenticatedCmsEventsCreateRoute,
   AuthenticatedCmsTestimonialsIdRoute: AuthenticatedCmsTestimonialsIdRoute,
@@ -887,8 +867,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardCreateRoute: AuthenticatedDashboardCreateRoute,
   AuthenticatedGachaRollIdRoute: AuthenticatedGachaRollIdRoute,
   AuthenticatedGachaRollCreateRoute: AuthenticatedGachaRollCreateRoute,
-  AuthenticatedPermissionsIdRoute: AuthenticatedPermissionsIdRoute,
-  AuthenticatedPermissionsCreateRoute: AuthenticatedPermissionsCreateRoute,
   AuthenticatedRoadmapDimentorinIdRoute: AuthenticatedRoadmapDimentorinIdRoute,
   AuthenticatedRoadmapDimentorinCreateRoute:
     AuthenticatedRoadmapDimentorinCreateRoute,

@@ -2,31 +2,47 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import type { TPermission } from '@app/permissions';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useCreateRole } from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { PermissionPicker } from '../_components/roles/permission-picker';
+import { usePermissionList, useRoleCreate } from '../_hooks/use-roles';
 
 export const Route = createFileRoute('/_authenticated/roles_/create')({
   component: RolesCreatePage,
 });
 
+type TRoleForm = {
+  key: string;
+  label: string;
+  description: string;
+  permissions: TPermission[];
+};
+
 function RolesCreatePage() {
   const navigate = useNavigate();
-  const createRole = useCreateRole();
+  const createRole = useRoleCreate();
+  const { data: permissionData } = usePermissionList();
 
-  const form = useForm<{ name: string }>({
+  const form = useForm<TRoleForm>({
     mode: 'all',
-    defaultValues: { name: '' },
+    defaultValues: { key: '', label: '', description: '', permissions: [] },
   });
+  const permissions = form.watch('permissions');
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createRole.mutateAsync(data);
+      await createRole.mutateAsync({
+        key: data.key.trim(),
+        label: data.label.trim(),
+        description: data.description.trim() || undefined,
+        permissions: data.permissions,
+      });
       toast.success('Data role berhasil ditambahkan');
       navigate({ to: '/roles' });
     } catch (error) {
-      console.log(error);
-      toast.error('Data role gagal ditambahkan');
+      toast.error(errorMessage(error, 'Data role gagal ditambahkan'));
     }
   });
 
@@ -35,6 +51,7 @@ function RolesCreatePage() {
       <div className="max-w-2xl mx-auto w-full">
         <div className="flex items-center gap-3 mb-6">
           <button
+            type="button"
             onClick={() => navigate({ to: '/roles' })}
             className="text-primary-500 hover:text-primary-600"
           >
@@ -47,64 +64,37 @@ function RolesCreatePage() {
           <form onSubmit={onSubmit} className="flex flex-col gap-6">
             <ControlledInputField
               control={form.control}
+              label="Key Role"
+              name="key"
+              type="text"
+              placeholder="contoh: staff-gacha (huruf kecil, angka, - atau _)"
+              size="lg"
+              className="w-full"
+            />
+            <ControlledInputField
+              control={form.control}
               label="Nama Role"
-              name="name"
+              name="label"
               type="text"
               placeholder="Masukkan Nama Role"
               size="lg"
               className="w-full"
             />
+            <ControlledInputField
+              control={form.control}
+              label="Deskripsi"
+              name="description"
+              type="text"
+              placeholder="Opsional"
+              size="lg"
+              className="w-full"
+            />
 
-            <div className="flex flex-col gap-4 items-start overflow-auto">
-              <span className="text-p3 font-medium text-neutral-800 sticky left-0">
-                Permissions
-              </span>
-              <div className="flex gap-x-6 overflow-x-auto">
-                {[
-                  'Gacha Items',
-                  'Gacha Roll',
-                  'Roll',
-                  'Users',
-                  'Gacha Claim',
-                ].map((title) => (
-                  <div
-                    key={title}
-                    className="flex flex-col gap-4 select-none text-label2 font-medium text-neutral-900"
-                  >
-                    <span className="text-nowrap text-label1">{title}</span>
-                    <div className="flex gap-[8px] items-center">
-                      <input
-                        type="checkbox"
-                        id={`${title}-all`}
-                        className="rounded"
-                      />
-                      <label htmlFor={`${title}-all`} className="text-nowrap">
-                        Check All
-                      </label>
-                    </div>
-                    <hr className="border-blue-200" />
-                    <div className="flex flex-col items-start gap-4 mb-4">
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-read'} />
-                        <label htmlFor={`${title}-read`}>Read</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-create'} />
-                        <label htmlFor={`${title}-create`}>Create</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-update'} />
-                        <label htmlFor={`${title}-update`}>Update</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-delete'} />
-                        <label htmlFor={`${title}-delete`}>Delete</label>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PermissionPicker
+              permissions={permissionData?.items ?? []}
+              value={permissions}
+              onChange={(value) => form.setValue('permissions', value)}
+            />
 
             <div className="flex gap-3 pt-4">
               <Button
@@ -112,6 +102,7 @@ function RolesCreatePage() {
                 size="lg"
                 className="w-full"
                 type="submit"
+                disabled={createRole.isPending}
               >
                 Tambah Role
               </Button>
@@ -119,6 +110,7 @@ function RolesCreatePage() {
                 variant="bordered"
                 size="lg"
                 className="w-full"
+                type="button"
                 onClick={() => navigate({ to: '/roles' })}
               >
                 Batal

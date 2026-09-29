@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import * as React from 'react';
-import { Filter as FilterIcon, Search, Pencil } from 'lucide-react';
+import { Filter as FilterIcon, Search, Pencil, Plus } from 'lucide-react';
 import {
   Button,
   Card,
@@ -26,10 +26,19 @@ import {
   useReactTable,
   type RowSelectionState,
 } from '@tanstack/react-table';
-import {
-  useUserList,
-  type TUsersListItem,
-} from '@imphnen-frontend-service/service';
+import { roleLabel } from '@app/messages';
+import { PERMISSION } from '@app/permissions';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
+import { type TUserItem, useUserList } from './_hooks/use-users';
+
+const STATUS_FILTER = {
+  ALL: 'all',
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+const isActiveFilter = (value: string): boolean | undefined =>
+  value === STATUS_FILTER.ALL ? undefined : value === STATUS_FILTER.ACTIVE;
 
 export const Route = createFileRoute('/_authenticated/accounts')({
   component: AccountsPage,
@@ -44,17 +53,22 @@ function AccountsPage() {
   });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [showFilter, setShowFilter] = React.useState(false);
+  const [statusFilter, setStatusFilter] = React.useState<string>(
+    STATUS_FILTER.ALL
+  );
+  const { can } = useCurrentUser();
 
   const { data: usersData, isLoading } = useUserList({
-    search,
+    search: search || undefined,
+    isActive: isActiveFilter(statusFilter),
     page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
+    pageSize: pagination.pageSize,
   });
 
-  const users: TUsersListItem[] = usersData?.data ?? [];
-  const totalItems = usersData?.meta?.total ?? users.length;
+  const users: TUserItem[] = [...(usersData?.items ?? [])];
+  const totalItems = usersData?.total ?? users.length;
 
-  const columns: ColumnDef<TUsersListItem>[] = [
+  const columns: ColumnDef<TUserItem>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -80,16 +94,24 @@ function AccountsPage() {
         />
       ),
     },
-    { header: 'No', accessorKey: 'id' },
-    { header: 'Nama Lengkap', accessorKey: 'fullname' },
+    {
+      header: 'No',
+      cell: ({ row }) =>
+        pagination.pageIndex * pagination.pageSize + row.index + 1,
+    },
+    { header: 'Nama Lengkap', accessorKey: 'name' },
     { header: 'Email', accessorKey: 'email' },
-    { header: 'Role', accessorKey: 'role' },
+    {
+      header: 'Role',
+      accessorKey: 'role',
+      cell: ({ row }) => roleLabel(row.original.role),
+    },
     {
       header: 'Status',
-      accessorKey: 'is_active',
+      accessorKey: 'isActive',
       cell: ({ row }) => (
-        <Badge variant={row.original.is_active ? 'success' : 'destructive'}>
-          {row.original.is_active ? 'Aktif' : 'Tidak Aktif'}
+        <Badge variant={row.original.isActive ? 'success' : 'destructive'}>
+          {row.original.isActive ? 'Aktif' : 'Tidak Aktif'}
         </Badge>
       ),
     },
@@ -137,27 +159,50 @@ function AccountsPage() {
                 placeholder="Cari nama lengkap atau email…"
                 className="pl-9"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
               />
             </div>
-            <Popover open={showFilter} onOpenChange={setShowFilter}>
-              <PopoverTrigger asChild>
-                <Button variant="secondary" size="md">
-                  <FilterIcon className="size-4" />
-                  Filters
+            <div className="flex items-center gap-2">
+              {can(PERMISSION.USER_CREATE) && (
+                <Button
+                  size="md"
+                  onClick={() => navigate({ to: '/accounts/create' })}
+                >
+                  <Plus className="size-4" />
+                  Tambah Akun
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-auto p-0">
-                <Filter
-                  onClose={() => setShowFilter(false)}
-                  options={[
-                    { id: 'all', value: 'all', label: 'Semua' },
-                    { id: 'active', value: 'active', label: 'Aktif' },
-                    { id: 'inactive', value: 'inactive', label: 'Tidak Aktif' },
-                  ]}
-                />
-              </PopoverContent>
-            </Popover>
+              )}
+              <Popover open={showFilter} onOpenChange={setShowFilter}>
+                <PopoverTrigger asChild>
+                  <Button variant="secondary" size="md">
+                    <FilterIcon className="size-4" />
+                    Filters
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0">
+                  <Filter
+                    onClose={() => setShowFilter(false)}
+                    selectedValue={statusFilter}
+                    onFilterChange={(value) => {
+                      setStatusFilter(value);
+                      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                    }}
+                    options={[
+                      { id: 'all', value: 'all', label: 'Semua' },
+                      { id: 'active', value: 'active', label: 'Aktif' },
+                      {
+                        id: 'inactive',
+                        value: 'inactive',
+                        label: 'Tidak Aktif',
+                      },
+                    ]}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

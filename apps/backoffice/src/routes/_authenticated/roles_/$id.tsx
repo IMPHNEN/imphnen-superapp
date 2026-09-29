@@ -3,44 +3,61 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { PERMISSION, type TPermission } from '@app/permissions';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useRoleList, useUpdateRole } from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { PermissionPicker } from '../_components/roles/permission-picker';
+import { usePermissionList, useRole, useRoleUpdate } from '../_hooks/use-roles';
 
 export const Route = createFileRoute('/_authenticated/roles_/$id')({
   component: RolesEditPage,
 });
 
+type TRoleForm = {
+  label: string;
+  description: string;
+  permissions: TPermission[];
+};
+
 function RolesEditPage() {
-  const { id } = Route.useParams();
+  const { id: key } = Route.useParams();
   const navigate = useNavigate();
-  const updateRole = useUpdateRole();
+  const { can } = useCurrentUser();
+  const updateRole = useRoleUpdate();
+  const { data: role, isLoading, isError } = useRole(key);
+  const { data: permissionData } = usePermissionList();
+  const readOnly = !role || role.fixed || !can(PERMISSION.ROLE_UPDATE);
 
-  const { data: rolesData, isLoading } = useRoleList({
-    search: '',
-    per_page: 100,
-  });
-  const role = rolesData?.data?.find((r) => r.id === id);
-
-  const form = useForm<{ name: string }>({
+  const form = useForm<TRoleForm>({
     mode: 'all',
-    defaultValues: { name: '' },
+    defaultValues: { label: '', description: '', permissions: [] },
   });
+  const permissions = form.watch('permissions');
 
   useEffect(() => {
     if (role) {
-      form.reset({ name: role.name });
+      form.reset({
+        label: role.label,
+        description: role.description ?? '',
+        permissions: [...role.permissions],
+      });
     }
   }, [role]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateRole.mutateAsync({ id, data });
+      await updateRole.mutateAsync({
+        key,
+        label: data.label.trim(),
+        description: data.description.trim() || null,
+        permissions: data.permissions,
+      });
       toast.success('Perubahan role berhasil dilakukan');
       navigate({ to: '/roles' });
     } catch (error) {
-      console.log(error);
-      toast.error('Perubahan role gagal dilakukan');
+      toast.error(errorMessage(error, 'Perubahan role gagal dilakukan'));
     }
   });
 
@@ -57,96 +74,82 @@ function RolesEditPage() {
       <div className="max-w-2xl mx-auto w-full">
         <div className="flex items-center gap-3 mb-6">
           <button
+            type="button"
             onClick={() => navigate({ to: '/roles' })}
             className="text-primary-500 hover:text-primary-600"
           >
             <ArrowLeftOutlined className="text-[20px]" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Role</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {readOnly ? 'Detail Role' : 'Edit Role'}
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <form onSubmit={onSubmit} className="flex flex-col gap-6">
-            <ControlledInputField
-              control={form.control}
-              label="Nama Role"
-              name="name"
-              type="text"
-              placeholder="Masukkan Nama Role"
-              size="lg"
-              className="w-full"
-            />
+          {isError || !role ? (
+            <div className="text-center py-8 text-neutral-400">
+              Role tidak ditemukan.
+            </div>
+          ) : (
+            <form onSubmit={onSubmit} className="flex flex-col gap-6">
+              {role.fixed && (
+                <p className="rounded-md bg-primary-50 px-4 py-3 text-sm text-neutral-700">
+                  Role bawaan tidak bisa diubah. Buat role kustom untuk
+                  kombinasi permission lain.
+                </p>
+              )}
+              <ControlledInputField
+                control={form.control}
+                label="Nama Role"
+                name="label"
+                type="text"
+                placeholder="Masukkan Nama Role"
+                size="lg"
+                className="w-full"
+                disabled={readOnly}
+              />
+              <ControlledInputField
+                control={form.control}
+                label="Deskripsi"
+                name="description"
+                type="text"
+                placeholder="Opsional"
+                size="lg"
+                className="w-full"
+                disabled={readOnly}
+              />
 
-            <div className="flex flex-col gap-4 items-start overflow-auto">
-              <span className="text-p3 font-medium text-neutral-800 sticky left-0">
-                Permissions
-              </span>
-              <div className="flex gap-x-6 overflow-x-auto">
-                {[
-                  'Gacha Items',
-                  'Gacha Roll',
-                  'Roll',
-                  'Users',
-                  'Gacha Claim',
-                ].map((title) => (
-                  <div
-                    key={title}
-                    className="flex flex-col gap-4 select-none text-label2 font-medium text-neutral-900"
+              <PermissionPicker
+                permissions={permissionData?.items ?? []}
+                value={permissions}
+                onChange={(value) => form.setValue('permissions', value)}
+                disabled={readOnly}
+              />
+
+              <div className="flex gap-3 pt-4">
+                {!readOnly && (
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
+                    type="submit"
+                    disabled={updateRole.isPending}
                   >
-                    <span className="text-nowrap text-label1">{title}</span>
-                    <div className="flex gap-[8px] items-center">
-                      <input
-                        type="checkbox"
-                        id={`${title}-all`}
-                        className="rounded"
-                      />
-                      <label htmlFor={`${title}-all`} className="text-nowrap">
-                        Check All
-                      </label>
-                    </div>
-                    <hr className="border-blue-200" />
-                    <div className="flex flex-col items-start gap-4 mb-4">
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-read'} />
-                        <label htmlFor={`${title}-read`}>Read</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-create'} />
-                        <label htmlFor={`${title}-create`}>Create</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-update'} />
-                        <label htmlFor={`${title}-update`}>Update</label>
-                      </div>
-                      <div className="flex gap-[8px] items-center">
-                        <input type="checkbox" id={'${title}-delete'} />
-                        <label htmlFor={`${title}-delete`}>Delete</label>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    Update Role
+                  </Button>
+                )}
+                <Button
+                  variant="bordered"
+                  size="lg"
+                  className="w-full"
+                  type="button"
+                  onClick={() => navigate({ to: '/roles' })}
+                >
+                  {readOnly ? 'Kembali' : 'Batal'}
+                </Button>
               </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full"
-                type="submit"
-              >
-                Update Role
-              </Button>
-              <Button
-                variant="bordered"
-                size="lg"
-                className="w-full"
-                onClick={() => navigate({ to: '/roles' })}
-              >
-                Batal
-              </Button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </main>
