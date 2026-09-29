@@ -1,0 +1,26 @@
+/* Surface tokens the shared components (dialog, popover, sheet, select, sidebar) paint with.
+   Apps that do not import packages/ui/src/index.css must import this file, otherwise those
+   surfaces render transparent. */
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #3d3d3d;
+  --color-card: #ffffff;
+  --color-card-foreground: #3d3d3d;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #3d3d3d;
+  --color-muted: #f6f6f6;
+  --color-muted-foreground: #6d6d6d;
+  --color-accent: #e1f0fd;
+  --color-accent-foreground: #085f9c;
+  --color-border: #d1d1d1;
+  --color-input: #d1d1d1;
+  --color-ring: #3eb0f2;
+  --color-sidebar: #ffffff;
+  --color-sidebar-foreground: #4f4f4f;
+  --color-sidebar-primary: #23a1eb;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #f0f8ff;
+  --color-sidebar-accent-foreground: #085f9c;
+  --color-sidebar-border: #e7e7e7;
+  --color-sidebar-ring: #3eb0f2;
+}

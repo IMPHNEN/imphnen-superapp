@@ -7,7 +7,8 @@
     "./atoms": "./src/atoms/index.ts",
     "./molecules": "./src/molecules/index.ts",
     "./organisms": "./src/organisms/index.ts",
-    "./index.css": "./src/index.css"
+    "./index.css": "./src/index.css",
+    "./surface-tokens.css": "./src/surface-tokens.css"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
