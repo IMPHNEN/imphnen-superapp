@@ -63,10 +63,10 @@ describe('rehearsal against the real D1 schema', (): void => {
   });
 
   it('keeps every foreign key and matches the expected counts', (): void => {
-    const { result, all } = rehearse();
+    const { result, all, one } = rehearse();
     expect(all(FOREIGN_KEY_CHECK)).toEqual([]);
     const tables = D.keys(result.targetCounts) as TTargetTable[];
-    const checks = countsCompare(result.targetCounts, all(countQuery(tables)));
+    const checks = countsCompare(result.targetCounts, one(countQuery(tables)));
     expect(A.filter(checks, (check): boolean => !check.ok)).toEqual([]);
     expect(result.targetCounts.user).toBeGreaterThan(0);
     expect(result.targetCounts.hackathon_team_member).toBeGreaterThan(0);
@@ -108,13 +108,10 @@ describe('rehearsal against the real D1 schema', (): void => {
   });
 
   it('resets the migrated tables in reverse order', (): void => {
-    const { result, database, all } = rehearse();
+    const { result, database, one } = rehearse();
     d1LikeApply(database, resetSqlBuild(result.tables));
     const tables = D.keys(result.targetCounts) as TTargetTable[];
-    const counts = A.map(
-      all(countQuery(tables)),
-      (row): unknown => row.row_count
-    );
+    const counts = D.values(one(countQuery(tables)));
     expect(A.every(counts, (count): boolean => count === 0)).toBe(true);
   });
 

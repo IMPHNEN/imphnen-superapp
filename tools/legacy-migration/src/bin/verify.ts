@@ -47,13 +47,15 @@ const verify = (): void => {
     apiDir: resolve(values['api-dir'] ?? API_DIR),
   };
   const tables = D.keys(report.targetCounts) as readonly TTargetTable[];
-  const counted = A.flat(
-    A.map(
-      d1Query(target, countQuery(tables)),
-      (result): TD1Result['results'] => result.results
+  const counted = A.head(
+    A.flat(
+      A.map(
+        d1Query(target, countQuery(tables)),
+        (result): TD1Result['results'] => result.results
+      )
     )
   );
-  const checks = countsCompare(report.targetCounts, counted);
+  const checks = countsCompare(report.targetCounts, counted ?? undefined);
   const violations = A.flat(
     A.map(
       d1Query(target, FOREIGN_KEY_CHECK),
