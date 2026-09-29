@@ -10,9 +10,13 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@app/contract": "workspace:*",
     "@imphnen-frontend-service/utils": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
     "@tanstack/react-query": "catalog:",
     "axios": "catalog:",
+    "better-auth": "catalog:",
     "js-cookie": "^3.0.5",
     "zod": "^3.25.76",
     "zustand": "catalog:"

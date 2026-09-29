@@ -6,6 +6,16 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 export default defineConfig(() => ({
   root: import.meta.dirname,
   server: {
+    proxy: {
+      '/rpc': {
+        target: process.env.VITE_DEV_API_URL ?? 'http://localhost:8787',
+        changeOrigin: true,
+      },
+      '/api/auth': {
+        target: process.env.VITE_DEV_API_URL ?? 'http://localhost:8787',
+        changeOrigin: true,
+      },
+    },
     port: 3008,
     host: 'localhost',
   },

@@ -9,6 +9,14 @@ export default defineConfig(() => ({
     port: 3003,
     host: 'localhost',
     proxy: {
+      '/rpc': {
+        target: process.env.VITE_DEV_API_URL ?? 'http://localhost:8787',
+        changeOrigin: true,
+      },
+      '/api/auth': {
+        target: process.env.VITE_DEV_API_URL ?? 'http://localhost:8787',
+        changeOrigin: true,
+      },
       '/v1': {
         target: 'https://api.imphnen.dev',
         changeOrigin: true,
