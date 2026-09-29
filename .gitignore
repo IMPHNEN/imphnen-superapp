@@ -87,3 +87,6 @@ docs/todo.md
 docs/workflow-state.json
 docs/adr/**
 .dev.vars
+
+# Astro generated types
+.astro/
