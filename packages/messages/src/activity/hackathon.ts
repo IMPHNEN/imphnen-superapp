@@ -1,3 +1,15 @@
-export const HACKATHON_ACTIVITY_ACTION_LABEL = {} as const;
+import { ACTIVITY_ACTION, ACTIVITY_RESOURCE_TYPE } from '@app/activity';
 
-export const HACKATHON_ACTIVITY_ENTITY_LABEL = {} as const;
+export const HACKATHON_ACTIVITY_ACTION_LABEL = {
+  [ACTIVITY_ACTION.HACKATHON_TEAM_CREATE]: 'Hackathon team created',
+  [ACTIVITY_ACTION.HACKATHON_TEAM_DELETE]: 'Hackathon team deleted',
+  [ACTIVITY_ACTION.HACKATHON_SUBMISSION_CONFIRM]: 'Hackathon project submitted',
+  [ACTIVITY_ACTION.HACKATHON_WINNER_SET]: 'Hackathon winner set',
+  [ACTIVITY_ACTION.HACKATHON_WINNER_REMOVE]: 'Hackathon winner removed',
+} as const;
+
+export const HACKATHON_ACTIVITY_ENTITY_LABEL = {
+  [ACTIVITY_RESOURCE_TYPE.HACKATHON_TEAM]: 'Hackathon team',
+  [ACTIVITY_RESOURCE_TYPE.HACKATHON_SUBMISSION]: 'Hackathon submission',
+  [ACTIVITY_RESOURCE_TYPE.HACKATHON_WINNER]: 'Hackathon winner',
+} as const;
