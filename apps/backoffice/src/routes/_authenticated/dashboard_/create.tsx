@@ -4,7 +4,12 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useCreateGachaItem } from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import {
+  GACHA_ITEM_DEFAULT,
+  newGachaItemInput,
+} from '../_components/gacha/item-defaults';
+import { useGachaItemCreate } from '../_hooks/use-gacha';
 
 export const Route = createFileRoute('/_authenticated/dashboard_/create')({
   component: DashboardCreatePage,
@@ -12,34 +17,26 @@ export const Route = createFileRoute('/_authenticated/dashboard_/create')({
 
 function DashboardCreatePage() {
   const navigate = useNavigate();
-  const createItem = useCreateGachaItem();
+  const createItem = useGachaItemCreate();
 
-  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>(
-    {
-      mode: 'all',
-      defaultValues: { itemName: '', quantity: 1 },
-    }
-  );
+  const form = useForm<{ itemName: string; quantity: number }>({
+    mode: 'all',
+    defaultValues: { itemName: '', quantity: GACHA_ITEM_DEFAULT.STOCK },
+  });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createItem.mutateAsync({
-        item_code: (data.itemName as string).toLowerCase().replace(/\s+/g, '-'),
-        name: data.itemName,
-        description: '',
-        rarity: 'common',
-        type_: 'physical',
-        category: 'merchandise',
-        value: 0,
-        weight: 1,
-        stock: data.quantity ?? 1,
-        is_limited: false,
-      });
+      await createItem.mutateAsync(
+        newGachaItemInput({
+          name: data.itemName,
+          stock: Number(data.quantity),
+          weight: GACHA_ITEM_DEFAULT.WEIGHT,
+        })
+      );
       toast.success('Item ditambahkan ke gacha item');
       navigate({ to: '/dashboard' });
     } catch (error) {
-      console.log(error);
-      toast.error('Item gagal ditambahkan ke gacha item');
+      toast.error(errorMessage(error, 'Item gagal ditambahkan ke gacha item'));
     }
   });
 
@@ -76,15 +73,6 @@ function DashboardCreatePage() {
               type="number"
               min={1}
               placeholder="Masukkan Kuantitas Item"
-              size="lg"
-              className="w-full"
-            />
-            <ControlledInputField
-              control={form.control}
-              label="Foto Barang"
-              type="file"
-              name="foto"
-              placeholder=".jpg, .jpeg, atau .png"
               size="lg"
               className="w-full"
             />

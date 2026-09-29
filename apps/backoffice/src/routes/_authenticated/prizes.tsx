@@ -25,109 +25,115 @@ import {
   useReactTable,
   type RowSelectionState,
 } from '@tanstack/react-table';
+import { GACHA_CLAIM_STATUS } from '@app/schemas';
+import { toast } from 'sonner';
 import ModalProcessDelivery from './_components/prizes/modal-process-item';
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
 } from '../../components/list-helpers';
+import { errorMessage } from '../../libs/errors';
+import {
+  type TGachaClaim,
+  useGachaClaimFulfil,
+  useGachaClaimList,
+} from './_hooks/use-gacha';
 
-type OrderValid = 'valid' | 'invalid' | 'unchecked';
-type Status = 'undelivered' | 'delivered';
+type Status = TGachaClaim['status'];
 
-interface Prize {
-  id: number;
-  name: string;
-  orderValid: OrderValid;
-  items: string;
-  address: string;
-  status: Status;
-}
-
-const items = [
-  'Sertifikat + Laminating',
-  'Lanyard + ID Card',
-  'Pin',
-  'Sticker Isi 3',
-  'Sticker Isi 5',
-  'Gelang Karet',
-];
-
-const mockData: Prize[] = Array.from({ length: 90 }, (_, i) => ({
-  id: i + 1,
-  name: 'Nama Lengkap',
-  orderValid: (i % 3 === 0
-    ? 'invalid'
-    : i % 5 === 0
-      ? 'unchecked'
-      : 'valid') as OrderValid,
-  items: items[i % items.length],
-  address: 'Jl. Pantai Cibaduyut Indah',
-  status: (i % 3 === 0 ? 'undelivered' : 'delivered') as Status,
-}));
+const STATUS_FILTER_ALL = 'all';
 
 export const Route = createFileRoute('/_authenticated/prizes')({
   component: PrizesPage,
 });
 
 function PrizesPage() {
-  const [showModalProcessDelivery, setShowModalProcessDelivery] =
-    React.useState(false);
+  const [selectedClaim, setSelectedClaim] = React.useState<TGachaClaim | null>(
+    null
+  );
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [showFilter, setShowFilter] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  const [statusFilter, setStatusFilter] =
+    React.useState<string>(STATUS_FILTER_ALL);
+
+  const { data: claimsData, isLoading } = useGachaClaimList({
+    search: search || undefined,
+    status:
+      statusFilter === GACHA_CLAIM_STATUS.PENDING ||
+      statusFilter === GACHA_CLAIM_STATUS.FULFILLED
+        ? statusFilter
+        : undefined,
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
+  });
+  const fulfilClaim = useGachaClaimFulfil();
+
+  const claims: TGachaClaim[] = [...(claimsData?.items ?? [])];
+  const totalItems = claimsData?.total ?? claims.length;
+
+  const handleProcessDelivery = async (claim: TGachaClaim) => {
+    try {
+      await fulfilClaim.mutateAsync({ id: claim.id });
+      toast.success('Hadiah ditandai sudah dikirim');
+      setSelectedClaim(null);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Status pengiriman gagal diubah'));
+    }
+  };
 
   const deliveryOptions = [
-    { id: 'undelivered', value: 'undelivered', label: 'Undelivered' },
-    { id: 'delivered', value: 'delivered', label: 'Delivered' },
+    { id: STATUS_FILTER_ALL, value: STATUS_FILTER_ALL, label: 'Semua' },
+    {
+      id: GACHA_CLAIM_STATUS.PENDING,
+      value: GACHA_CLAIM_STATUS.PENDING,
+      label: 'Undelivered',
+    },
+    {
+      id: GACHA_CLAIM_STATUS.FULFILLED,
+      value: GACHA_CLAIM_STATUS.FULFILLED,
+      label: 'Delivered',
+    },
   ];
 
-  const orderValidVariants: Record<
-    OrderValid,
-    'success' | 'destructive' | 'warning'
-  > = {
-    valid: 'success',
-    invalid: 'destructive',
-    unchecked: 'warning',
-  };
-
-  const orderValidText: Record<OrderValid, string> = {
-    valid: 'Valid',
-    invalid: 'Invalid',
-    unchecked: 'Unchecked',
-  };
-
   const statusVariants: Record<Status, 'success' | 'destructive'> = {
-    delivered: 'success',
-    undelivered: 'destructive',
+    fulfilled: 'success',
+    pending: 'destructive',
   };
 
   const statusText: Record<Status, string> = {
-    delivered: 'Delivered',
-    undelivered: 'Undelivered',
+    fulfilled: 'Delivered',
+    pending: 'Undelivered',
   };
 
-  const columns: ColumnDef<Prize>[] = [
+  const columns: ColumnDef<TGachaClaim>[] = [
     {
       id: 'select',
       header: ({ table }) => <SelectAllCheckbox table={table} />,
       cell: ({ row }) => <RowSelectCheckbox row={row} />,
     },
-    { header: 'No', accessorKey: 'id' },
-    { header: 'Nama Lengkap', accessorKey: 'name' },
     {
-      header: 'Order Valid?',
-      accessorKey: 'orderValid',
-      cell: ({ row }) => (
-        <Badge variant={orderValidVariants[row.original.orderValid]}>
-          {orderValidText[row.original.orderValid]}
-        </Badge>
-      ),
+      header: 'No',
+      cell: ({ row }) =>
+        pagination.pageIndex * pagination.pageSize + row.index + 1,
     },
-    { header: 'Items', accessorKey: 'items' },
-    { header: 'Alamat Pengiriman', accessorKey: 'address' },
+    { header: 'Nama Lengkap', cell: ({ row }) => row.original.user.name },
+    { header: 'Email', cell: ({ row }) => row.original.user.email },
+    { header: 'Items', cell: ({ row }) => row.original.item.name },
+    {
+      header: 'Tanggal Menang',
+      accessorKey: 'createdAt',
+      cell: ({ row }) =>
+        new Date(row.original.createdAt).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+    },
     {
       header: 'Status',
       accessorKey: 'status',
@@ -139,13 +145,13 @@ function PrizesPage() {
     },
     {
       header: 'Action',
-      cell: () => (
+      cell: ({ row }) => (
         <Button
           variant="secondary"
           size="sm"
           onClick={(e) => {
             e.stopPropagation();
-            setShowModalProcessDelivery(true);
+            setSelectedClaim(row.original);
           }}
         >
           <ClipboardCheck className="size-3.5" />
@@ -156,7 +162,7 @@ function PrizesPage() {
   ];
 
   const table = useReactTable({
-    data: mockData,
+    data: claims,
     columns,
     state: { pagination, rowSelection },
     enableRowSelection: true,
@@ -164,8 +170,8 @@ function PrizesPage() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    pageCount: Math.ceil(mockData.length / pagination.pageSize),
-    manualPagination: false,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
+    manualPagination: true,
   });
 
   return (
@@ -180,7 +186,12 @@ function PrizesPage() {
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Cari nama atau nomor order…"
+                placeholder="Cari nama, email, atau item…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
               />
             </div>
             <Popover open={showFilter} onOpenChange={setShowFilter}>
@@ -194,9 +205,11 @@ function PrizesPage() {
                 <Filter
                   options={deliveryOptions}
                   title="Status"
+                  selectedValue={statusFilter}
                   onClose={() => setShowFilter(false)}
                   onFilterChange={(value) => {
-                    console.log('Selected filter:', value);
+                    setStatusFilter(value);
+                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                   }}
                 />
               </PopoverContent>
@@ -204,16 +217,32 @@ function PrizesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <DataTable data={mockData} columns={columns} table={table} />
+          {isLoading ? (
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              Memuat data…
+            </div>
+          ) : (
+            <DataTable
+              data={claims}
+              columns={columns}
+              table={table}
+              manualPagination
+              pageCount={Math.ceil(totalItems / pagination.pageSize)}
+              currentPage={pagination.pageIndex + 1}
+              onPageChange={(p) =>
+                setPagination((prev) => ({ ...prev, pageIndex: p - 1 }))
+              }
+            />
+          )}
         </CardContent>
       </Card>
 
       <ModalProcessDelivery
-        isOpen={showModalProcessDelivery}
-        onClose={() => setShowModalProcessDelivery(false)}
-        handleProcessDelivery={() => {
-          console.log('Action proses pengiriman');
-        }}
+        isOpen={!!selectedClaim}
+        onClose={() => setSelectedClaim(null)}
+        claim={selectedClaim}
+        isProcessing={fulfilClaim.isPending}
+        handleProcessDelivery={handleProcessDelivery}
       />
     </BackofficeWrapper>
   );

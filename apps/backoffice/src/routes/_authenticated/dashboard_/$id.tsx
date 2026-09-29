@@ -5,10 +5,8 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import {
-  useGachaItemList,
-  useUpdateGachaItem,
-} from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { useGachaItem, useGachaItemUpdate } from '../_hooks/use-gacha';
 
 export const Route = createFileRoute('/_authenticated/dashboard_/$id')({
   component: DashboardEditPage,
@@ -17,19 +15,14 @@ export const Route = createFileRoute('/_authenticated/dashboard_/$id')({
 function DashboardEditPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const updateItem = useUpdateGachaItem();
+  const updateItem = useGachaItemUpdate();
 
-  const { data: gachaItemsData, isLoading } = useGachaItemList({
-    per_page: 100,
+  const { data: item, isLoading } = useGachaItem(id);
+
+  const form = useForm<{ itemName: string; quantity: number }>({
+    mode: 'all',
+    defaultValues: { itemName: '', quantity: 1 },
   });
-  const item = gachaItemsData?.data?.find((i) => i.id === id);
-
-  const form = useForm<{ itemName: string; quantity: number; foto?: FileList }>(
-    {
-      mode: 'all',
-      defaultValues: { itemName: '', quantity: 1 },
-    }
-  );
 
   useEffect(() => {
     if (item) {
@@ -41,13 +34,13 @@ function DashboardEditPage() {
     try {
       await updateItem.mutateAsync({
         id,
-        data: { name: data.itemName, stock: data.quantity },
+        name: data.itemName.trim(),
+        stock: Number(data.quantity),
       });
       toast.success('Perubahan item berhasil dilakukan');
       navigate({ to: '/dashboard' });
     } catch (error) {
-      console.log(error);
-      toast.error('Perubahan item gagal dilakukan');
+      toast.error(errorMessage(error, 'Perubahan item gagal dilakukan'));
     }
   });
 
@@ -89,15 +82,6 @@ function DashboardEditPage() {
               type="number"
               name="quantity"
               placeholder="Masukkan Kuantitas Item"
-              size="lg"
-              className="w-full"
-            />
-            <ControlledInputField
-              control={form.control}
-              label="Foto Barang"
-              type="file"
-              name="foto"
-              placeholder=".jpg, .jpeg, atau .png"
               size="lg"
               className="w-full"
             />

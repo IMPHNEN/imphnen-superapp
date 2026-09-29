@@ -23,14 +23,24 @@ import {
   DropdownMenuTrigger,
 } from '@imphnen-frontend-service/ui/atoms';
 import { BackofficeWrapper } from '@imphnen-frontend-service/ui/organisms';
-import {
-  useUserList,
-  useGachaItemList,
-  useDeleteGachaItem,
-  type TGachaItemDto,
-} from '@imphnen-frontend-service/service';
+import { PERMISSION } from '@app/permissions';
+import { useCurrentUser } from '@imphnen-frontend-service/service/session';
 import { toast } from 'sonner';
 import { DeleteConfirmDialog } from '../../components/list-helpers';
+import { errorMessage } from '../../libs/errors';
+import {
+  type TGachaItem,
+  useGachaClaimList,
+  useGachaItemList,
+  useGachaItemRemove,
+} from './_hooks/use-gacha';
+import { useUserList } from './_hooks/use-users';
+
+const COUNT_ONLY = { page: 1, pageSize: 1 } as const;
+const EMPTY_STAT = '—';
+
+const formatCount = (value: number | undefined): string =>
+  value === undefined ? EMPTY_STAT : value.toLocaleString('id-ID');
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
@@ -64,21 +74,30 @@ function DashboardPage() {
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
-  const { data: usersData } = useUserList({ per_page: 1 });
-  const { data: gachaItemsData } = useGachaItemList({ per_page: 9 });
-  const deleteItem = useDeleteGachaItem();
+  const { can } = useCurrentUser();
+  const canReadUsers = can(PERMISSION.USER_READ);
 
-  const totalUsers = usersData?.meta?.total ?? 0;
-  const gachaItems: TGachaItemDto[] = gachaItemsData?.data ?? [];
+  const { data: usersData } = useUserList(COUNT_ONLY, canReadUsers);
+  const { data: inactiveUsersData } = useUserList(
+    { ...COUNT_ONLY, isActive: false },
+    canReadUsers
+  );
+  const { data: claimsData } = useGachaClaimList(
+    COUNT_ONLY,
+    can(PERMISSION.GACHA_CLAIM_MANAGE)
+  );
+  const { data: gachaItemsData } = useGachaItemList({ page: 1, pageSize: 9 });
+  const deleteItem = useGachaItemRemove();
+
+  const gachaItems: TGachaItem[] = [...(gachaItemsData?.items ?? [])];
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteItem.mutateAsync(id);
+      await deleteItem.mutateAsync({ id });
       toast.success('Item berhasil dihapus');
       setDeleteId(null);
     } catch (error) {
-      console.log(error);
-      toast.error('Item gagal dihapus');
+      toast.error(errorMessage(error, 'Item gagal dihapus'));
     }
   };
 
@@ -91,15 +110,23 @@ function DashboardPage() {
         <StatCard
           icon={UsersRound}
           label="Participants"
-          value={totalUsers.toLocaleString('id-ID')}
+          value={formatCount(usersData?.total)}
         />
         <StatCard
           icon={RefreshCcw}
           label="Gacha Items"
-          value={(gachaItemsData?.meta?.total ?? 0).toLocaleString('id-ID')}
+          value={formatCount(gachaItemsData?.total)}
         />
-        <StatCard icon={UserCog} label="Redeem" value="—" />
-        <StatCard icon={UserMinus} label="Inactive Users" value="—" />
+        <StatCard
+          icon={UserCog}
+          label="Redeem"
+          value={formatCount(claimsData?.total)}
+        />
+        <StatCard
+          icon={UserMinus}
+          label="Inactive Users"
+          value={formatCount(inactiveUsersData?.total)}
+        />
       </section>
 
       <Card>
@@ -137,7 +164,7 @@ function DashboardPage() {
                       {item.name}
                     </h3>
                     <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                      {item.id}
+                      {item.code} · stok {item.stock}
                     </p>
                   </div>
                   <DropdownMenu>

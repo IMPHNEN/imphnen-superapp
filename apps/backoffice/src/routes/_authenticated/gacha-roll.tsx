@@ -20,12 +20,13 @@ import {
   useReactTable,
   type RowSelectionState,
 } from '@tanstack/react-table';
-import {
-  useGachaItemList,
-  useDeleteGachaItem,
-  type TGachaItemDto,
-} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
+import { errorMessage } from '../../libs/errors';
+import {
+  type TGachaItem,
+  useGachaItemList,
+  useGachaItemRemove,
+} from './_hooks/use-gacha';
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -47,34 +48,39 @@ function GachaRollPage() {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: itemsData, isLoading } = useGachaItemList({
-    search,
+    search: search || undefined,
     page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
+    pageSize: pagination.pageSize,
   });
-  const deleteItem = useDeleteGachaItem();
+  const deleteItem = useGachaItemRemove();
 
-  const items: TGachaItemDto[] = itemsData?.data ?? [];
-  const totalItems = itemsData?.meta?.total ?? items.length;
+  const items: TGachaItem[] = [...(itemsData?.items ?? [])];
+  const totalItems = itemsData?.total ?? items.length;
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteItem.mutateAsync(id);
+      await deleteItem.mutateAsync({ id });
       toast.success('Item berhasil dihapus');
       setDeleteId(null);
     } catch (error) {
-      console.log(error);
-      toast.error('Item gagal dihapus');
+      toast.error(errorMessage(error, 'Item gagal dihapus'));
     }
   };
 
-  const columns: ColumnDef<TGachaItemDto>[] = [
+  const columns: ColumnDef<TGachaItem>[] = [
     {
       id: 'select',
       header: ({ table }) => <SelectAllCheckbox table={table} />,
       cell: ({ row }) => <RowSelectCheckbox row={row} />,
     },
-    { header: 'No', accessorKey: 'id' },
+    {
+      header: 'No',
+      cell: ({ row }) =>
+        pagination.pageIndex * pagination.pageSize + row.index + 1,
+    },
     { header: 'Nama Item', accessorKey: 'name' },
+    { header: 'Stok', accessorKey: 'stock' },
+    { header: 'Chance Rate (bobot)', accessorKey: 'weight' },
     {
       header: 'Action',
       cell: ({ row }) => (
@@ -136,7 +142,10 @@ function GachaRollPage() {
                 placeholder="Cari nama item…"
                 className="pl-9"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
               />
             </div>
             <Button

@@ -5,10 +5,8 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import {
-  useGachaItemList,
-  useUpdateGachaItem,
-} from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { useGachaItem, useGachaItemUpdate } from '../_hooks/use-gacha';
 
 export const Route = createFileRoute('/_authenticated/gacha-roll_/$id')({
   component: GachaRollEditPage,
@@ -17,10 +15,9 @@ export const Route = createFileRoute('/_authenticated/gacha-roll_/$id')({
 function GachaRollEditPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const updateItem = useUpdateGachaItem();
+  const updateItem = useGachaItemUpdate();
 
-  const { data: itemsData, isLoading } = useGachaItemList({ per_page: 100 });
-  const item = itemsData?.data?.find((i) => i.id === id);
+  const { data: item, isLoading } = useGachaItem(id);
 
   const form = useForm<{
     itemName: string;
@@ -45,17 +42,14 @@ function GachaRollEditPage() {
     try {
       await updateItem.mutateAsync({
         id,
-        data: {
-          name: data.itemName,
-          weight: data.chanceRate,
-          stock: data.quantity,
-        },
+        name: data.itemName.trim(),
+        weight: Number(data.chanceRate),
+        stock: Number(data.quantity),
       });
       toast.success('Perubahan item roll berhasil dilakukan');
       navigate({ to: '/gacha-roll' });
     } catch (error) {
-      console.log(error);
-      toast.error('Perubahan item roll gagal dilakukan');
+      toast.error(errorMessage(error, 'Perubahan item roll gagal dilakukan'));
     }
   });
 

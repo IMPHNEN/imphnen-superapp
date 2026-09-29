@@ -1,15 +1,25 @@
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { InputField, Modal } from '@imphnen-frontend-service/ui/molecules';
+import type { TGachaClaim } from '../../_hooks/use-gacha';
 
 interface IModalProcessDelivery {
   isOpen: boolean;
   onClose: () => void;
-  handleProcessDelivery?: () => void;
+  claim: TGachaClaim | null;
+  isProcessing?: boolean;
+  handleProcessDelivery?: (claim: TGachaClaim) => void;
 }
+
+const CLAIM_STATUS_TEXT: Record<TGachaClaim['status'], string> = {
+  pending: 'Undelivered',
+  fulfilled: 'Delivered',
+};
 
 const ModalProcessDelivery = ({
   isOpen,
   onClose,
+  claim,
+  isProcessing = false,
   handleProcessDelivery,
 }: IModalProcessDelivery) => {
   return (
@@ -33,8 +43,15 @@ const ModalProcessDelivery = ({
           <InputField
             label="Nama Lengkap"
             type="text"
-            placeholder="Masukkan Nama Lengkap"
-            value="Ahmad Wiyana"
+            value={claim?.user.name ?? ''}
+            size="lg"
+            className="w-full"
+            readOnly
+          />
+          <InputField
+            label="Email"
+            type="text"
+            value={claim?.user.email ?? ''}
             size="lg"
             className="w-full"
             readOnly
@@ -42,17 +59,7 @@ const ModalProcessDelivery = ({
           <InputField
             label="Item yang didapatkan"
             type="text"
-            placeholder="Masukkan Nama Item"
-            value="Lanyard + ID Card"
-            size="lg"
-            className="w-full"
-            readOnly
-          />
-          <InputField
-            label="Alamat Pengiriman"
-            type="text"
-            placeholder="Masukkan Alamat Pengiriman"
-            value="Jl. Pantai Cibaduyut Indah"
+            value={claim ? `${claim.item.name} (${claim.item.code})` : ''}
             size="lg"
             className="w-full"
             readOnly
@@ -60,8 +67,7 @@ const ModalProcessDelivery = ({
           <InputField
             label="Status"
             type="text"
-            placeholder="Isi Status Pengiriman"
-            value="Lanyard + ID Card"
+            value={claim ? CLAIM_STATUS_TEXT[claim.status] : ''}
             size="lg"
             className="w-full"
             readOnly
@@ -72,9 +78,10 @@ const ModalProcessDelivery = ({
           variant="primary"
           size="lg"
           className="w-full"
-          onClick={() => handleProcessDelivery && handleProcessDelivery()}
+          disabled={!claim || claim.status !== 'pending' || isProcessing}
+          onClick={() => claim && handleProcessDelivery?.(claim)}
         >
-          Proses Pengiriman
+          {isProcessing ? 'Memproses…' : 'Tandai Delivered'}
         </Button>
       </Modal.Content>
     </Modal>

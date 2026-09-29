@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useCreateGachaItem } from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { newGachaItemInput } from '../_components/gacha/item-defaults';
+import { useGachaItemCreate } from '../_hooks/use-gacha';
 
 export const Route = createFileRoute('/_authenticated/gacha-roll_/create')({
   component: GachaRollCreatePage,
@@ -12,7 +14,7 @@ export const Route = createFileRoute('/_authenticated/gacha-roll_/create')({
 
 function GachaRollCreatePage() {
   const navigate = useNavigate();
-  const createItem = useCreateGachaItem();
+  const createItem = useGachaItemCreate();
 
   const form = useForm<{
     itemName: string;
@@ -25,23 +27,17 @@ function GachaRollCreatePage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createItem.mutateAsync({
-        item_code: (data.itemName as string).toLowerCase().replace(/\s+/g, '-'),
-        name: data.itemName,
-        description: '',
-        rarity: 'common',
-        type_: 'physical',
-        category: 'merchandise',
-        value: 0,
-        weight: data.chanceRate ?? 1,
-        stock: data.quantity ?? 1,
-        is_limited: false,
-      });
+      await createItem.mutateAsync(
+        newGachaItemInput({
+          name: data.itemName,
+          stock: Number(data.quantity),
+          weight: Number(data.chanceRate),
+        })
+      );
       toast.success('Item ditambahkan ke roll gacha');
       navigate({ to: '/gacha-roll' });
     } catch (error) {
-      console.log(error);
-      toast.error('Item gagal ditambahkan ke roll gacha');
+      toast.error(errorMessage(error, 'Item gagal ditambahkan ke roll gacha'));
     }
   });
 
