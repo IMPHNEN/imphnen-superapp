@@ -1,17 +1,14 @@
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import {
-  createFileRoute,
-  Navigate,
-  Outlet,
-  useLocation,
-} from '@tanstack/react-router';
-import {
-  SESSION_STATUS,
+  sessionEnsure,
   useCurrentUser,
 } from '@imphnen-frontend-service/service/session';
 import {
   SidebarInset,
   SidebarProvider,
 } from '@imphnen-frontend-service/ui/atoms';
+import { queryClient } from '@imphnen-frontend-service/utils';
+import { useLocation } from '@tanstack/react-router';
 import { BackofficeSidebar } from '../components/sidebar';
 import { AccessDenied, FullPageSpinner } from '../components/session-screens';
 import {
@@ -21,15 +18,18 @@ import {
 } from '../libs/access';
 
 export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async () => {
+    const me = await sessionEnsure(queryClient);
+    if (!me) throw redirect({ to: '/auth/login', replace: true });
+  },
   component: AuthenticatedLayout,
 });
 
 function AuthenticatedLayout() {
-  const { me, status, can } = useCurrentUser();
+  const { me, can } = useCurrentUser();
   const { pathname } = useLocation();
 
-  if (status === SESSION_STATUS.LOADING) return <FullPageSpinner />;
-  if (!me) return <Navigate to="/auth/login" />;
+  if (!me) return <FullPageSpinner />;
   if (!hasBackofficeAccess(me.permissions)) {
     return (
       <AccessDenied

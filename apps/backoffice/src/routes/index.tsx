@@ -1,19 +1,12 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router';
-import {
-  SESSION_STATUS,
-  useCurrentUser,
-} from '@imphnen-frontend-service/service/session';
-import { FullPageSpinner } from '../components/session-screens';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { sessionEnsure } from '@imphnen-frontend-service/service/session';
+import { queryClient } from '@imphnen-frontend-service/utils';
 import { firstAllowedPage } from '../libs/access';
 
 export const Route = createFileRoute('/')({
-  component: IndexRedirect,
+  beforeLoad: async () => {
+    const me = await sessionEnsure(queryClient);
+    const landing = me ? firstAllowedPage(me.permissions) : undefined;
+    throw redirect({ to: landing ?? '/auth/login', replace: true });
+  },
 });
-
-function IndexRedirect() {
-  const { me, status } = useCurrentUser();
-
-  if (status === SESSION_STATUS.LOADING) return <FullPageSpinner />;
-  const landing = me ? firstAllowedPage(me.permissions) : undefined;
-  return <Navigate to={landing ?? '/auth/login'} />;
-}

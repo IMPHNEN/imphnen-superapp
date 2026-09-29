@@ -1,16 +1,14 @@
-import { PERMISSION } from '@app/permissions';
-import { useCurrentUser } from '@imphnen-frontend-service/service/session';
-import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
-import type { ReactElement } from 'react';
+import { canAll, PERMISSION } from '@app/permissions';
+import { sessionEnsure } from '@imphnen-frontend-service/service/session';
+import { queryClient } from '@imphnen-frontend-service/utils';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authenticated/admin')({
-  component: AdminLayout,
+  beforeLoad: async (): Promise<void> => {
+    const me = await sessionEnsure(queryClient);
+    if (!me || !canAll(me.permissions, [PERMISSION.QR_CAMPAIGN_READ])) {
+      throw redirect({ to: '/', replace: true });
+    }
+  },
+  component: Outlet,
 });
-
-function AdminLayout(): ReactElement {
-  const { can } = useCurrentUser();
-
-  if (!can(PERMISSION.QR_CAMPAIGN_READ)) return <Navigate to="/" />;
-
-  return <Outlet />;
-}

@@ -1,20 +1,27 @@
 import { MenuOutlined } from '@ant-design/icons';
-import { useCurrentUser } from '@imphnen-frontend-service/service/session';
-import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
+import {
+  sessionEnsure,
+  useCurrentUser,
+} from '@imphnen-frontend-service/service/session';
+import { queryClient } from '@imphnen-frontend-service/utils';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { type ReactElement, useState } from 'react';
 import { PageLoader } from '../components/PageLoader';
 import { Sidebar } from '../components/Sidebar';
 
 export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async (): Promise<void> => {
+    const me = await sessionEnsure(queryClient);
+    if (!me) throw redirect({ to: '/auth/login', replace: true });
+  },
   component: AuthenticatedLayout,
 });
 
 function AuthenticatedLayout(): ReactElement {
-  const { status } = useCurrentUser();
+  const { me } = useCurrentUser();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  if (status === 'loading') return <PageLoader />;
-  if (status === 'unauthenticated') return <Navigate to="/auth/login" />;
+  if (!me) return <PageLoader />;
 
   return (
     <div className="flex min-h-screen bg-gray-50">

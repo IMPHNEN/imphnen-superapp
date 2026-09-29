@@ -1,17 +1,16 @@
-import { useCurrentUser } from '@imphnen-frontend-service/service/session';
-import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router';
+import { sessionEnsure } from '@imphnen-frontend-service/service/session';
+import { queryClient } from '@imphnen-frontend-service/utils';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import type { ReactElement } from 'react';
-import { PageLoader } from '../components/PageLoader';
 
 export const Route = createFileRoute('/_public')({
+  beforeLoad: async (): Promise<void> => {
+    const me = await sessionEnsure(queryClient);
+    if (me) throw redirect({ to: '/', replace: true });
+  },
   component: PublicLayout,
 });
 
 function PublicLayout(): ReactElement {
-  const { status } = useCurrentUser();
-
-  if (status === 'loading') return <PageLoader />;
-  if (status === 'authenticated') return <Navigate to="/" />;
-
   return <Outlet />;
 }
