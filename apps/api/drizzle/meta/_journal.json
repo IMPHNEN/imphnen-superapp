@@ -36,6 +36,13 @@
       "when": 1790690309028,
       "tag": "0004_lyrical_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790690966255,
+      "tag": "0005_fast_daredevil",
+      "breakpoints": true
     }
   ]
 }
