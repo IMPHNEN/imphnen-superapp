@@ -1,4 +1,4 @@
-import { ROLE } from '@app/permissions';
+import { DEFAULT_ROLE } from '@app/permissions';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import {
   createdAtColumn,
@@ -14,7 +14,7 @@ export const user = sqliteTable('user', {
     .notNull()
     .default(false),
   image: text('image'),
-  role: text('role').notNull().default(ROLE.VIEWER),
+  role: text('role').notNull().default(DEFAULT_ROLE),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });

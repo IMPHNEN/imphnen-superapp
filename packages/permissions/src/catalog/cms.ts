@@ -1,0 +1,16 @@
+export const CMS_PERMISSION = {
+  EVENT_CREATE: 'event:create',
+  EVENT_UPDATE: 'event:update',
+  EVENT_DELETE: 'event:delete',
+  TESTIMONIAL_CREATE: 'testimonial:create',
+  TESTIMONIAL_MODERATE: 'testimonial:moderate',
+  ROADMAP_CREATE: 'roadmap:create',
+  ROADMAP_UPDATE: 'roadmap:update',
+  ROADMAP_DELETE: 'roadmap:delete',
+  ROADMAP_VOTE: 'roadmap:vote',
+  QR_CAMPAIGN_CREATE: 'qr-campaign:create',
+  QR_CAMPAIGN_READ: 'qr-campaign:read',
+  QR_CAMPAIGN_UPDATE: 'qr-campaign:update',
+  QR_CAMPAIGN_DELETE: 'qr-campaign:delete',
+  QR_USER_MANAGE: 'qr-user:manage',
+} as const;

@@ -1,4 +1,4 @@
-import { ROLE } from '@app/permissions';
+import { DEFAULT_ROLE } from '@app/permissions';
 import type { BetterAuthPlugin } from 'better-auth';
 import { jwt } from 'better-auth/plugins';
 import { match, P } from 'ts-pattern';
@@ -42,7 +42,7 @@ type TDefinePayload = (source: TJwtPayloadSource) => Promise<TJwtPayload>;
 const roleOf = (user: TJwtUser): string =>
   match(user.role)
     .with(P.string, (role): string => role)
-    .otherwise((): string => ROLE.VIEWER);
+    .otherwise((): string => DEFAULT_ROLE);
 
 const payloadOf =
   (permissionsFor: TPermissionsFor): TDefinePayload =>

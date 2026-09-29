@@ -21,7 +21,7 @@ const row: TUserRow = {
   email: 'member@test.app',
   emailVerified: false,
   image: null,
-  role: ROLE.MEMBER,
+  role: ROLE.USER,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
 };
@@ -30,7 +30,7 @@ const input: TUserCreateInput = {
   name: 'Member',
   email: 'member@test.app',
   password: 'Password123',
-  role: ROLE.MEMBER,
+  role: ROLE.USER,
 };
 
 const layerBuild = (

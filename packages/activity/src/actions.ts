@@ -1,7 +1,50 @@
+import {
+  GACHA_ACTIVITY_ACTION,
+  GACHA_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/gacha.ts';
+import {
+  EVENT_ACTIVITY_ACTION,
+  EVENT_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/event.ts';
+import {
+  TESTIMONIAL_ACTIVITY_ACTION,
+  TESTIMONIAL_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/testimonial.ts';
+import {
+  ROADMAP_ACTIVITY_ACTION,
+  ROADMAP_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/roadmap.ts';
+import { QR_ACTIVITY_ACTION, QR_ACTIVITY_RESOURCE_TYPE } from './catalog/qr.ts';
+import {
+  MENTOR_ACTIVITY_ACTION,
+  MENTOR_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/mentor.ts';
+import {
+  MENTORING_ACTIVITY_ACTION,
+  MENTORING_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/mentoring.ts';
+import {
+  HACKATHON_ACTIVITY_ACTION,
+  HACKATHON_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/hackathon.ts';
+import {
+  PROFILE_ACTIVITY_ACTION,
+  PROFILE_ACTIVITY_RESOURCE_TYPE,
+} from './catalog/profile.ts';
+
 export const ACTIVITY_RESOURCE_TYPE = {
   USER: 'user',
   ROLE: 'role',
   SESSION: 'session',
+  ...GACHA_ACTIVITY_RESOURCE_TYPE,
+  ...EVENT_ACTIVITY_RESOURCE_TYPE,
+  ...TESTIMONIAL_ACTIVITY_RESOURCE_TYPE,
+  ...ROADMAP_ACTIVITY_RESOURCE_TYPE,
+  ...QR_ACTIVITY_RESOURCE_TYPE,
+  ...MENTOR_ACTIVITY_RESOURCE_TYPE,
+  ...MENTORING_ACTIVITY_RESOURCE_TYPE,
+  ...HACKATHON_ACTIVITY_RESOURCE_TYPE,
+  ...PROFILE_ACTIVITY_RESOURCE_TYPE,
 } as const;
 
 export type TActivityResourceType =
@@ -16,6 +59,15 @@ export const ACTIVITY_ACTION = {
   ROLE_UPDATE: 'role.update',
   ROLE_DELETE: 'role.delete',
   SESSION_CREATE: 'session.create',
+  ...GACHA_ACTIVITY_ACTION,
+  ...EVENT_ACTIVITY_ACTION,
+  ...TESTIMONIAL_ACTIVITY_ACTION,
+  ...ROADMAP_ACTIVITY_ACTION,
+  ...QR_ACTIVITY_ACTION,
+  ...MENTOR_ACTIVITY_ACTION,
+  ...MENTORING_ACTIVITY_ACTION,
+  ...HACKATHON_ACTIVITY_ACTION,
+  ...PROFILE_ACTIVITY_ACTION,
 } as const;
 
 export type TActivityAction =

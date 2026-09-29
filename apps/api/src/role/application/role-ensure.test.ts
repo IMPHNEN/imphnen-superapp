@@ -40,7 +40,7 @@ describe('roleEnsure', () => {
     const findByKey = vi.fn();
 
     await Effect.runPromise(
-      roleEnsure(ROLE.MEMBER).pipe(Effect.provide(layerBuild(findByKey)))
+      roleEnsure(ROLE.USER).pipe(Effect.provide(layerBuild(findByKey)))
     );
 
     expect(findByKey).not.toHaveBeenCalled();

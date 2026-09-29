@@ -87,7 +87,7 @@ describe('roleUpdate', () => {
     const mocks = mocksBuild(row, {});
 
     const error = await Effect.runPromise(
-      roleUpdate({ ...input, key: ROLE.MEMBER }, ACTOR_ID).pipe(
+      roleUpdate({ ...input, key: ROLE.USER }, ACTOR_ID).pipe(
         Effect.provide(layerBuild(mocks)),
         Effect.flip
       )

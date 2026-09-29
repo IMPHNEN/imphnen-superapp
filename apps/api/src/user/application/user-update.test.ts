@@ -1,5 +1,5 @@
 import { ACTIVITY_ACTION, ACTIVITY_DETAIL } from '@app/activity';
-import { PERMISSION, ROLE } from '@app/permissions';
+import { DEFAULT_ROLE, PERMISSION, ROLE } from '@app/permissions';
 import { Effect, Layer } from 'effect';
 import { describe, expect, it, type Mock, vi } from 'vitest';
 import { CustomRoleRepo, type TCustomRoleRepoId } from '#/role/index.ts';
@@ -26,7 +26,7 @@ const row: TUserRow = {
   email: 'member@test.app',
   emailVerified: false,
   image: null,
-  role: ROLE.MEMBER,
+  role: ROLE.USER,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
 };
@@ -98,7 +98,7 @@ describe('userUpdate', () => {
     const mocks = mocksBuild(row, null);
 
     const error = await Effect.runPromise(
-      userUpdate({ id: ACTOR_ID, role: ROLE.VIEWER }, ACTOR_ID).pipe(
+      userUpdate({ id: ACTOR_ID, role: DEFAULT_ROLE }, ACTOR_ID).pipe(
         Effect.provide(layerBuild(mocks)),
         Effect.flip
       )
@@ -169,7 +169,7 @@ describe('userUpdate', () => {
         resourceId: USER_ID,
         metadata: {
           [ACTIVITY_DETAIL.ROLE]: CUSTOM_ROLE,
-          [ACTIVITY_DETAIL.PREVIOUS_ROLE]: ROLE.MEMBER,
+          [ACTIVITY_DETAIL.PREVIOUS_ROLE]: ROLE.USER,
         },
       })
     );

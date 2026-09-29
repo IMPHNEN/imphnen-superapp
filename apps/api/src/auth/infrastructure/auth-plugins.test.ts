@@ -1,4 +1,4 @@
-import { PERMISSION, ROLE } from '@app/permissions';
+import { DEFAULT_ROLE, PERMISSION, ROLE } from '@app/permissions';
 import { A } from '@mobily/ts-belt';
 import type { jwt } from 'better-auth/plugins';
 import { describe, expect, it, vi } from 'vitest';
@@ -87,6 +87,6 @@ describe('authPluginsOf', () => {
       session: SESSION as never,
     });
 
-    expect(payload?.role).toBe(ROLE.VIEWER);
+    expect(payload?.role).toBe(DEFAULT_ROLE);
   });
 });

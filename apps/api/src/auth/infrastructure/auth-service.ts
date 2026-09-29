@@ -1,4 +1,4 @@
-import { ROLE } from '@app/permissions';
+import { DEFAULT_ROLE } from '@app/permissions';
 import { Context, Effect, Layer } from 'effect';
 import { match, P } from 'ts-pattern';
 import { EAuth, type EDatabase } from '#/shared/errors.ts';
@@ -92,7 +92,7 @@ export const authServiceLayer = Layer.effect(
                 (): TSessionEffect => Effect.succeed(null)
               )
               .otherwise(({ user }) =>
-                sessionBuild(user, user.role ?? ROLE.VIEWER)
+                sessionBuild(user, user.role ?? DEFAULT_ROLE)
               )
         )
       );

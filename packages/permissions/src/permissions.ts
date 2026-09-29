@@ -1,15 +1,16 @@
 import { A, D } from '@mobily/ts-belt';
+import { CMS_PERMISSION } from './catalog/cms.ts';
+import { DIMENTORIN_PERMISSION } from './catalog/dimentorin.ts';
+import { GACHA_PERMISSION } from './catalog/gacha.ts';
+import { HACKATHON_PERMISSION } from './catalog/hackathon.ts';
+import { IAM_PERMISSION } from './catalog/iam.ts';
 
 export const PERMISSION = {
-  USER_CREATE: 'user:create',
-  USER_READ: 'user:read',
-  USER_UPDATE: 'user:update',
-  USER_DELETE: 'user:delete',
-  ROLE_CREATE: 'role:create',
-  ROLE_READ: 'role:read',
-  ROLE_UPDATE: 'role:update',
-  ROLE_DELETE: 'role:delete',
-  ACTIVITY_READ: 'activity:read',
+  ...IAM_PERMISSION,
+  ...GACHA_PERMISSION,
+  ...DIMENTORIN_PERMISSION,
+  ...CMS_PERMISSION,
+  ...HACKATHON_PERMISSION,
 } as const;
 
 export type TPermission = (typeof PERMISSION)[keyof typeof PERMISSION];

@@ -21,6 +21,15 @@ export const MODULE = {
   PERMISSION: 'permission',
   ROLE: 'role',
   USER: 'user',
+  GACHA: 'gacha',
+  EVENT: 'event',
+  TESTIMONIAL: 'testimonial',
+  ROADMAP: 'roadmap',
+  QR: 'qr',
+  MENTOR: 'mentor',
+  MENTORING: 'mentoring',
+  HACKATHON: 'hackathon',
+  PROFILE: 'profile',
 } as const;
 
 export type TModule = (typeof MODULE)[keyof typeof MODULE];
@@ -33,6 +42,15 @@ export const MODULE_MAY_IMPORT: Readonly<Record<TModule, readonly TModule[]>> =
     [MODULE.PERMISSION]: [],
     [MODULE.ROLE]: [],
     [MODULE.USER]: [MODULE.AUTH, MODULE.ROLE],
+    [MODULE.GACHA]: [],
+    [MODULE.EVENT]: [],
+    [MODULE.TESTIMONIAL]: [],
+    [MODULE.ROADMAP]: [],
+    [MODULE.QR]: [],
+    [MODULE.MENTOR]: [],
+    [MODULE.MENTORING]: [],
+    [MODULE.HACKATHON]: [],
+    [MODULE.PROFILE]: [],
   };
 
 export const AREA = {

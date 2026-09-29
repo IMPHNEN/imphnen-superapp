@@ -25,7 +25,7 @@ const target: TUserRow = {
   email: 'member@test.app',
   emailVerified: false,
   image: null,
-  role: ROLE.MEMBER,
+  role: ROLE.USER,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
 };
