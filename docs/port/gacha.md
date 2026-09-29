@@ -497,3 +497,154 @@ Related gaps:
 - **Atomicity:** D1 has no `SELECT … FOR UPDATE`. Use conditional `UPDATE … WHERE available_rolls > 0 RETURNING`, and group "decrement credit + insert claim" with `db.batch([...])`, which runs as one transaction in D1. Replace the ignore-errors refund with this atomic path.
 - **Uniqueness:** keep `UNIQUE(item_code)`. Consider adding `UNIQUE(user_id) WHERE is_deleted = 0` on credits (a partial index is supported in SQLite) to make "one balance per user" real. Confirm first that prod has no duplicates.
 - **`version` field:** every JSON envelope carries `"version": "0.3.0"`. Source it from `@app/version` or pin it for parity.
+
+---
+
+## Migration mapping (TS port)
+
+General transforms, applied to every table below:
+
+- **UUIDs** are kept as they are (lowercase canonical text). Rows keep their old ids, so every foreign key resolves without remapping.
+- **Timestamps.** `timestamptz` becomes epoch milliseconds (integer). Naive `timestamp` columns (credits, rolls) are read as UTC and become epoch milliseconds too.
+- **Booleans** become integer `0`/`1`. **JSON** becomes JSON text (`JSON.stringify`). SQL `NULL` and a JSON `null` literal both become SQL `NULL`.
+- **Users.** `user_id` values point at the better-auth `user` table (`user.id` = old `app_users.id`). A row whose user was not migrated by the IAM port is dropped and listed in the migration report.
+- A **migration report** (count and ids per rule) is written for every row that is dropped, clamped or folded. The rules below say which ones.
+
+### `app_gacha_items` → `gacha_item`
+
+| Old column | New column | Transform |
+|---|---|---|
+| `id` uuid | `id` text PK | kept |
+| `item_code` varchar UNIQUE | `code` text UNIQUE | kept verbatim |
+| `name` | `name` | kept |
+| `description` | `description` (NOT NULL, default `''`) | kept |
+| `rarity` | `rarity` | kept (free text) |
+| `type` (JSON `type_`) | `type` | kept (free text) |
+| `category` | `category` | kept (free text) |
+| `value` integer | `value` integer | kept, negatives kept (the new API rejects negatives only on input) |
+| `weight` double precision | `weight` real, `CHECK (weight >= 0)` | kept; a negative weight becomes `0` (reported) |
+| `stock` integer | `stock` integer, `CHECK (stock >= 0)` | kept; a negative stock becomes `0` (reported) |
+| `is_limited` boolean | `is_limited` integer boolean | `0`/`1` |
+| `metadata` json NULL | `metadata` JSON text NULL | stringified |
+| `created_at` timestamptz | `created_at` integer ms | epoch ms |
+| `updated_at` timestamptz | `updated_at` integer ms | epoch ms |
+| `deleted_at` timestamptz NULL | `deleted_at` integer ms NULL | epoch ms or NULL |
+
+### `gacha_rolls` (the roll pool) → folded into `gacha_item`, no table
+
+The new roll draws from the item catalogue: an item is winnable when `deleted_at IS NULL AND stock > 0 AND weight > 0`, with probability `weight / Σ weight`. The pool table is not migrated. It is folded as follows:
+
+1. Only **live** pool rows count: `is_deleted = false AND quantity > 0`. Other rows are ignored.
+2. Group the live pool rows by `item_id`.
+3. **Linked item (the item id exists in `app_gacha_items`), expected for every row:** merge by item id. The item keeps its own `weight` and `stock`, because the backoffice edits those as "chance rate" and "quantity". The pool's `weight` and `quantity` are dropped. The report lists every such item with its old effective pool weight `Σ(weight × quantity)` next to the item's `weight`, so the owner can check the odds.
+4. **Unlinked item (the item id is missing, possible only if prod lacks the FK):** create a `gacha_item` with `id = item_id`, `code = 'pool-' || item_id`, `name = 'Prize ' || left(item_id, 8)`, `description = ''`, `rarity = 'common'`, `type = 'item'`, `category = 'pool'`, `value = 0`, `weight = max(0, Σ weight × quantity)`, **`stock = 0`**, `is_limited = false`, `metadata = NULL`, timestamps = the earliest pool `created_at` (or migration time). Stock is 0 so the placeholder cannot be won until an admin names it and sets stock. Reported.
+5. Dropped pool columns: `id` (no reader), `user_id` (the admin who created the entry), `gacha_id` (always `"default"` or a random seeder UUID, never read), `is_deleted`, `created_at`, `updated_at`.
+
+Ambiguities to confirm with the owner (also in the decisions below):
+- **Items with no live pool row were never winnable in Rust but become winnable** after the move if `stock > 0 AND weight > 0`. If that is not wanted, the migration can set `stock = 0` on them (switch, default off).
+- **Soft-deleted items that live pool rows still pointed at** could be won in Rust; they stay deleted and can no longer be won.
+- **Seeder data.** `seed_gacha_rolls` adds two pool rows per run for `ITEM_TEST_1` (`category = 'test'`). Recommended: migrate that item with `deleted_at = migration time` in prod. Needs a yes/no.
+- Odds change from `pool weight × pool quantity` to `item weight`. Stock is now consumed by every win.
+
+### `gacha_credits` → `gacha_credit`
+
+| Old column | New column | Transform |
+|---|---|---|
+| `id` uuid | none | dropped; the PK is now `user_id` (one balance row per user) |
+| `user_id` uuid (not unique) | `user_id` text PK, FK → `user.id` ON DELETE CASCADE | kept; duplicates merged (below) |
+| `available_rolls` integer | `balance` integer, `CHECK (balance >= 0)` | sum of the user's live rows; a negative sum becomes `0` (reported) |
+| `is_deleted` boolean | none | only `is_deleted = false` rows are migrated, then the column is dropped |
+| `created_at` timestamp NULL | `created_at` integer ms NOT NULL | earliest live `created_at`, as UTC; if NULL: `updated_at`, else migration time |
+| `updated_at` timestamp NULL | `updated_at` integer ms NOT NULL | latest live `updated_at`, as UTC; if NULL: `created_at`, else migration time |
+
+Duplicate live rows for one user (possible, since there was no unique constraint) are **summed** into one balance and reported. A user with no row has a balance of 0, as before.
+
+### `app_gacha_claims` → `gacha_claim`
+
+| Old column | New column | Transform |
+|---|---|---|
+| `id` uuid | `id` text PK | kept |
+| `user_id` uuid (no FK) | `user_id` text NOT NULL, FK → `user.id` ON DELETE CASCADE | kept; orphans dropped (reported) |
+| `gacha_item_id` uuid (no FK) | `item_id` text NOT NULL, FK → `gacha_item.id` ON DELETE RESTRICT | kept; a claim whose item does not exist is dropped (reported) |
+| `claim_id` uuid | none | dropped: a second random UUID with no reader |
+| `claim_type` varchar | `source` text | `'roll'` → `'roll'`; `'standard'` → `'grant'`; `'direct'` → `'grant'` (test-only value) |
+| `status` varchar | `status` text | `'claimed'` → `'pending'` (the only value ever written; no delivery was tracked, so every old prize counts as not yet delivered). See the open question on a cutoff. |
+| `quantity` integer | `quantity` integer, `CHECK (quantity >= 1)` | kept (always 1) |
+| `metadata` json | none | dropped: always NULL by construction. The migration asserts that; a non-NULL value is reported. |
+| `claimed_at` timestamptz | `created_at` integer ms | the win time; equal to `created_at` by construction, and `claimed_at` wins if they differ |
+| `created_at` timestamptz | none | superseded by `claimed_at` |
+| `updated_at` timestamptz | `updated_at` integer ms | epoch ms |
+| `deleted_at` timestamptz NULL | none | never set by any endpoint; a row with a non-NULL value is dropped (reported) |
+| none | `fulfilled_at` integer ms NULL | NULL |
+| none | `fulfilled_by` text NULL, FK → `user.id` ON DELETE SET NULL | NULL |
+
+---
+
+## TS port decisions
+
+### Procedures (11), all guarded, no public procedures
+
+| Procedure | Method and path | Guard |
+|---|---|---|
+| `gacha.item.list` | GET `/gacha/items` | `gacha-item:read` |
+| `gacha.item.get` | GET `/gacha/items/{id}` | `gacha-item:read` |
+| `gacha.item.create` | POST `/gacha/items` | `gacha-item:create` |
+| `gacha.item.update` | PATCH `/gacha/items/{id}` | `gacha-item:update` |
+| `gacha.item.remove` | DELETE `/gacha/items/{id}` | `gacha-item:delete` |
+| `gacha.credit.mine` | GET `/gacha/credits/me` | `gacha-credit:read` |
+| `gacha.credit.grant` | POST `/gacha/credits/grants` | `gacha-credit:grant` |
+| `gacha.roll.execute` | POST `/gacha/rolls` | `gacha:roll` |
+| `gacha.claim.mine` | GET `/gacha/claims/me` | `gacha-claim:read` |
+| `gacha.claim.list` | GET `/gacha/claims` | `gacha-claim:manage` |
+| `gacha.claim.fulfil` | POST `/gacha/claims/{id}/fulfil` | `gacha-claim:manage` |
+
+The item list is not public: the fixed `user` and `mentor` roles hold `gacha-item:read`, so any signed-in member sees the catalogue. A logged-out visitor on the gacha landing page does not (see the open questions).
+
+### Product decisions applied
+
+- **One prize model.** The roll draws from the item catalogue: only items with `deleted_at IS NULL`, `stock > 0` and `weight > 0`, with probability `weight / Σ weight`. The `gacha_rolls` pool is folded into items (mapping above), and its CRUD endpoints (R1, R2, R4) are gone.
+- **Atomic roll.** The pick is made from the candidates, then one `db.batch` (a single D1 transaction) runs these statements:
+  1. `INSERT INTO gacha_claim ... SELECT ... FROM gacha_item WHERE id = ? AND stock > 0 AND deleted_at IS NULL AND EXISTS (credit row with balance >= cost)`
+  2. `UPDATE gacha_item SET stock = stock - 1 WHERE id = ? AND EXISTS (that claim)`
+  3. `UPDATE gacha_credit SET balance = balance - cost WHERE user_id = ? AND EXISTS (that claim)`
+  4. Read back the balance and the item.
+
+  No claim means no charge and no stock change. `CHECK (stock >= 0)` and `CHECK (balance >= 0)` back this up. If the item ran out between the pick and the write, nothing is charged and the pick is retried, up to `GACHA_RULE.ROLL_MAX_ATTEMPTS` (3) attempts. After that the roll fails cleanly with 409. Randomness is a 53-bit uniform draw from `crypto.getRandomValues`.
+- **Credits.** A single balance row per user (`gacha_credit`, PK `user_id`), with no ledger table. Reasons: the old data holds only a balance and no history to migrate. Every grant is recorded in `activity_log` (actor, recipient, amount), and every spend matches one `gacha_claim` row with `source = 'roll'`, so a ledger could be rebuilt from those. Grants are one atomic upsert (`ON CONFLICT DO UPDATE SET balance = balance + ?`). Grants to an unknown user return 404.
+- **Claims.** Members list their own prizes (`claim.mine`, newest first, with the item embedded). Admins list every prize with the winner (`claim.list`, filter by status and user, search by winner name or email and item name or code) and mark one fulfilled (`claim.fulfil`, a conditional `UPDATE ... WHERE status = 'pending'`; a second call returns 409). This backs the backoffice "Data Pengiriman Hadiah" page, which is mock data today.
+- **Items.** PATCH takes partial bodies. Create, update and list return the full item including `stock` and `weight`. This fixes the backoffice edit pages, which prefilled from the list and always got a 400 on save. A duplicate `code` returns 409 (was 500). Deleting an item is a soft delete: deleting it twice, or updating it after deletion, returns 404. Search is case-insensitive over name and code, with escaped wildcards, and no longer needs `search_fields`.
+
+### Other fixes vs Rust
+
+- The double-spend and lost-update races on credits are gone (see the atomic roll and grant above).
+- Stock is now consumed. A deleted item can no longer be won.
+- The roll returns `{ claim: { id, item: { id, code, name }, status, ... }, balance }`. The frontend no longer has to look up the prize name in the first 10 catalogue items, and no longer receives the pool creator's `user_id`.
+- Credits have their own permissions (`gacha-credit:read`, `gacha-credit:grant`) instead of reusing the item permissions. The self-only `/credits/add` became an admin grant to any user.
+- Inputs are validated: no negative weight, stock, value or amount. There are upper bounds (`GACHA_ITEM_LIMIT`, and `GACHA_CREDIT_GRANT_MAX` = 1000 per grant). The spec's i32 overflow problem cannot happen.
+- Claims have FKs to users and items. The meaningless `claim_id` column is gone.
+- Every item write, credit grant and claim fulfilment is recorded in the activity log. Rolls are not logged, because the claim row is their record.
+
+### Behaviour changes and deliberate omissions
+
+- Error codes. Not enough credits → 400 `BAD_REQUEST`. No winnable prize → 409 `CONFLICT` (was 404). Sold out after the retries → 409. Duplicate code → 409.
+- A user with no credit row gets `{ balance: 0, updatedAt: null }` (Rust returned a synthetic row with `id: ""`).
+- **Removed:**
+  - C3 `/credits/consume`: unused, and it burned a credit without a roll.
+  - C2 self `/credits/add`: replaced by the grant.
+  - A1 `/admin`: a duplicate of the item list.
+  - R1, R2 and R4: pool CRUD.
+  - L1 `/claims/detail/{id}`: unreachable, since no claim id was ever exposed.
+  - L2 `/claims/create`: the manual prize grant, which no app uses.
+- No `{ data, version }` envelope. Timestamps are ISO 8601 strings. Paths follow the new `/gacha/...` constants.
+- Constants live in one place: `GACHA_RULE` (`ROLL_COST = 1`, `ROLL_MAX_ATTEMPTS = 3`, `CLAIM_QUANTITY = 1`) in `apps/api/src/gacha/domain/gacha-rules.ts`, plus `GACHA_ITEM_LIMIT` and `GACHA_CREDIT_GRANT_MAX` in `@app/schemas`. The "Periode Gacha: 1 - 31 Maret 2025" text is static frontend copy and is not enforced by the backend, as before.
+- The activity catalogue has no `amount` detail key, so the grant amount is recorded under `ACTIVITY_DETAIL.LABEL`. Adding an `AMOUNT` key to `@app/activity` would make this read better. That package's detail list is shared, so I did not touch it.
+- The repository tests run the real Drizzle queries against an in-memory SQLite database (`node:sqlite`, through a small D1 shim) built from the real table definitions (`drizzle-kit/api`). This proves the batch semantics, not just the use-case branching. No dependency was added.
+
+### Open questions for the product owner
+
+1. **Delivery data.** The backoffice prize page shows a shipping address and "Order Valid?". Neither exists in gacha data. Should the address come from the profile domain, or be captured on the claim?
+2. **Item images.** The frontend schema has a `foto` field, and git history mentions an image URL, but the Rust backend has none. Should items get an R2 image (`gacha/item/<uuid>.<ext>`)?
+3. **Public catalogue.** Should `gacha.item.list` be public for the logged-out landing page? It would then need a public DTO without stock and weight.
+4. **Migrated claim status.** Should old `'claimed'` prizes from the March 2025 period be `'fulfilled'` (already shipped) rather than `'pending'`? A cutoff date would settle it.
+5. **Newly winnable items.** Should catalogue items that were never in the pool become winnable after the migration (the default), or be set to stock 0?
+6. **Credit management.** Is an admin view of any user's balance, or a revoke or negative adjustment, needed? Is a purchase flow planned? Today only grants exist.
