@@ -91,7 +91,7 @@ The first production deploy is part of the data cutover in `tools/legacy-migrati
 
 The Nx setup never ran `tsc` or unit tests in CI, so these gates start partly off:
 
-- `typecheck` is off in CI for backoffice and imphnenos (existing type errors). Run `moon run <app>:typecheck` to see them, then set `runInCI: true` in the app's `moon.yml` once it is clean
+- `typecheck` is off in CI for imphnenos (existing type errors). Run `moon run <app>:typecheck` to see them, then set `runInCI: true` in the app's `moon.yml` once it is clean
 - `test` is off in CI for `ui` (16 stale specs)
 - Biome rules the existing code breaks are warnings in `biome.json`; promote them back to errors as they are cleaned up
 - Storybook was not installed; `*.stories.tsx` files are kept but excluded from typecheck
