@@ -1,1 +1,45 @@
-export const HACKATHON_MESSAGE = {} as const;
+export const HACKATHON_MESSAGE = {
+  CITY_INVALID: 'Choose a city in Indonesia.',
+  UPLOAD_KEY_INVALID: 'Upload the file first, then use the key it returns.',
+  TEAM_FEATURES_CLOSED:
+    'Team registration is closed. Teams can no longer be created or changed.',
+  SUBMISSION_CLOSED: 'The submission deadline has passed.',
+  PARTICIPANT_NOT_FOUND: 'This participant could not be found.',
+  TEAM_NOT_FOUND: 'This team could not be found.',
+  TEAM_PRIVATE: 'This team is invite only.',
+  TEAM_FULL: 'This team already has the maximum number of members.',
+  TEAM_LOCKED:
+    'This team has a project submission, so its members can no longer change.',
+  TEAM_HAS_MEMBERS: 'Remove the other members before deleting the team.',
+  NOT_LEADER: 'Only the team leader can do this.',
+  NOT_MEMBER: 'Only team members can do this.',
+  ALREADY_IN_TEAM: 'You are already a member of a team. Leave it first.',
+  USER_ALREADY_IN_TEAM: 'This person is already a member of a team.',
+  LEADER_CANNOT_LEAVE:
+    'The team leader cannot leave the team. Delete the team instead.',
+  LEADER_CANNOT_BE_REMOVED: 'The team leader cannot be removed.',
+  MEMBER_NOT_FOUND: 'This person is not a member of the team.',
+  INVITATION_NOT_FOUND: 'This invitation could not be found.',
+  INVITATION_NOT_YOURS: 'This invitation was sent to another email address.',
+  INVITATION_NOT_PENDING: 'This invitation has already been answered.',
+  INVITATION_DUPLICATE: 'This email already has a pending invitation.',
+  INVITATION_SELF: 'You cannot invite yourself.',
+  JOIN_REQUEST_NOT_FOUND: 'This join request could not be found.',
+  JOIN_REQUEST_NOT_PENDING: 'This join request has already been answered.',
+  JOIN_REQUEST_DUPLICATE: 'You already have a pending request for this team.',
+  CHAT_MESSAGE_NOT_FOUND: 'This message could not be found.',
+  CHAT_MESSAGE_DELETE_FORBIDDEN:
+    'You can only delete your own messages, or any message as team leader.',
+  CHAT_CURSOR_INVALID: 'Use either before or after, with a message id.',
+  SUBMISSION_NOT_FOUND: 'This submission could not be found.',
+  SUBMISSION_EXISTS: 'This team already has a submission.',
+  SUBMISSION_NOT_DRAFT: 'Only a draft submission can be changed or submitted.',
+  SUBMISSION_NOT_PENDING: 'Only a submitted draft can be confirmed.',
+  SUBMISSION_CONFIRMED: 'A confirmed submission cannot be cancelled.',
+  SUBMISSION_TOO_FEW_MEMBERS:
+    'The team needs at least 2 members to create or submit a project.',
+  UPLOAD_TYPE_INVALID: 'Upload a JPEG, PNG, WebP or GIF image.',
+  UPLOAD_TOO_LARGE: 'The file is larger than 5 MB.',
+  WINNER_NOT_FOUND: 'This team is not a winner.',
+  CERTIFICATE_NOT_FOUND: 'This certificate could not be found.',
+} as const;
