@@ -12,6 +12,7 @@ import {
   useSignOut,
 } from '@imphnen-frontend-service/service/session';
 import { Icon } from '@iconify/react';
+import { cn } from '@imphnen-frontend-service/utils';
 
 interface NavItem {
   path?: string;
@@ -224,7 +225,7 @@ function DashboardLayout() {
             const baseClasses =
               'h-8 px-3 rounded-sm flex items-center gap-3 cursor-pointer text-xs font-medium leading-[1.3] text-text-muted transition-all duration-200 hover:bg-bg-hover';
             const activeClasses = isActive
-              ? 'bg-primary-accent text-white'
+              ? 'bg-primary-accent text-white hover:bg-primary-accent'
               : '';
 
             if (item.isLink && item.path) {
@@ -232,7 +233,7 @@ function DashboardLayout() {
                 <Link
                   key={item.path}
                   to={item.path as any}
-                  className={`${baseClasses} ${activeClasses}`}
+                  className={cn(baseClasses, activeClasses)}
                 >
                   <Icon
                     icon={item.icon}
