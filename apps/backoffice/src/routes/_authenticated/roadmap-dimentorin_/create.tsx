@@ -4,10 +4,8 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import {
-  useCreateRoadmap,
-  type TRoadmapStatus,
-} from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import { type TRoadmapStatus, useRoadmapCreate } from '../_hooks/use-roadmap';
 
 export const Route = createFileRoute(
   '/_authenticated/roadmap-dimentorin_/create'
@@ -17,7 +15,7 @@ export const Route = createFileRoute(
 
 function RoadmapCreatePage() {
   const navigate = useNavigate();
-  const createRoadmap = useCreateRoadmap();
+  const createRoadmap = useRoadmapCreate();
 
   const form = useForm<{
     title: string;
@@ -34,12 +32,15 @@ function RoadmapCreatePage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createRoadmap.mutateAsync(data);
+      await createRoadmap.mutateAsync({
+        title: data.title.trim(),
+        description: data.description.trim(),
+        status: data.status,
+      });
       toast.success('Roadmap berhasil ditambahkan');
       navigate({ to: '/roadmap-dimentorin' });
     } catch (error) {
-      console.log(error);
-      toast.error('Gagal menambahkan roadmap');
+      toast.error(errorMessage(error, 'Gagal menambahkan roadmap'));
     }
   });
 

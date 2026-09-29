@@ -5,10 +5,12 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { errorMessage } from '../../../libs/errors';
 import {
-  useTestimonialList,
-  useUpdateTestimonial,
-} from '@imphnen-frontend-service/service';
+  TESTIMONIAL_LOOKUP_PAGE_SIZE,
+  useTestimonialModerationList,
+  useTestimonialUpdate,
+} from '../_hooks/use-testimonials';
 
 export const Route = createFileRoute('/_authenticated/cms-testimonials_/$id')({
   component: CmsTestimonialsEditPage,
@@ -17,13 +19,16 @@ export const Route = createFileRoute('/_authenticated/cms-testimonials_/$id')({
 function CmsTestimonialsEditPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const updateTestimonial = useUpdateTestimonial();
+  const updateTestimonial = useTestimonialUpdate();
 
-  const { data: testimonialsData, isLoading } = useTestimonialList({
-    search: '',
-    per_page: 100,
+  // No moderation "get by id" procedure exists: `testimonial.get` only
+  // returns approved rows, so the edit page looks the row up in the
+  // moderation list.
+  const { data: testimonialsData, isLoading } = useTestimonialModerationList({
+    page: 1,
+    pageSize: TESTIMONIAL_LOOKUP_PAGE_SIZE,
   });
-  const testimonial = testimonialsData?.data?.find((t) => t.id === id);
+  const testimonial = testimonialsData?.items.find((t) => t.id === id);
 
   const form = useForm<{ role: string; content: string }>({
     mode: 'all',
@@ -41,12 +46,15 @@ function CmsTestimonialsEditPage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateTestimonial.mutateAsync({ id, data });
+      await updateTestimonial.mutateAsync({
+        id,
+        role: data.role.trim(),
+        content: data.content.trim(),
+      });
       toast.success('Perubahan testimonial berhasil dilakukan');
       navigate({ to: '/cms-testimonials' });
     } catch (error) {
-      console.log(error);
-      toast.error('Perubahan testimonial gagal dilakukan');
+      toast.error(errorMessage(error, 'Perubahan testimonial gagal dilakukan'));
     }
   });
 

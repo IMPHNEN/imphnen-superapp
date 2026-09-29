@@ -30,12 +30,14 @@ import {
   type RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
-import {
-  useEventList,
-  useDeleteEvent,
-  type TEventsListItem,
-} from '@imphnen-frontend-service/service';
 import { toast } from 'sonner';
+import { formatDate } from '../../libs/dates';
+import { errorMessage } from '../../libs/errors';
+import {
+  type TEventItem,
+  useEventList,
+  useEventRemove,
+} from './_hooks/use-events';
 
 export const Route = createFileRoute('/_authenticated/cms-events')({
   component: CmsEventsPage,
@@ -52,27 +54,26 @@ function CmsEventsPage() {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { data: eventsData, isLoading } = useEventList({
-    search,
+    search: search || undefined,
     page: pagination.pageIndex + 1,
-    per_page: pagination.pageSize,
+    pageSize: pagination.pageSize,
   });
-  const deleteEvent = useDeleteEvent();
+  const deleteEvent = useEventRemove();
 
-  const events: TEventsListItem[] = eventsData?.data ?? [];
-  const totalItems = eventsData?.meta?.total ?? events.length;
+  const events: TEventItem[] = [...(eventsData?.items ?? [])];
+  const totalItems = eventsData?.total ?? events.length;
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteEvent.mutateAsync(id);
+      await deleteEvent.mutateAsync({ id });
       toast.success('Data event berhasil dihapus');
       setDeleteId(null);
     } catch (error) {
-      console.log(error);
-      toast.error('Data event gagal dihapus');
+      toast.error(errorMessage(error, 'Data event gagal dihapus'));
     }
   };
 
-  const columns: ColumnDef<TEventsListItem>[] = [
+  const columns: ColumnDef<TEventItem>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -114,20 +115,15 @@ function CmsEventsPage() {
     },
     {
       header: 'Start Date',
-      accessorKey: 'start_date',
-      cell: ({ row }) =>
-        new Date(row.original.start_date).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
+      accessorKey: 'startDate',
+      cell: ({ row }) => formatDate(row.original.startDate),
     },
     {
       header: 'Online',
-      accessorKey: 'is_online',
+      accessorKey: 'isOnline',
       cell: ({ row }) => (
-        <Badge variant={row.original.is_online ? 'success' : 'secondary'}>
-          {row.original.is_online ? 'Online' : 'Offline'}
+        <Badge variant={row.original.isOnline ? 'success' : 'secondary'}>
+          {row.original.isOnline ? 'Online' : 'Offline'}
         </Badge>
       ),
     },
@@ -189,7 +185,10 @@ function CmsEventsPage() {
                 placeholder="Cari nama event…"
                 className="pl-9"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
               />
             </div>
             <Button
@@ -230,7 +229,7 @@ function CmsEventsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus event ini?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini tidak dapat dibatalkan. Event akan dihapus permanen.
+              Tindakan ini tidak dapat dibatalkan. Event akan dihapus.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

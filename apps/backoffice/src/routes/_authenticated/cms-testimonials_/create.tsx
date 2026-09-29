@@ -4,7 +4,12 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useCreateTestimonial } from '@imphnen-frontend-service/service';
+import { TESTIMONIAL_STATUS } from '@app/schemas';
+import { errorMessage } from '../../../libs/errors';
+import {
+  useTestimonialCreate,
+  useTestimonialModerate,
+} from '../_hooks/use-testimonials';
 
 export const Route = createFileRoute(
   '/_authenticated/cms-testimonials_/create'
@@ -14,7 +19,8 @@ export const Route = createFileRoute(
 
 function CmsTestimonialsCreatePage() {
   const navigate = useNavigate();
-  const createTestimonial = useCreateTestimonial();
+  const createTestimonial = useTestimonialCreate();
+  const moderateTestimonial = useTestimonialModerate();
 
   const form = useForm<{ role: string; content: string }>({
     mode: 'all',
@@ -23,12 +29,18 @@ function CmsTestimonialsCreatePage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createTestimonial.mutateAsync(data);
+      const created = await createTestimonial.mutateAsync({
+        role: data.role.trim(),
+        content: data.content.trim(),
+      });
+      await moderateTestimonial.mutateAsync({
+        id: created.id,
+        status: TESTIMONIAL_STATUS.APPROVED,
+      });
       toast.success('Data testimonial berhasil ditambahkan');
       navigate({ to: '/cms-testimonials' });
     } catch (error) {
-      console.log(error);
-      toast.error('Data testimonial gagal ditambahkan');
+      toast.error(errorMessage(error, 'Data testimonial gagal ditambahkan'));
     }
   });
 

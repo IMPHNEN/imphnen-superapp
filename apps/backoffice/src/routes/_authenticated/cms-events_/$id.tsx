@@ -5,10 +5,14 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { errorMessage } from '../../../libs/errors';
 import {
-  useEventList,
-  useUpdateEvent,
-} from '@imphnen-frontend-service/service';
+  EMPTY_EVENT_FORM,
+  eventFormOf,
+  eventInputOf,
+  type TEventForm,
+} from '../_components/cms-events/event-form';
+import { useEvent, useEventUpdate } from '../_hooks/use-events';
 
 export const Route = createFileRoute('/_authenticated/cms-events_/$id')({
   component: CmsEventsEditPage,
@@ -17,60 +21,28 @@ export const Route = createFileRoute('/_authenticated/cms-events_/$id')({
 function CmsEventsEditPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const updateEvent = useUpdateEvent();
+  const updateEvent = useEventUpdate();
 
-  const { data: eventsData, isLoading } = useEventList({
-    search: '',
-    per_page: 100,
-  });
-  const event = eventsData?.data?.find((e) => e.id === id);
+  const { data: event, isLoading } = useEvent(id);
 
-  const form = useForm<{
-    name: string;
-    description: string;
-    detail_link: string;
-    location: string;
-    price: number;
-    start_date: string;
-    end_date: string;
-    is_online: boolean;
-  }>({
+  const form = useForm<TEventForm>({
     mode: 'all',
-    defaultValues: {
-      name: '',
-      description: '',
-      detail_link: '',
-      location: '',
-      price: 0,
-      start_date: '',
-      end_date: '',
-      is_online: false,
-    },
+    defaultValues: EMPTY_EVENT_FORM,
   });
 
   useEffect(() => {
     if (event) {
-      form.reset({
-        name: event.name,
-        description: event.description,
-        detail_link: event.detail_link,
-        location: event.location,
-        price: event.price,
-        start_date: event.start_date,
-        end_date: event.end_date,
-        is_online: event.is_online,
-      });
+      form.reset(eventFormOf(event));
     }
   }, [event]);
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateEvent.mutateAsync({ id, data });
+      await updateEvent.mutateAsync({ id, ...eventInputOf(data) });
       toast.success('Perubahan event berhasil dilakukan');
       navigate({ to: '/cms-events' });
     } catch (error) {
-      console.log(error);
-      toast.error('Perubahan event gagal dilakukan');
+      toast.error(errorMessage(error, 'Perubahan event gagal dilakukan'));
     }
   });
 
@@ -118,7 +90,7 @@ function CmsEventsEditPage() {
             <ControlledInputField
               control={form.control}
               label="Link Detail"
-              name="detail_link"
+              name="detailLink"
               type="text"
               placeholder="Masukkan Link Detail"
               size="lg"
@@ -145,7 +117,7 @@ function CmsEventsEditPage() {
             <ControlledInputField
               control={form.control}
               label="Tanggal Mulai"
-              name="start_date"
+              name="startDate"
               type="date"
               placeholder="Pilih Tanggal Mulai"
               size="lg"
@@ -154,7 +126,7 @@ function CmsEventsEditPage() {
             <ControlledInputField
               control={form.control}
               label="Tanggal Selesai"
-              name="end_date"
+              name="endDate"
               type="date"
               placeholder="Pilih Tanggal Selesai"
               size="lg"
@@ -165,7 +137,7 @@ function CmsEventsEditPage() {
                 type="checkbox"
                 id="is_online_update"
                 className="rounded"
-                {...form.register('is_online')}
+                {...form.register('isOnline')}
               />
               <label
                 htmlFor="is_online_update"

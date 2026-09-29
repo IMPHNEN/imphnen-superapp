@@ -4,7 +4,14 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
-import { useCreateEvent } from '@imphnen-frontend-service/service';
+import { errorMessage } from '../../../libs/errors';
+import {
+  EMPTY_EVENT_FORM,
+  eventFormOf,
+  eventInputOf,
+  type TEventForm,
+} from '../_components/cms-events/event-form';
+import { useEventCreate } from '../_hooks/use-events';
 
 export const Route = createFileRoute('/_authenticated/cms-events_/create')({
   component: CmsEventsCreatePage,
@@ -12,39 +19,20 @@ export const Route = createFileRoute('/_authenticated/cms-events_/create')({
 
 function CmsEventsCreatePage() {
   const navigate = useNavigate();
-  const createEvent = useCreateEvent();
+  const createEvent = useEventCreate();
 
-  const form = useForm<{
-    name: string;
-    description: string;
-    detail_link: string;
-    location: string;
-    price: number;
-    start_date: string;
-    end_date: string;
-    is_online: boolean;
-  }>({
+  const form = useForm<TEventForm>({
     mode: 'all',
-    defaultValues: {
-      name: '',
-      description: '',
-      detail_link: '',
-      location: '',
-      price: 0,
-      start_date: '',
-      end_date: '',
-      is_online: false,
-    },
+    defaultValues: EMPTY_EVENT_FORM,
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await createEvent.mutateAsync(data);
+      await createEvent.mutateAsync(eventInputOf(data));
       toast.success('Data event berhasil ditambahkan');
       navigate({ to: '/cms-events' });
     } catch (error) {
-      console.log(error);
-      toast.error('Data event gagal ditambahkan');
+      toast.error(errorMessage(error, 'Data event gagal ditambahkan'));
     }
   });
 
@@ -84,7 +72,7 @@ function CmsEventsCreatePage() {
             <ControlledInputField
               control={form.control}
               label="Link Detail"
-              name="detail_link"
+              name="detailLink"
               type="text"
               placeholder="Masukkan Link Detail"
               size="lg"
@@ -111,7 +99,7 @@ function CmsEventsCreatePage() {
             <ControlledInputField
               control={form.control}
               label="Tanggal Mulai"
-              name="start_date"
+              name="startDate"
               type="date"
               placeholder="Pilih Tanggal Mulai"
               size="lg"
@@ -120,7 +108,7 @@ function CmsEventsCreatePage() {
             <ControlledInputField
               control={form.control}
               label="Tanggal Selesai"
-              name="end_date"
+              name="endDate"
               type="date"
               placeholder="Pilih Tanggal Selesai"
               size="lg"
@@ -131,7 +119,7 @@ function CmsEventsCreatePage() {
                 type="checkbox"
                 id="is_online"
                 className="rounded"
-                {...form.register('is_online')}
+                {...form.register('isOnline')}
               />
               <label
                 htmlFor="is_online"

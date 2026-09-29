@@ -28,12 +28,19 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { toast } from 'sonner';
+import { ROADMAP_STATUS } from '@app/schemas';
+import { errorMessage } from '../../libs/errors';
 import {
-  useRoadmapList,
-  useDeleteRoadmap,
-  type TRoadmapListItem,
+  type TRoadmapItem,
   type TRoadmapStatus,
-} from '@imphnen-frontend-service/service';
+  useRoadmapList,
+  useRoadmapRemove,
+} from './_hooks/use-roadmap';
+
+const STATUS_FILTER_ALL = 'all';
+
+const isRoadmapStatus = (value: string): value is TRoadmapStatus =>
+  Object.values<string>(ROADMAP_STATUS).includes(value);
 import {
   SelectAllCheckbox,
   RowSelectCheckbox,
@@ -47,7 +54,8 @@ export const Route = createFileRoute('/_authenticated/roadmap-dimentorin')({
 function RoadmapDimentorinPage() {
   const navigate = useNavigate();
   const [search, setSearch] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [statusFilter, setStatusFilter] =
+    React.useState<string>(STATUS_FILTER_ALL);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -55,25 +63,24 @@ function RoadmapDimentorinPage() {
     pageSize: 10,
   });
 
-  const { data: roadmapData, isLoading } = useRoadmapList();
-  const deleteRoadmap = useDeleteRoadmap();
-
-  const allItems: TRoadmapListItem[] = roadmapData ?? [];
-  const filteredItems = allItems.filter((item) => {
-    const matchSearch =
-      !search || item.title.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === 'all' || item.status === statusFilter;
-    return matchSearch && matchStatus;
+  const { data: roadmapData, isLoading } = useRoadmapList({
+    search: search || undefined,
+    status: isRoadmapStatus(statusFilter) ? statusFilter : undefined,
+    page: pagination.pageIndex + 1,
+    pageSize: pagination.pageSize,
   });
+  const deleteRoadmap = useRoadmapRemove();
+
+  const items: TRoadmapItem[] = [...(roadmapData?.items ?? [])];
+  const totalItems = roadmapData?.total ?? items.length;
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteRoadmap.mutateAsync(id);
+      await deleteRoadmap.mutateAsync({ id });
       toast.success('Roadmap berhasil dihapus');
       setDeletingId(null);
     } catch (error) {
-      console.log(error);
-      toast.error('Gagal menghapus roadmap');
+      toast.error(errorMessage(error, 'Gagal menghapus roadmap'));
     }
   };
 
@@ -90,7 +97,7 @@ function RoadmapDimentorinPage() {
     completed: 'Completed',
   };
 
-  const columns: ColumnDef<TRoadmapListItem>[] = [
+  const columns: ColumnDef<TRoadmapItem>[] = [
     {
       id: 'select',
       meta: { cellClassName: cn('w-10') },
@@ -153,7 +160,7 @@ function RoadmapDimentorinPage() {
   ];
 
   const table = useReactTable({
-    data: filteredItems,
+    data: items,
     columns,
     state: { pagination, rowSelection },
     enableRowSelection: true,
@@ -161,8 +168,8 @@ function RoadmapDimentorinPage() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    pageCount: Math.ceil(filteredItems.length / pagination.pageSize),
-    manualPagination: false,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
+    manualPagination: true,
   });
 
   return (
@@ -180,10 +187,19 @@ function RoadmapDimentorinPage() {
                   className="pl-9"
                   placeholder="Cari judul roadmap…"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                  }}
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }}
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -210,7 +226,17 @@ function RoadmapDimentorinPage() {
               Memuat data…
             </div>
           ) : (
-            <DataTable data={filteredItems} columns={columns} table={table} />
+            <DataTable
+              data={items}
+              columns={columns}
+              table={table}
+              manualPagination
+              pageCount={Math.ceil(totalItems / pagination.pageSize)}
+              currentPage={pagination.pageIndex + 1}
+              onPageChange={(p) =>
+                setPagination((prev) => ({ ...prev, pageIndex: p - 1 }))
+              }
+            />
           )}
         </CardContent>
       </Card>

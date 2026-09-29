@@ -5,11 +5,12 @@ import { toast } from 'sonner';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from '@imphnen-frontend-service/ui/atoms';
 import { ControlledInputField } from '@imphnen-frontend-service/ui/organisms';
+import { errorMessage } from '../../../libs/errors';
 import {
-  useRoadmapList,
-  useUpdateRoadmap,
   type TRoadmapStatus,
-} from '@imphnen-frontend-service/service';
+  useRoadmap,
+  useRoadmapUpdate,
+} from '../_hooks/use-roadmap';
 
 export const Route = createFileRoute('/_authenticated/roadmap-dimentorin_/$id')(
   {
@@ -20,10 +21,9 @@ export const Route = createFileRoute('/_authenticated/roadmap-dimentorin_/$id')(
 function RoadmapEditPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const updateRoadmap = useUpdateRoadmap();
+  const updateRoadmap = useRoadmapUpdate();
 
-  const { data: roadmapData, isLoading } = useRoadmapList();
-  const roadmap = roadmapData?.find((r) => r.id === id);
+  const { data: roadmap, isLoading } = useRoadmap(id);
 
   const form = useForm<{
     title: string;
@@ -50,12 +50,16 @@ function RoadmapEditPage() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await updateRoadmap.mutateAsync({ id, data });
+      await updateRoadmap.mutateAsync({
+        id,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        status: data.status,
+      });
       toast.success('Roadmap berhasil diperbarui');
       navigate({ to: '/roadmap-dimentorin' });
     } catch (error) {
-      console.log(error);
-      toast.error('Gagal memperbarui roadmap');
+      toast.error(errorMessage(error, 'Gagal memperbarui roadmap'));
     }
   });
 
