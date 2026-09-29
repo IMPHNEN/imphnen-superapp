@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { hackathonRepoLayer } from '#/hackathon/infrastructure/hackathon-layer.ts';
 import { hackathonRouterBuild } from '#/hackathon/presentation/hackathon-router.ts';
 
-const hackathonLayer = Layer.empty;
-
 export const hackathonModule: {
-  layer: typeof hackathonLayer;
+  layer: typeof hackathonRepoLayer;
   routerBuild: typeof hackathonRouterBuild;
 } = {
-  layer: hackathonLayer,
+  layer: hackathonRepoLayer,
   routerBuild: hackathonRouterBuild,
 };
