@@ -38,7 +38,8 @@ export const ArticleCard: FC<ArticleCardProps> = ({ variant = 'default' }) => {
           5 min read
         </div>
         <Link
-          to="/articles/detail"
+          to="/articles/$slug"
+          params={{ slug: 'detail' }}
           className={cn(
             'text-[15px] text-neutral-800 font-semibold mb-4 line-clamp-2 md:text-[19px] xl:mb-[23px]',
             variant === 'featured' && 'text-[19px] md:text-[23px]',

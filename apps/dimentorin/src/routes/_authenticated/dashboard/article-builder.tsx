@@ -43,7 +43,7 @@ function ArticleBuilderPage() {
 
   const handleSubmit = () => {
     toast.success('Artikel berhasil disubmit!');
-    navigate({ to: '/dashboard/learning-path' });
+    navigate({ to: '/dashboard/user/learning-path' });
   };
 
   return (
@@ -53,7 +53,7 @@ function ArticleBuilderPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate({ to: '/dashboard/learning-path' })}
+              onClick={() => navigate({ to: '/dashboard/user/learning-path' })}
               className="text-primary-600 hover:text-primary-700 transition-colors font-medium flex items-center gap-1 cursor-pointer"
             >
               <Icon icon="mdi:arrow-left" width="20" />
