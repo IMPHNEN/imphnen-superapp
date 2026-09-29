@@ -1,100 +1,76 @@
-import { useState, useEffect, type FormEvent } from 'react';
-import { getApiUrl } from '../utils/api';
+import {
+  TESTIMONIAL_CONTENT_MAX_LENGTH,
+  TESTIMONIAL_ROLE_MAX_LENGTH,
+  TESTIMONIAL_STATUS,
+  type TTestimonialStatus,
+} from '@app/schemas';
+import { SESSION_STATUS } from '@imphnen-frontend-service/service/session';
+import { type SubmitEvent, type ReactElement, useState } from 'react';
+import {
+  useMyTestimonials,
+  useSubmitGuard,
+  useTestimonialSubmit,
+} from '@/hooks/use-testimonials';
+import { withQueryClient } from './providers/QueryIsland';
 
-const TOKEN_KEY = 'token';
+const CONTENT_MIN_LENGTH = 20;
 
-function getAccessToken(): string | null {
-  if (typeof document === 'undefined') return null;
-  // Try localStorage first (faster)
-  const ls = localStorage.getItem('access_token');
-  if (ls) return ls;
-  // Fallback to cookie
-  const cookies = document.cookie.split(';');
-  const found = cookies.find((c) => c.trim().startsWith(`${TOKEN_KEY}=`));
-  if (!found) return null;
-  try {
-    const raw = found.split('=').slice(1).join('=');
-    const parsed = JSON.parse(decodeURIComponent(raw));
-    return parsed?.access_token || parsed?.token?.access_token || null;
-  } catch {
-    return null;
-  }
-}
+const STATUS_LABEL: Record<TTestimonialStatus, string> = {
+  [TESTIMONIAL_STATUS.PENDING]: 'Menunggu review',
+  [TESTIMONIAL_STATUS.APPROVED]: 'Ditampilkan',
+  [TESTIMONIAL_STATUS.REJECTED]: 'Ditolak',
+};
 
-type SubmitState = 'idle' | 'loading' | 'success' | 'error';
+const STATUS_CLASS: Record<TTestimonialStatus, string> = {
+  [TESTIMONIAL_STATUS.PENDING]: 'bg-amber-100 text-amber-700',
+  [TESTIMONIAL_STATUS.APPROVED]: 'bg-green-100 text-green-700',
+  [TESTIMONIAL_STATUS.REJECTED]: 'bg-red-100 text-red-700',
+};
 
-export default function TestimonialSubmitForm() {
+function TestimonialSubmitForm(): ReactElement {
   const [role, setRole] = useState('');
   const [content, setContent] = useState('');
-  const [submitState, setSubmitState] = useState<SubmitState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [authed, setAuthed] = useState<boolean | null>(null); // null = checking
+  const [validationMsg, setValidationMsg] = useState('');
+  const sessionStatus = useSubmitGuard();
+  const authed = sessionStatus === SESSION_STATUS.AUTHENTICATED;
+  const myTestimonials = useMyTestimonials(authed);
+  const {
+    submit,
+    isPending,
+    submitted,
+    errorMessage,
+    reset: resetSubmit,
+  } = useTestimonialSubmit();
+  const errorMsg = validationMsg || errorMessage;
 
-  useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      // Redirect to login with return URL
-      window.location.href = '/login?redirect=/testimonials/submit';
-    } else {
-      setAuthed(true);
-    }
-  }, []);
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const trimmedRole = role.trim();
     const trimmedContent = content.trim();
 
     if (!trimmedRole) {
-      setErrorMsg('Role / jabatan tidak boleh kosong.');
+      setValidationMsg('Role / jabatan tidak boleh kosong.');
       return;
     }
-    if (trimmedContent.length < 20) {
-      setErrorMsg('Testimoni minimal 20 karakter.');
+    if (trimmedContent.length < CONTENT_MIN_LENGTH) {
+      setValidationMsg(`Testimoni minimal ${CONTENT_MIN_LENGTH} karakter.`);
       return;
     }
 
-    setErrorMsg('');
-    setSubmitState('loading');
-
-    try {
-      const token = getAccessToken();
-      if (!token) {
-        window.location.href = '/login?redirect=/testimonials/submit';
-        return;
-      }
-
-      const res = await fetch(
-        getApiUrl('/v1/landing/cms/testimonials/create'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role: trimmedRole, content: trimmedContent }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.message || data.error || 'Gagal mengirim testimoni.'
-        );
-      }
-
-      setSubmitState('success');
+    setValidationMsg('');
+    submit({ role: trimmedRole, content: trimmedContent }, () => {
       setRole('');
       setContent('');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Terjadi kesalahan. Coba lagi.');
-      setSubmitState('error');
-    }
+    });
+  };
+
+  const clearError = (): void => {
+    setValidationMsg('');
+    if (errorMessage) resetSubmit();
   };
 
   // Checking auth
-  if (authed === null) {
+  if (!authed) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -102,7 +78,7 @@ export default function TestimonialSubmitForm() {
     );
   }
 
-  if (submitState === 'success') {
+  if (submitted) {
     return (
       <div className="max-w-xl mx-auto text-center py-16 px-4">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -123,9 +99,12 @@ export default function TestimonialSubmitForm() {
         <h2 className="text-2xl font-bold text-gray-900 mb-3">
           Testimoni Terkirim!
         </h2>
-        <p className="text-gray-500 mb-8">
-          Terima kasih telah berbagi ceritamu. Testimonimu akan segera
-          ditampilkan setelah direview.
+        <p className="text-gray-500 mb-4">
+          Terima kasih telah berbagi ceritamu.
+        </p>
+        <p className="inline-flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-2 mb-8">
+          Status: {STATUS_LABEL[submitted.status]}. Testimonimu akan ditampilkan
+          setelah disetujui admin.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
@@ -135,7 +114,8 @@ export default function TestimonialSubmitForm() {
             Lihat Semua Testimoni
           </a>
           <button
-            onClick={() => setSubmitState('idle')}
+            type="button"
+            onClick={resetSubmit}
             className="inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 px-6 py-3 text-sm font-medium hover:bg-gray-50 transition-colors"
           >
             Tulis Lagi
@@ -167,7 +147,7 @@ export default function TestimonialSubmitForm() {
       </div>
 
       {/* Error Banner */}
-      {(submitState === 'error' || errorMsg) && (
+      {errorMsg && (
         <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
           <svg
             className="w-5 h-5 text-red-500 shrink-0 mt-0.5"
@@ -180,9 +160,7 @@ export default function TestimonialSubmitForm() {
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <p className="text-sm text-red-700">
-            {errorMsg || 'Terjadi kesalahan. Silakan coba lagi.'}
-          </p>
+          <p className="text-sm text-red-700">{errorMsg}</p>
         </div>
       )}
 
@@ -203,16 +181,18 @@ export default function TestimonialSubmitForm() {
             id="testimonial-role"
             type="text"
             required
-            maxLength={100}
+            maxLength={TESTIMONIAL_ROLE_MAX_LENGTH}
             placeholder="Contoh: Frontend Developer, Mahasiswa Informatika, dsb."
             value={role}
             onChange={(e) => {
               setRole(e.target.value);
-              setErrorMsg('');
+              clearError();
             }}
             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
           />
-          <p className="text-xs text-gray-400">{role.length}/100 karakter</p>
+          <p className="text-xs text-gray-400">
+            {role.length}/{TESTIMONIAL_ROLE_MAX_LENGTH} karakter
+          </p>
         </div>
 
         {/* Content field */}
@@ -226,21 +206,21 @@ export default function TestimonialSubmitForm() {
           <textarea
             id="testimonial-content"
             required
-            minLength={20}
-            maxLength={1000}
+            minLength={CONTENT_MIN_LENGTH}
+            maxLength={TESTIMONIAL_CONTENT_MAX_LENGTH}
             rows={6}
             placeholder="Ceritakan pengalamanmu bergabung di IMPHNEN, apa yang kamu pelajari, dan bagaimana komunitas ini membantumu..."
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
-              setErrorMsg('');
+              clearError();
             }}
             className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
           />
           <div className="flex justify-between text-xs text-gray-400">
-            <span>Minimal 20 karakter</span>
+            <span>Minimal {CONTENT_MIN_LENGTH} karakter</span>
             <span className={content.length > 900 ? 'text-orange-500' : ''}>
-              {content.length}/1000
+              {content.length}/{TESTIMONIAL_CONTENT_MAX_LENGTH}
             </span>
           </div>
         </div>
@@ -249,10 +229,10 @@ export default function TestimonialSubmitForm() {
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
             type="submit"
-            disabled={submitState === 'loading'}
+            disabled={isPending}
             className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitState === 'loading' ? (
+            {isPending ? (
               <>
                 <svg
                   className="animate-spin w-4 h-4"
@@ -302,6 +282,38 @@ export default function TestimonialSubmitForm() {
           </a>
         </div>
       </form>
+
+      {myTestimonials.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Testimoni Kamu
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {myTestimonials.map((testimonial) => (
+              <li
+                key={testimonial.id}
+                className="bg-white rounded-xl border border-gray-200 p-4"
+              >
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    {testimonial.role}
+                  </span>
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_CLASS[testimonial.status]}`}
+                  >
+                    {STATUS_LABEL[testimonial.status]}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 line-clamp-3">
+                  {testimonial.content}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }
+
+export default withQueryClient(TestimonialSubmitForm);

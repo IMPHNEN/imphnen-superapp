@@ -1,23 +1,7 @@
-import { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
-import { getApiUrl } from '../utils/api';
-
-interface ApiTestimonial {
-  id: number;
-  user_id: number;
-  user_fullname: string;
-  role: string;
-  content: string;
-  created_at: string;
-  is_deleted: boolean;
-}
-
-interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  text: string;
-}
+import { useLatestTestimonials } from '@/hooks/use-testimonials';
+import { withQueryClient } from './providers/QueryIsland';
 
 const AVATAR_COLORS = [
   'bg-primary-500 text-white',
@@ -36,27 +20,8 @@ function getInitial(name: string) {
   return name.charAt(0).toUpperCase();
 }
 
-export default function TestimonialSection() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-
-  useEffect(() => {
-    fetch(getApiUrl('/v1/landing/cms/testimonials'))
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((json) => {
-        setTestimonials(
-          (json.data as ApiTestimonial[])
-            .filter((t) => !t.is_deleted)
-            .slice(0, 6)
-            .map((t) => ({
-              id: t.id,
-              name: t.user_fullname,
-              role: t.role,
-              text: t.content,
-            }))
-        );
-      })
-      .catch(() => setTestimonials([]));
-  }, []);
+function TestimonialSection(): ReactElement {
+  const testimonials = useLatestTestimonials();
 
   return (
     <section className="w-full py-16 md:py-24 bg-gray-50">
@@ -85,11 +50,11 @@ export default function TestimonialSection() {
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold shrink-0 ${getAvatarColor(index)}`}
                   >
-                    {getInitial(testimonial.name)}
+                    {getInitial(testimonial.authorName)}
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">
-                      {testimonial.name}
+                      {testimonial.authorName}
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600">
                       {testimonial.role}
@@ -98,7 +63,9 @@ export default function TestimonialSection() {
                 </div>
                 <div className="text-gray-600 relative">
                   <FaQuoteLeft className="text-primary-500/30 w-6 h-6 mb-2" />
-                  <p className="text-sm leading-relaxed">{testimonial.text}</p>
+                  <p className="text-sm leading-relaxed">
+                    {testimonial.content}
+                  </p>
                 </div>
               </div>
             </div>
@@ -117,3 +84,5 @@ export default function TestimonialSection() {
     </section>
   );
 }
+
+export default withQueryClient(TestimonialSection);

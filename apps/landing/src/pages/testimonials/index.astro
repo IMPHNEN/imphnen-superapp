@@ -1,22 +1,17 @@
 ---
 import Public from '../../layouts/Public.astro';
-import { getApiUrl } from '../../utils/api';
+import type { TTestimonial } from '@app/schemas';
+import { client } from '@imphnen-frontend-service/service/rpc';
 
-interface ApiTestimonial {
-  id: number;
-  user_id: number;
-  user_fullname: string;
-  role: string;
-  content: string;
-  created_at: string;
-  is_deleted: boolean;
-}
+const TESTIMONIAL_PAGE_SIZE = 100;
 
-let testimonials: ApiTestimonial[] = [];
+// The public list returns approved testimonials only.
+let testimonials: readonly TTestimonial[] = [];
 try {
-  const res = await fetch(getApiUrl('/v1/landing/cms/testimonials'));
-  const json = await res.json();
-  testimonials = (json.data || []).filter((t: ApiTestimonial) => !t.is_deleted);
+  const result = await client.testimonial.list({
+    pageSize: TESTIMONIAL_PAGE_SIZE,
+  });
+  testimonials = result.items;
 } catch {
   testimonials = [];
 }
@@ -50,28 +45,12 @@ function getInitial(name: string) {
         Menampilkan pengalaman dan cerita para member yang telah join ke dalam
         komunitas kami
       </p>
-      <button
-        id="btn-tulis-testimoni"
+      <a
+        href="/testimonials/submit"
         class="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
       >
         Tulis Testimonialmu
-      </button>
-      <script>
-        document.getElementById('btn-tulis-testimoni')?.addEventListener('click', () => {
-          const token = localStorage.getItem('access_token') ||
-            (() => {
-              const c = document.cookie.split(';').find(c => c.trim().startsWith('token='));
-              if (!c) return null;
-              try {
-                const v = JSON.parse(decodeURIComponent(c.split('=').slice(1).join('=')));
-                return v?.access_token || v?.token?.access_token || null;
-              } catch { return null; }
-            })();
-          window.location.href = token
-            ? '/testimonials/submit'
-            : '/login?redirect=/testimonials/submit';
-        });
-      </script>
+      </a>
     </div>
 
     <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 my-12 md:my-16 container">
@@ -80,11 +59,11 @@ function getInitial(name: string) {
           <div class="flex flex-col space-y-4">
             <div class="flex items-center gap-4">
               <div class={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold ${getAvatarColor(index)}`}>
-                {getInitial(testimonial.user_fullname)}
+                {getInitial(testimonial.authorName)}
               </div>
               <div>
                 <h4 class="font-semibold text-gray-900">
-                  {testimonial.user_fullname}
+                  {testimonial.authorName}
                 </h4>
                 <p class="text-sm text-gray-600">{testimonial.role}</p>
               </div>
