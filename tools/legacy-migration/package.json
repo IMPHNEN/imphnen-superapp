@@ -6,10 +6,10 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "generate": "node src/bin/generate.ts",
-    "apply": "node src/bin/apply.ts",
-    "verify": "node src/bin/verify.ts",
-    "copy-files": "node src/bin/copy-files.ts"
+    "generate": "node --env-file-if-exists=.env src/bin/generate.ts",
+    "apply": "node --env-file-if-exists=.env src/bin/apply.ts",
+    "verify": "node --env-file-if-exists=.env src/bin/verify.ts",
+    "copy-files": "node --env-file-if-exists=.env src/bin/copy-files.ts"
   },
   "dependencies": {
     "@app/permissions": "workspace:*",

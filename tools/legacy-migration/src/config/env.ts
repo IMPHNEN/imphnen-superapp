@@ -21,8 +21,15 @@ export const DEFAULT_STORAGE_PUBLIC_URL = 'https://cdn.imphnen.dev';
 const LIST_SEPARATOR = ',';
 const MISSING = 'missing environment variable';
 
+const ALIASES: Partial<Record<TEnvKey, string>> = {
+  LEGACY_S3_ACCESS_KEY_ID: 'LEGACY_S3_ACCESS_KEY',
+  LEGACY_S3_SECRET_ACCESS_KEY: 'LEGACY_S3_SECRET_KEY',
+};
+
 export const envOptional = (key: TEnvKey): string | null => {
-  const value = process.env[key];
+  const alias = ALIASES[key];
+  const value =
+    process.env[key] ?? (alias === undefined ? undefined : process.env[alias]);
   return value === undefined || value.trim() === '' ? null : value.trim();
 };
 

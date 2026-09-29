@@ -3,10 +3,16 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { A, D } from '@mobily/ts-belt';
 import { ENV, envOptional, envRequired } from '../config/env.ts';
-import { DEFAULT_OUT_DIR } from '../config/paths.ts';
+import { API_DIR, DEFAULT_OUT_DIR } from '../config/paths.ts';
 import { COPY_STATUS, filesCopy } from '../files/file-copy.ts';
 import { fixupSqlBuild } from '../files/files-fixup.ts';
-import { s3Store, type TS3Config, urlFetch } from '../files/object-store.ts';
+import {
+  s3Store,
+  type TObjectStore,
+  type TS3Config,
+  urlFetch,
+} from '../files/object-store.ts';
+import { wranglerR2Store } from '../files/wrangler-store.ts';
 import { jsonWrite, OUTPUT } from '../load/output-write.ts';
 import type { TFileCopy } from '../pipeline/step-types.ts';
 
@@ -14,6 +20,7 @@ const ENCODING = 'utf8';
 const DEFAULT_CONCURRENCY = '8';
 const DEFAULT_LEGACY_REGION = 'us-east-1';
 const R2_REGION = 'auto';
+const DEFAULT_R2_BUCKET = 'imphnen-storage';
 
 const { values } = parseArgs({
   options: {
@@ -39,6 +46,14 @@ const r2Config = (): TS3Config => ({
   secretAccessKey: envRequired(ENV.R2_SECRET_ACCESS_KEY),
 });
 
+const targetStore = (): TObjectStore =>
+  envOptional(ENV.R2_ACCESS_KEY_ID) === null
+    ? wranglerR2Store({
+        bucket: envOptional(ENV.R2_BUCKET) ?? DEFAULT_R2_BUCKET,
+        apiDir: API_DIR,
+      })
+    : s3Store(r2Config());
+
 const copy = async (): Promise<void> => {
   const outDir = resolve(values.out ?? DEFAULT_OUT_DIR);
   const files = JSON.parse(
@@ -46,7 +61,7 @@ const copy = async (): Promise<void> => {
   ) as readonly TFileCopy[];
   const results = await filesCopy(files, {
     legacy: s3Store(legacyConfig()),
-    target: s3Store(r2Config()),
+    target: targetStore(),
     fetchUrl: urlFetch,
     dryRun: values['dry-run'] ?? false,
     concurrency: Number(values.concurrency ?? DEFAULT_CONCURRENCY),
