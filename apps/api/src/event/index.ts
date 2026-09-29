@@ -1,12 +1,10 @@
-import { Layer } from 'effect';
+import { eventRepoLayer } from '#/event/infrastructure/event-repository.ts';
 import { eventRouterBuild } from '#/event/presentation/event-router.ts';
 
-const eventLayer = Layer.empty;
-
 export const eventModule: {
-  layer: typeof eventLayer;
+  layer: typeof eventRepoLayer;
   routerBuild: typeof eventRouterBuild;
 } = {
-  layer: eventLayer,
+  layer: eventRepoLayer,
   routerBuild: eventRouterBuild,
 };

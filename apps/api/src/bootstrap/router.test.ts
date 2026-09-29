@@ -53,6 +53,7 @@ const SESSION_ONLY_PROCEDURES: readonly string[] = [
   'profile.update',
   'profile.avatarUpload',
 ];
+const PUBLIC_DATA_PROCEDURES: readonly string[] = ['event.list', 'event.get'];
 
 const SESSION: TSession = {
   user: { id: 'u1', email: 'a@b.test', name: 'A', role: 'viewer' },
@@ -131,7 +132,10 @@ describe('app router gates', () => {
   });
 
   it('rejects an anonymous caller on every procedure that is not public', async (): Promise<void> => {
-    const guarded = A.reject(procedures, isListed(PUBLIC_PROCEDURES));
+    const guarded = A.reject(
+      procedures,
+      isListed([...PUBLIC_PROCEDURES, ...PUBLIC_DATA_PROCEDURES])
+    );
 
     expect(await statusesOf(guarded, contextOf(null))).toEqual(
       expectedStatuses(guarded, HTTP_UNAUTHORIZED)
@@ -141,7 +145,11 @@ describe('app router gates', () => {
   it('rejects a session without permissions on every procedure that touches data', async (): Promise<void> => {
     const guarded = A.reject(
       procedures,
-      isListed([...PUBLIC_PROCEDURES, ...SESSION_ONLY_PROCEDURES])
+      isListed([
+        ...PUBLIC_PROCEDURES,
+        ...PUBLIC_DATA_PROCEDURES,
+        ...SESSION_ONLY_PROCEDURES,
+      ])
     );
 
     expect(await statusesOf(guarded, contextOf(SESSION))).toEqual(
