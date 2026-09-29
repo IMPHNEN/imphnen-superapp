@@ -1,1 +1,17 @@
-export const GACHA_ROUTE_PATH = {} as const;
+const GACHA_RESOURCE = {
+  ITEMS: '/gacha/items',
+  CREDITS: '/gacha/credits',
+  ROLLS: '/gacha/rolls',
+  CLAIMS: '/gacha/claims',
+} as const;
+
+export const GACHA_ROUTE_PATH = {
+  GACHA_ITEMS: GACHA_RESOURCE.ITEMS,
+  GACHA_ITEM: `${GACHA_RESOURCE.ITEMS}/{id}`,
+  GACHA_CREDIT_MINE: `${GACHA_RESOURCE.CREDITS}/me`,
+  GACHA_CREDIT_GRANTS: `${GACHA_RESOURCE.CREDITS}/grants`,
+  GACHA_ROLLS: GACHA_RESOURCE.ROLLS,
+  GACHA_CLAIMS: GACHA_RESOURCE.CLAIMS,
+  GACHA_CLAIM_MINE: `${GACHA_RESOURCE.CLAIMS}/me`,
+  GACHA_CLAIM_FULFIL: `${GACHA_RESOURCE.CLAIMS}/{id}/fulfil`,
+} as const;
