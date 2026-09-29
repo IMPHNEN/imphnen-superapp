@@ -15,18 +15,12 @@
     "@app/contract": "workspace:*",
     "@app/permissions": "workspace:*",
     "@app/schemas": "workspace:*",
-    "@imphnen-frontend-service/utils": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@tanstack/react-query": "catalog:",
-    "axios": "catalog:",
-    "better-auth": "catalog:",
-    "js-cookie": "^3.0.5",
-    "zod": "^3.25.76",
-    "zustand": "catalog:"
+    "better-auth": "catalog:"
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.6",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
