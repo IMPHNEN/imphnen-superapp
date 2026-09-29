@@ -1,6 +1,6 @@
 {
   "name": "imphnen-frontend-service",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "private": true,
   "packageManager": "pnpm@11.6.0",
   "type": "module",
@@ -16,6 +16,6 @@
     "@biomejs/biome": "2.5.14",
     "lefthook": "^2.1.14",
     "typescript": "catalog:",
-    "wrangler": "^4.40.0"
+    "wrangler": "catalog:"
   }
 }
