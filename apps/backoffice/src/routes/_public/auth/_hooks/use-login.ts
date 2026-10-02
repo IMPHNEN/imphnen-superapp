@@ -45,8 +45,9 @@ export const useLogin = (): TUseLogin => {
     try {
       await signIn.mutateAsync(data);
       const me = await queryClient.fetchQuery(orpc.me.get.queryOptions());
-      const landing = firstAllowedPage(me.permissions);
-      if (!hasBackofficeAccess(me.permissions) || !landing) {
+      const permissions = me?.permissions ?? [];
+      const landing = firstAllowedPage(permissions);
+      if (!hasBackofficeAccess(permissions) || !landing) {
         await signOut.mutateAsync();
         setError(LOGIN_MESSAGE.NO_ACCESS);
         return;
