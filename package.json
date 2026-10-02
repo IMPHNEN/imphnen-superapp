@@ -1,6 +1,6 @@
 {
   "name": "imphnen-superapp",
-  "version": "0.18.1",
+  "version": "0.18.3",
   "private": true,
   "packageManager": "pnpm@11.6.0",
   "type": "module",
