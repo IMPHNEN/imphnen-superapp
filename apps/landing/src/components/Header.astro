@@ -31,7 +31,7 @@ const currentPath = Astro.url.pathname;
 
     <!-- Auth controls (login/logout) for desktop -->
     <div class="hidden md:flex items-center shrink-0">
-      <NavbarAuthControls client:load />
+      <NavbarAuthControls client:idle />
     </div>
 
     <div class="md:hidden ml-auto">
