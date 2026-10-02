@@ -37,4 +37,7 @@ export default defineConfig({
     },
   },
   output: 'static',
+  build: {
+    inlineStylesheets: 'always',
+  },
 });
