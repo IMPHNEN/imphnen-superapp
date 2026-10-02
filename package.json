@@ -1,6 +1,6 @@
 {
-  "name": "imphnen-frontend-service",
-  "version": "0.18.0",
+  "name": "imphnen-superapp",
+  "version": "0.18.1",
   "private": true,
   "packageManager": "pnpm@11.6.0",
   "type": "module",
