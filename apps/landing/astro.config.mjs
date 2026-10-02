@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 
@@ -8,6 +8,16 @@ const DEV_API_URL = process.env.DEV_API_URL ?? 'http://localhost:8787';
 
 export default defineConfig({
   integrations: [react()],
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Poppins',
+      cssVariable: '--font-poppins',
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+    },
+  ],
   vite: {
     plugins: [tailwindcss()],
     server: {
