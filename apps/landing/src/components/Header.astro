@@ -9,7 +9,7 @@ const currentPath = Astro.url.pathname;
 <header class="sticky top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
   <div class="container flex h-20 items-center justify-between gap-4">
     <a href="/" class="relative overflow-hidden rounded z-50 shrink-0 flex items-center" aria-label="Home">
-      <img src="/logo.webp" alt="IMPHNEN" class="w-24 md:w-28 h-auto object-contain" />
+      <img src="/logo.webp" alt="IMPHNEN" width="460" height="244" class="w-24 md:w-28 h-auto object-contain" />
     </a>
 
     <nav class="hidden md:flex items-center justify-center gap-4 lg:gap-8 flex-1 px-4">
@@ -31,7 +31,7 @@ const currentPath = Astro.url.pathname;
 
     <!-- Auth controls (login/logout) for desktop -->
     <div class="hidden md:flex items-center shrink-0">
-      <NavbarAuthControls client:load />
+      <NavbarAuthControls client:idle />
     </div>
 
     <div class="md:hidden ml-auto">
