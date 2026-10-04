@@ -54,7 +54,7 @@ const socialProvidersOf = (
     .with(
       { clientId: P.string, clientSecret: P.string },
       (found): TSocialProviders => ({
-        google: {
+        github: {
           clientId: found.clientId,
           clientSecret: found.clientSecret,
         },
@@ -97,8 +97,8 @@ export const authCreate = (deps: TCreateAuthOptions): TAuth =>
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
     },
     socialProviders: socialProvidersOf(
-      env.GOOGLE_CLIENT_ID,
-      env.GOOGLE_CLIENT_SECRET
+      env.GITHUB_CLIENT_ID,
+      env.GITHUB_CLIENT_SECRET
     ),
     emailVerification: {
       sendOnSignUp: true,

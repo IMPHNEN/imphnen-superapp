@@ -1,75 +1,7 @@
-import {
-  type CSSProperties,
-  type SubmitEvent,
-  type ReactElement,
-  useState,
-} from 'react';
+import type { ReactElement } from 'react';
 import { useLogin } from '@/hooks/use-login';
 import { withQueryClient } from './providers/QueryIsland';
-
-const ICON_MAIL = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="4" width="20" height="16" rx="2" />
-    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-  </svg>
-);
-
-const ICON_LOCK = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </svg>
-);
-
-const ICON_EYE = (
-  <svg
-    width="17"
-    height="17"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const ICON_EYE_OFF = (
-  <svg
-    width="17"
-    height="17"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-);
+import { authClient } from '@imphnen-frontend-service/service';
 
 const ICON_ALERT = (
   <svg
@@ -82,6 +14,7 @@ const ICON_ALERT = (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
+    <title>Alert</title>
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="8" x2="12" y2="12" />
     <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -99,44 +32,30 @@ const ICON_CHECK = (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
+    <title>Check</title>
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
     <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const ICON_GITHUB = (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <title>Github</title>
+    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.25 3.33.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.77.11 3.06.73.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.4-5.25 5.69.41.35.78 1.04.78 2.1v3.1c0 .3.21.66.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
   </svg>
 );
 
 const LOGIN_SUCCESS = 'Login berhasil! Mengalihkan...';
 
 function LoginForm(): ReactElement {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const { login, isPending, isSuccess, errorMessage } = useLogin();
-  const loading = isPending || isSuccess;
+  const { isSuccess, errorMessage } = useLogin();
   const error = errorMessage;
   const success = isSuccess ? LOGIN_SUCCESS : '';
-
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    login(email.trim(), password);
-  };
-
-  const inputStyle = (field: string): CSSProperties => ({
-    width: '100%',
-    paddingLeft: '44px',
-    paddingRight: field === 'password' ? '44px' : '16px',
-    paddingTop: '13px',
-    paddingBottom: '13px',
-    borderRadius: '12px',
-    border: `1.5px solid ${focusedField === field ? '#23a1eb' : '#e7e7e7'}`,
-    background: focusedField === field ? '#f0f8ff' : '#ffffff',
-    fontSize: '14px',
-    color: '#0a2b47',
-    outline: 'none',
-    transition: 'all 0.2s ease',
-    boxShadow:
-      focusedField === field ? '0 0 0 3px rgba(35,161,235,0.15)' : 'none',
-  });
 
   return (
     <div style={{ width: '100%' }}>
@@ -183,181 +102,20 @@ function LoginForm(): ReactElement {
           <span>{success}</span>
         </div>
       )}
-
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#454545',
-              marginBottom: '8px',
-            }}
-          >
-            Email
-          </label>
-          <div style={{ position: 'relative' }}>
-            <span
-              style={{
-                position: 'absolute',
-                left: '14px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: focusedField === 'email' ? '#23a1eb' : '#b0b0b0',
-                pointerEvents: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                transition: 'color 0.2s',
-              }}
-            >
-              {ICON_MAIL}
-            </span>
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setFocusedField('email')}
-              onBlur={() => setFocusedField(null)}
-              placeholder="nama@email.com"
-              style={inputStyle('email')}
-            />
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '28px' }}>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#454545',
-              marginBottom: '8px',
-            }}
-          >
-            Password
-          </label>
-          <div style={{ position: 'relative' }}>
-            <span
-              style={{
-                position: 'absolute',
-                left: '14px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: focusedField === 'password' ? '#23a1eb' : '#b0b0b0',
-                pointerEvents: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                transition: 'color 0.2s',
-              }}
-            >
-              {ICON_LOCK}
-            </span>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setFocusedField('password')}
-              onBlur={() => setFocusedField(null)}
-              placeholder="••••••••"
-              style={inputStyle('password')}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: '14px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#b0b0b0',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2px',
-                transition: 'color 0.2s',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.color = '#23a1eb')}
-              onMouseOut={(e) => (e.currentTarget.style.color = '#b0b0b0')}
-              aria-label={
-                showPassword ? 'Sembunyikan password' : 'Tampilkan password'
-              }
-            >
-              {showPassword ? ICON_EYE_OFF : ICON_EYE}
-            </button>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '14px 20px',
-            borderRadius: '12px',
-            background: loading
-              ? '#81cbf8'
-              : 'linear-gradient(135deg, #0877c1 0%, #23a1eb 100%)',
-            color: '#ffffff',
-            fontWeight: '700',
-            fontSize: '15px',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: loading ? 'none' : '0 4px 15px rgba(35,161,235,0.4)',
-            transition: 'all 0.2s ease',
-            letterSpacing: '0.01em',
-          }}
-          onMouseOver={(e) => {
-            if (!loading) e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          {loading ? (
-            <>
-              <svg
-                style={{
-                  animation: 'spin 1s linear infinite',
-                  width: '18px',
-                  height: '18px',
-                }}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                <circle
-                  style={{ opacity: 0.3 }}
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  style={{ opacity: 0.8 }}
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              <span>Memproses...</span>
-            </>
-          ) : (
-            <span>Masuk Sekarang</span>
-          )}
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={() =>
+          authClient.signIn.social({
+            provider: 'github',
+            callbackURL: `${window.location.origin}`,
+            errorCallbackURL: `${window.location.origin}/login`,
+          })
+        }
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
+      >
+        {ICON_GITHUB}
+        Continue with GitHub
+      </button>
     </div>
   );
 }

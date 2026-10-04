@@ -36,6 +36,8 @@ export const envSchema = z
     STORAGE_PUBLIC_URL: z.url(),
     GOOGLE_CLIENT_ID: z.preprocess(blankAsUndefined, z.string().optional()),
     GOOGLE_CLIENT_SECRET: z.preprocess(blankAsUndefined, z.string().optional()),
+    GITHUB_CLIENT_ID: z.preprocess(blankAsUndefined, z.string().optional()),
+    GITHUB_CLIENT_SECRET: z.preprocess(blankAsUndefined, z.string().optional()),
   })
   .superRefine((env, context): void => {
     authEnvRefine(env, context, env.ENVIRONMENT === ENVIRONMENT.PRODUCTION);
