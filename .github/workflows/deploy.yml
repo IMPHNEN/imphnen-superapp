@@ -61,7 +61,9 @@ jobs:
       - uses: ./.github/actions/setup-workspace
 
       - name: Build and deploy ${{ matrix.app }}
-        run: moon run ${{ matrix.app }}:deploy --color
+        run: |
+          moon run ${{ matrix.app }}:build --color
+          pnpm --dir apps/${{ matrix.app }} run deploy
         env:
           PUBLIC_API_URL: https://api.imphnen.dev
           VITE_API_URL: https://api.imphnen.dev

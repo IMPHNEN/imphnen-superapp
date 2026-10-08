@@ -54,7 +54,7 @@ jobs:
         run: moon run api:typecheck api:test --color
 
       - name: Apply D1 migrations
-        run: moon run api:db-migrate-remote --color
+        run: pnpm --filter @app/api run db:migrate:remote
 
       - name: Deploy the Worker
-        run: moon run api:deploy --color
+        run: pnpm --filter @app/api run deploy
