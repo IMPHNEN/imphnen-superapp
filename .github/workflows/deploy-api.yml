@@ -1,19 +1,7 @@
 name: Deploy API to Cloudflare Workers
 
 on:
-  push:
-    branches: [develop]
-    paths:
-      - 'apps/api/**'
-      - 'packages/activity/**'
-      - 'packages/contract/**'
-      - 'packages/messages/**'
-      - 'packages/permissions/**'
-      - 'packages/schemas/**'
-      - 'packages/version/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/deploy-api.yml'
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -24,8 +12,35 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  detect:
     if: ${{ vars.CLOUDFLARE_WORKERS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.pick.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: pick
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            changed=true
+          elif git diff --name-only "$BEFORE..$SHA" | grep -qE '^(apps/api/|packages/(activity|contract|messages|permissions|schemas|version)/|package\.json$|pnpm-lock\.yaml$|\.github/workflows/deploy-api\.yml$)'; then
+            changed=true
+          else
+            changed=false
+          fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "API changed: $changed"
+
+  deploy:
+    needs: detect
+    if: needs.detect.outputs.changed == 'true'
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

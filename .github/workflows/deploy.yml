@@ -1,8 +1,7 @@
 name: Deploy apps to Cloudflare Workers
 
 on:
-  push:
-    branches: [develop]
+  workflow_call:
   workflow_dispatch:
     inputs:
       apps:
