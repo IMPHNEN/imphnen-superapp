@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
@@ -25,3 +25,17 @@ jobs:
       - uses: ./.github/actions/setup-workspace
 
       - run: moon ci --color
+
+  deploy-api:
+    name: Deploy API
+    needs: ci
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+    uses: ./.github/workflows/deploy-api.yml
+    secrets: inherit
+
+  deploy-apps:
+    name: Deploy apps
+    needs: ci
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
