@@ -16,6 +16,17 @@ export const errorMapped = base.middleware(async ({ next }) => {
   }
 });
 
+export const sessionAvailable = base.middleware(async ({ context, next }) =>
+  match(context.sessionState)
+    .with(SESSION_STATE.UNAVAILABLE, () => {
+      throw new ORPCError('SERVICE_UNAVAILABLE', {
+        message: AUTH_MESSAGE.SESSION_UNAVAILABLE,
+      });
+    })
+    .with(SESSION_STATE.RESOLVED, SESSION_STATE.ANONYMOUS, () => next())
+    .exhaustive()
+);
+
 export const sessionRequired = base.middleware(async ({ context, next }) =>
   match({ state: context.sessionState, session: context.session })
     .with({ state: SESSION_STATE.UNAVAILABLE }, () => {

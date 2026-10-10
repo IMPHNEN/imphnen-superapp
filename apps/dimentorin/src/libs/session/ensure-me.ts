@@ -5,7 +5,7 @@ import {
 import { SESSION_QUERY_KEY } from '@imphnen-frontend-service/service/session';
 import { queryClient } from '@imphnen-frontend-service/utils';
 
-export type TMe = TClientOutputs['me']['get'];
+export type TMe = NonNullable<TClientOutputs['me']['get']>;
 
 const SESSION_STALE_TIME = 60_000;
 const UNAUTHORIZED = 'UNAUTHORIZED';

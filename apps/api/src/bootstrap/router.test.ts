@@ -13,6 +13,8 @@ import { SESSION_STATE, type TSession } from '#/shared/session.ts';
 
 const HTTP_UNAUTHORIZED = 401;
 const HTTP_FORBIDDEN = 403;
+const HTTP_SERVICE_UNAVAILABLE = 503;
+const ME_GET = 'me.get';
 const PATH_SEPARATOR = '.';
 const ENV_SEPARATOR = '=';
 const ENV_COMMENT = '#';
@@ -46,9 +48,8 @@ A.forEach(
 
 const { routerBuild } = await import('#/bootstrap/router.ts');
 
-const PUBLIC_PROCEDURES: readonly string[] = ['health.check'];
+const PUBLIC_PROCEDURES: readonly string[] = ['health.check', ME_GET];
 const SESSION_ONLY_PROCEDURES: readonly string[] = [
-  'me.get',
   'profile.get',
   'profile.update',
   'profile.avatarUpload',
@@ -141,7 +142,7 @@ describe('app router gates', () => {
     expect(A.map(procedures, (found) => found.name)).toEqual(
       expect.arrayContaining([
         'health.check',
-        'me.get',
+        ME_GET,
         'user.create',
         'role.remove',
         'activity.list',
@@ -184,6 +185,33 @@ describe('app router gates', () => {
         found.name,
         undefined,
       ])
+    );
+  });
+
+  it('answers me.get with null for an anonymous caller', async (): Promise<void> => {
+    const me = A.filter(procedures, isListed([ME_GET]));
+
+    expect(
+      await Promise.all(
+        A.map(
+          me,
+          (found): Promise<unknown> =>
+            call(found.procedure, undefined, { context: contextOf(null) })
+        )
+      )
+    ).toEqual([null]);
+  });
+
+  it('fails me.get while the session store is unavailable', async (): Promise<void> => {
+    const me = A.filter(procedures, isListed([ME_GET]));
+    const context = D.set(
+      contextOf(null),
+      'sessionState',
+      SESSION_STATE.UNAVAILABLE
+    );
+
+    expect(await statusesOf(me, context)).toEqual(
+      expectedStatuses(me, HTTP_SERVICE_UNAVAILABLE)
     );
   });
 });
