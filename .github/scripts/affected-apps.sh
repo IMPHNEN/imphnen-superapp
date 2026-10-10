@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Prints a JSON array of the apps whose deploy output a git range can change.
 # A change to packages/ or to the workspace manifests redeploys every app that
-# uses the shared packages; landing only depends on its own folder.
+# uses the shared packages; imphnenos and infra only depend on their own folders.
 set -euo pipefail
 
 range="$1"
 apps=(landing backoffice dimentorin gacha hackathon imphnenos infra qrcampaign)
-shared_users=(backoffice dimentorin gacha hackathon qrcampaign)
+shared_users=(landing backoffice dimentorin gacha hackathon qrcampaign)
 
 changed=$(git diff --name-only "$range")
 selected=()

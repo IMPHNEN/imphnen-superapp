@@ -5,12 +5,15 @@ import type { TORPCContext } from '#/platform/orpc/context.ts';
 import {
   errorMapped,
   permissionRequire,
+  sessionAvailable,
   sessionRequired,
 } from '#/platform/orpc/middleware.ts';
 
 export const implementer = implement(appContract)
   .$context<TORPCContext>()
   .use(errorMapped);
+
+export const sessionAware = implementer.use(sessionAvailable);
 
 export const sessionGuarded = implementer.use(sessionRequired);
 
