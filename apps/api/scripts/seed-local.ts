@@ -1,11 +1,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { hashPassword } from 'better-auth/crypto';
 import { SEED_DEFAULT_PASSWORD, SEED_ENV, SEED_USERS } from './seed-data.ts';
 import { seedSqlBuild } from './seed-sql.ts';
 
-const OUTPUT = new URL('../.wrangler/seed/seed-local.sql', import.meta.url)
-  .pathname;
+const OUTPUT = fileURLToPath(
+  new URL('../.wrangler/seed/seed-local.sql', import.meta.url)
+);
 const OUTPUT_ENCODING = 'utf8';
 
 const seedWrite = async (): Promise<void> => {
