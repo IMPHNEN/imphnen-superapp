@@ -165,7 +165,8 @@ function TestimonialSubmitForm(): ReactElement {
       )}
 
       {/* Form */}
-      <form
+      {myTestimonials.length === 0 && (
+        <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col gap-5"
       >
@@ -282,6 +283,7 @@ function TestimonialSubmitForm(): ReactElement {
           </a>
         </div>
       </form>
+      )}
 
       {myTestimonials.length > 0 && (
         <section className="mt-10">
