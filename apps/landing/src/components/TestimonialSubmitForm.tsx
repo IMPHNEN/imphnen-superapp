@@ -165,124 +165,126 @@ function TestimonialSubmitForm(): ReactElement {
       )}
 
       {/* Form */}
-      {myTestimonials.filter(v => v.status === "pending" || v.status === "approved").length === 0 && (
+      {myTestimonials.filter(
+        (v) => v.status === 'pending' || v.status === 'approved'
+      ).length === 0 && (
         <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col gap-5"
-      >
-        {/* Role field */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="testimonial-role"
-            className="text-sm font-semibold text-gray-700"
-          >
-            Role / Jabatan <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="testimonial-role"
-            type="text"
-            required
-            maxLength={TESTIMONIAL_ROLE_MAX_LENGTH}
-            placeholder="Contoh: Frontend Developer, Mahasiswa Informatika, dsb."
-            value={role}
-            onChange={(e) => {
-              setRole(e.target.value);
-              clearError();
-            }}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
-          />
-          <p className="text-xs text-gray-400">
-            {role.length}/{TESTIMONIAL_ROLE_MAX_LENGTH} karakter
-          </p>
-        </div>
-
-        {/* Content field */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="testimonial-content"
-            className="text-sm font-semibold text-gray-700"
-          >
-            Testimoni <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            id="testimonial-content"
-            required
-            minLength={CONTENT_MIN_LENGTH}
-            maxLength={TESTIMONIAL_CONTENT_MAX_LENGTH}
-            rows={6}
-            placeholder="Ceritakan pengalamanmu bergabung di IMPHNEN, apa yang kamu pelajari, dan bagaimana komunitas ini membantumu..."
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-              clearError();
-            }}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
-          />
-          <div className="flex justify-between text-xs text-gray-400">
-            <span>Minimal {CONTENT_MIN_LENGTH} karakter</span>
-            <span className={content.length > 900 ? 'text-orange-500' : ''}>
-              {content.length}/{TESTIMONIAL_CONTENT_MAX_LENGTH}
-            </span>
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col gap-5"
+        >
+          {/* Role field */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="testimonial-role"
+              className="text-sm font-semibold text-gray-700"
+            >
+              Role / Jabatan <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="testimonial-role"
+              type="text"
+              required
+              maxLength={TESTIMONIAL_ROLE_MAX_LENGTH}
+              placeholder="Contoh: Frontend Developer, Mahasiswa Informatika, dsb."
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value);
+                clearError();
+              }}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+            />
+            <p className="text-xs text-gray-400">
+              {role.length}/{TESTIMONIAL_ROLE_MAX_LENGTH} karakter
+            </p>
           </div>
-        </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={isPending}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isPending ? (
-              <>
-                <svg
-                  className="animate-spin w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+          {/* Content field */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="testimonial-content"
+              className="text-sm font-semibold text-gray-700"
+            >
+              Testimoni <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="testimonial-content"
+              required
+              minLength={CONTENT_MIN_LENGTH}
+              maxLength={TESTIMONIAL_CONTENT_MAX_LENGTH}
+              rows={6}
+              placeholder="Ceritakan pengalamanmu bergabung di IMPHNEN, apa yang kamu pelajari, dan bagaimana komunitas ini membantumu..."
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+                clearError();
+              }}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
+            />
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>Minimal {CONTENT_MIN_LENGTH} karakter</span>
+              <span className={content.length > 900 ? 'text-orange-500' : ''}>
+                {content.length}/{TESTIMONIAL_CONTENT_MAX_LENGTH}
+              </span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isPending ? (
+                <>
+                  <svg
+                    className="animate-spin w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Mengirim...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Mengirim...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                  />
-                </svg>
-                Kirim Testimoni
-              </>
-            )}
-          </button>
-          <a
-            href="/testimonials"
-            className="flex-1 inline-flex items-center justify-center rounded-xl border border-gray-300 text-gray-600 px-6 py-3 text-sm font-medium hover:bg-gray-50 transition-colors"
-          >
-            Batal
-          </a>
-        </div>
-      </form>
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                    />
+                  </svg>
+                  Kirim Testimoni
+                </>
+              )}
+            </button>
+            <a
+              href="/testimonials"
+              className="flex-1 inline-flex items-center justify-center rounded-xl border border-gray-300 text-gray-600 px-6 py-3 text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Batal
+            </a>
+          </div>
+        </form>
       )}
 
       {myTestimonials.length > 0 && (
