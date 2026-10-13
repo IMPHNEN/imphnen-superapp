@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useLogin } from '@/hooks/use-login';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 import { authClient } from '@imphnen-frontend-service/service';
 
 const ICON_ALERT = (

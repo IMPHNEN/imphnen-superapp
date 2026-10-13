@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { BiUpvote } from 'react-icons/bi';
 import { FiCheckCircle } from 'react-icons/fi';
 import { useRoadmap } from '@/hooks/use-roadmap';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 
 const byStatus = (
   items: readonly TRoadmapItem[],

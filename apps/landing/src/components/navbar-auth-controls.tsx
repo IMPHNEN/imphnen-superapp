@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useAuthControls } from '@/hooks/use-auth-controls';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 
 function NavbarAuthControls(): ReactElement {
   const { isAuthenticated, isSigningOut, signOut } = useAuthControls();
