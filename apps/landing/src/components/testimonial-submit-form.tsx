@@ -11,7 +11,7 @@ import {
   useSubmitGuard,
   useTestimonialSubmit,
 } from '@/hooks/use-testimonials';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 
 const CONTENT_MIN_LENGTH = 20;
 

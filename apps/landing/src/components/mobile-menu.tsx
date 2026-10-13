@@ -1,7 +1,7 @@
 import { type ReactElement, useEffect, useState } from 'react';
 import { LuMenu, LuX, LuLogIn, LuLogOut } from 'react-icons/lu';
 import { useAuthControls } from '@/hooks/use-auth-controls';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 
 interface Navigation {
   title: string;

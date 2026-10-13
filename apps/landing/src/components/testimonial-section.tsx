@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
 import { useLatestTestimonials } from '@/hooks/use-testimonials';
-import { withQueryClient } from './providers/QueryIsland';
+import { withQueryClient } from './providers/query-island';
 
 const AVATAR_COLORS = [
   'bg-primary-500 text-white',
